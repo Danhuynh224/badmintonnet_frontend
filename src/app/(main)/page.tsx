@@ -1,112 +1,303 @@
-"use client";
-import { clientSessionToken } from "@/lib/http";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-export default function Home() {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+import {
+  TrophyIcon,
+  UsersIcon,
+  ChartBarIcon,
+  CpuChipIcon,
+  UserCircleIcon,
+  BuildingOfficeIcon,
+  ClipboardDocumentListIcon,
+  BuildingStorefrontIcon,
+} from "@heroicons/react/24/outline";
 
-  useEffect(() => {
-    setAccessToken(clientSessionToken.value);
-    console.log("accessToken", clientSessionToken.value);
-  }, []);
+export default function Home() {
+  // Mock data
+  const features = [
+    {
+      icon: TrophyIcon,
+      title: "Quản lý giải đấu",
+      description:
+        "Tổ chức và quản lý các giải đấu cầu lông một cách chuyên nghiệp với hệ thống bốc thăm tự động.",
+    },
+    {
+      icon: UsersIcon,
+      title: "Câu lạc bộ & buổi đánh",
+      description:
+        "Kết nối với các câu lạc bộ địa phương và tìm kiếm đối thủ phù hợp với trình độ của bạn.",
+    },
+    {
+      icon: ChartBarIcon,
+      title: "Xếp hạng trình độ",
+      description:
+        "Hệ thống ELO rating chính xác giúp đánh giá và xếp hạng trình độ của từng người chơi.",
+    },
+    {
+      icon: CpuChipIcon,
+      title: "AI hỗ trợ",
+      description:
+        "Trí tuệ nhân tạo phân tích lối chơi và đưa ra gợi ý cải thiện kỹ thuật cá nhân.",
+    },
+  ];
+
+  const steps = [
+    {
+      step: "01",
+      title: "Đăng ký tài khoản",
+      description: "Tạo tài khoản miễn phí và hoàn thiện hồ sơ cầu thủ của bạn",
+    },
+    {
+      step: "02",
+      title: "Tham gia CLB hoặc giải",
+      description: "Tìm kiếm và tham gia các câu lạc bộ hoặc giải đấu phù hợp",
+    },
+    {
+      step: "03",
+      title: "Thi đấu & tích lũy điểm",
+      description: "Tham gia thi đấu, ghi nhận kết quả và nâng cao xếp hạng",
+    },
+  ];
+
+  const benefits = [
+    {
+      icon: UserCircleIcon,
+      title: "Người chơi",
+      items: [
+        "Tìm đối thủ phù hợp trình độ",
+        "Theo dõi tiến bộ cá nhân",
+        "Tham gia giải đấu chuyên nghiệp",
+        "Kết nối cộng đồng cầu lông",
+      ],
+    },
+    {
+      icon: UsersIcon,
+      title: "Câu lạc bộ",
+      items: [
+        "Quản lý thành viên hiệu quả",
+        "Tổ chức sự kiện dễ dàng",
+        "Theo dõi hoạt động CLB",
+        "Mở rộng thành viên mới",
+      ],
+    },
+    {
+      icon: BuildingStorefrontIcon,
+      title: "Nhà tài trợ",
+      items: [
+        "Quảng bá thương hiệu qua giải đấu",
+        "Tiếp cận cộng đồng cầu lông rộng lớn",
+        "Đồng hành cùng các sự kiện thể thao",
+        "Xây dựng hình ảnh chuyên nghiệp",
+      ],
+    },
+  ];
+
+  const testimonials = [
+    {
+      name: "Nguyễn Văn Minh",
+      role: "Chủ nhiệm CLB Sao Mai",
+      avatar: "/api/placeholder/64/64",
+      content:
+        "BadmintonNet đã giúp CLB chúng tôi quản lý thành viên và tổ chức giải đấu một cách chuyên nghiệp. Rất hài lòng với nền tảng này!",
+    },
+    {
+      name: "Trần Thị Lan Anh",
+      role: "Vận động viên nghiệp dư",
+      avatar: "/api/placeholder/64/64",
+      content:
+        "Tôi đã tìm được rất nhiều đối thủ phù hợp và cải thiện trình độ đáng kể nhờ hệ thống xếp hạng chính xác của BadmintonNet.",
+    },
+    {
+      name: "Lê Hoàng Nam",
+      role: "Vận động viên nghiệp dư",
+      avatar: "/api/placeholder/64/64",
+      content:
+        "Việc tổ chức giải đấu trở nên dễ dàng hơn bao giờ hết. Hệ thống bốc thăm và quản lý kết quả rất tiện lợi và minh bạch.",
+    },
+  ];
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      {/* Header */}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-green-600 to-blue-600 text-white">
+        <div className="absolute inset-0 bg-black opacity-20"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              Kết nối cộng đồng <br />
+              <span className="text-yellow-300">cầu lông Việt Nam</span>
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+              Nền tảng toàn diện cho người yêu cầu lông - Tìm đối thủ, tham gia
+              giải đấu, nâng cao trình độ với công nghệ AI hiện đại
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-4 rounded-lg text-lg font-semibold transition-colors shadow-lg">
+                Đăng ký miễn phí
+              </button>
+              <button className="border-2 border-white hover:bg-white hover:text-green-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+                Khám phá sự kiện
+              </button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          {accessToken ? "Có token" : "null"}
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Tính năng nổi bật
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Khám phá những công cụ mạnh mẽ giúp bạn trải nghiệm cầu lông tốt
+              nhất
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+              >
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                  <feature.icon className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works Section */}
+      <section id="how-it-works" className="py-20 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Cách hoạt động
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Chỉ 3 bước đơn giản để bắt đầu hành trình cầu lông của bạn
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps.map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="w-16 h-16 bg-green-600 dark:bg-green-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto">
+                  {step.step}
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section id="benefits" className="py-20 bg-gray-50 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Lợi ích cho mọi đối tượng
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              BadmintonNet mang lại giá trị cho tất cả mọi người trong cộng đồng
+              cầu lông
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {benefits.map((benefit, index) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-6">
+                  <benefit.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                  {benefit.title}
+                </h3>
+                <ul className="space-y-2">
+                  {benefit.items.map((item, itemIndex) => (
+                    <li
+                      key={itemIndex}
+                      className="text-gray-600 dark:text-gray-300 flex items-center"
+                    >
+                      <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full mr-3"></div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Người dùng nói gì về chúng tôi
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Hàng nghìn người dùng đã tin tưởng và sử dụng BadmintonNet
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl"
+              >
+                <p className="text-gray-700 dark:text-gray-300 mb-4 italic">
+                  {testimonial.content}
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-full mr-4"></div>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {testimonial.role}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-green-600 to-blue-600 text-white">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Sẵn sàng bắt đầu hành trình cầu lông?
+          </h2>
+          <p className="text-xl mb-8">
+            Tham gia cùng hàng nghìn người chơi cầu lông trên khắp Việt Nam
+          </p>
+          <button className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-4 rounded-lg text-lg font-semibold transition-colors shadow-lg">
+            Bắt đầu miễn phí ngay
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
     </div>
   );
 }

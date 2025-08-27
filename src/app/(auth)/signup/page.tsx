@@ -47,7 +47,7 @@ const RegisterPage = () => {
           </div>
 
           <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-700 mb-2 tracking-tight">
-            SportsNet
+            BadmintonNet
           </h1>
 
           <div className="flex items-center justify-center gap-2 mb-4">

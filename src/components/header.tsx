@@ -7,7 +7,8 @@ import LogoutButton from "@/components/button-logout";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
-    { name: "Sự kiện", href: "/events/create" },
+    { name: "Sự kiện", href: "/events" },
+    { name: "Câu lạc bộ", href: "/clubs" },
     { name: "Về chúng tôi", href: "/about" },
     { name: "Liên hệ", href: "/contact" },
   ];
@@ -20,8 +21,8 @@ export default async function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center group">
-          <span className="text-3xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 group-hover:from-blue-700 group-hover:to-blue-500 dark:group-hover:from-blue-500 dark:group-hover:to-blue-400 tracking-tighter transition-all duration-300 drop-shadow-md">
-            SportsNet
+          <span className="text-3xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-400 dark:from-green-400 dark:to-blue-300 group-hover:from-blue-700 group-hover:to-blue-500 dark:group-hover:from-blue-500 dark:group-hover:to-blue-400 tracking-tighter transition-all duration-300 drop-shadow-md">
+            BadmintonNet
           </span>
         </Link>
 

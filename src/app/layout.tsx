@@ -3,11 +3,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Header from "@/components/header";
 import { Toaster } from "sonner";
 import { cookies } from "next/headers";
-import { clientSessionToken } from "@/lib/http";
 import AppProvider from "@/app/app-provider";
+import Footer from "@/components/footer";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -30,7 +29,7 @@ export default async function RootLayout({
   const deviceId = cookieStore.get("deviceId")?.value || "";
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased  pt-16`}>
+      <body className={`${inter.variable} antialiased  `}>
         <Toaster />
         <ThemeProvider
           attribute="class"

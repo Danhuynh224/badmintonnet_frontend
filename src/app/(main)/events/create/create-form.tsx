@@ -359,19 +359,21 @@ const CreateEventForm = () => {
                       </div>
                     </FormControl>
                     {coverImagePreview && (
-                      <div className="relative mt-4">
-                        <img
-                          src={coverImagePreview}
-                          alt="Cover preview"
-                          className="w-full max-w-md h-48 object-cover rounded-md shadow-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={removeCoverImage}
-                          className="absolute top-2 right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1 hover:bg-red-600 dark:hover:bg-red-700"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
+                      <div className="flex justify-center mt-4">
+                        <div className="relative ">
+                          <img
+                            src={coverImagePreview}
+                            alt="Cover preview"
+                            className="w-full max-w-md h-48 object-cover rounded-md shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={removeCoverImage}
+                            className="absolute top-2 right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1 hover:bg-red-600 dark:hover:bg-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     )}
                     <FormMessage className="text-red-500 dark:text-red-400 text-xs" />
@@ -406,7 +408,7 @@ const CreateEventForm = () => {
                         </div>
                       </div>
                     </FormControl>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                    <div className=" grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
                       {imagesPreview.map((src, index) => (
                         <div key={index} className="relative">
                           <img
