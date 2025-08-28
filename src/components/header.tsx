@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { ModeToggle } from "@/components/dark-toggle";
 import { cookies } from "next/headers";
 import LogoutButton from "@/components/button-logout";
+import MobileMenu from "@/components/mobile-menu";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
@@ -81,23 +82,10 @@ export default async function Header() {
             variant="ghost"
             size="icon"
             className="md:hidden text-gray-700 dark:text-gray-200"
-          >
-            <Link href="/menu">
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
-            </Link>
-          </Button>
+          ></Button>
+          <div className="md:hidden">
+            <MobileMenu navItems={navItems} accessToken={!!accessToken} />
+          </div>
           <ModeToggle />
         </div>
       </div>

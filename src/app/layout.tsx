@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SportNet",
+  title: "BadmintonNet",
   description: "Ứng dụng kết nối người hâm mộ thể thao",
 };
 

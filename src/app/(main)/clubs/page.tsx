@@ -10,17 +10,22 @@ import Link from "next/link";
 const ClubList = async ({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
-  const clubOwner = isClubOwner(accessToken?.value || "");
+  // const clubOwner = isClubOwner(accessToken?.value || "");
   // Extract page number from query params, default to 0
-  const page = parseInt(searchParams.page || "0", 10);
+  const params = await searchParams;
+  const page = parseInt(params.page || "0", 10);
   const size = 20; // Match the API's default page size
 
   // Fetch clubs dynamically from the API
-  const response = await clubServiceApi.getAllPublicClubs(page, size);
+  const response = await clubServiceApi.getAllPublicClubs(
+    page,
+    size,
+    accessToken?.value
+  );
   const clubs = response.payload.data.content;
   const { totalPages, page: currentPage, last } = response.payload.data;
 
@@ -35,7 +40,7 @@ const ClubList = async ({
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
             Tìm kiếm và tham gia các câu lạc bộ cầu lông phù hợp với bạn
           </p>
-          {!clubOwner && <CreateClubButton />}
+          {<CreateClubButton />}
         </div>
 
         {/* Clubs Grid */}
@@ -48,40 +53,42 @@ const ClubList = async ({
               >
                 {/* Card Header with Logo */}
                 <div className="relative p-6 pb-4">
-                  <div className="absolute top-4 right-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-lg">
-                      <Image
-                        src={club.logoUrl || ""}
-                        alt={`${club.name} logo`}
-                        width={48}
-                        height={48}
-                        className="w-full h-full object-cover"
-                        priority={false}
-                      />
+                  <Link href={`/clubs/${club.id}`}>
+                    <div className="absolute top-4 right-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-gray-700 shadow-lg">
+                        <Image
+                          src={club.logoUrl || ""}
+                          alt={`${club.name} logo`}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover"
+                          priority={false}
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Club Name */}
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 pr-16">
-                    {club.name}
-                  </h3>
+                    {/* Club Name */}
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 pr-16">
+                      {club.name}
+                    </h3>
 
-                  {/* Description */}
-                  <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-4">
-                    {club.description}
-                  </p>
+                    {/* Description */}
+                    <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-4">
+                      {club.description}
+                    </p>
 
-                  {/* Location */}
-                  <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
-                    <MapPin className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
-                    {club.location}
-                  </div>
+                    {/* Location */}
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
+                      <MapPin className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
+                      {club.location}
+                    </div>
 
-                  {/* Members Count */}
-                  <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
-                    <Users className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
-                    {club.maxMembers} thành viên
-                  </div>
+                    {/* Members Count */}
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-4">
+                      <Users className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
+                      {club.maxMembers} thành viên
+                    </div>
+                  </Link>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-4">
