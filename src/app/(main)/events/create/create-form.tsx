@@ -130,12 +130,12 @@ const CreateEventForm = () => {
       }
 
       const uploadImageResult = await eventApiRequest.uploadImage(formData);
-      const uploadedImageUrls = uploadImageResult.payload.data.fileNames;
-      console.log("Uploaded image URLs:", uploadedImageUrls);
+      // const uploadedImageUrls = uploadImageResult.payload.data.fileNames;
+      // console.log("Uploaded image URLs:", uploadedImageUrls);
       await eventApiRequest.createEvent({
         ...data,
-        coverImage: uploadedImageUrls[0],
-        images: uploadedImageUrls.slice(1),
+        // coverImage: uploadedImageUrls[0],
+        // images: uploadedImageUrls.slice(1),
       });
 
       toast.success("Tạo sự kiện thành công!");

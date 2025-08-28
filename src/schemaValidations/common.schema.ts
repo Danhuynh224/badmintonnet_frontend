@@ -12,7 +12,7 @@ export const FileRes = z.object({
   status: z.string(),
   message: z.string(),
   data: z.object({
-    fileNames: z.array(z.string()),
+    fileName: z.string(),
   }),
 });
 

@@ -22,6 +22,8 @@ import {
   CreateClubBodyType,
 } from "@/schemaValidations/clubs.schema";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import clubServiceApi from "@/apiRequest/club";
+import authApiRequest from "@/apiRequest/auth";
 
 const CreateClubForm = () => {
   const [loading, setLoading] = useState(false);
@@ -82,8 +84,19 @@ const CreateClubForm = () => {
     if (loading) return;
     setLoading(true);
     try {
-      console.log("Submit:", values);
+      const formData = new FormData();
+      if (logoFile) {
+        formData.append("file", logoFile);
+        // Gọi API upload ảnh
+      }
+      const uploadRes = await clubServiceApi.uploadImage(formData);
+      const uploadedImageUrl = uploadRes.payload.data.fileName;
+      await clubServiceApi.createClub({
+        ...values,
+        logoUrl: uploadedImageUrl || "",
+      });
       toast.success("Tạo câu lạc bộ thành công");
+      await authApiRequest.refreshSession();
       form.reset();
       setLogoFile(null);
       setLogoPreview("");
