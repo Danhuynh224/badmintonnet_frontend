@@ -12,19 +12,27 @@ export default async function MyClubs({
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
 
-  // Lấy page từ query param
+  // Lấy params từ URL
   const params = (await searchParams) || {};
   const page = parseInt(params.page || "0", 10);
   const size = 10;
-  let response;
+
+  let clubsResponse;
   let clubs;
+  let totalPages = 0;
+  let currentPage = 0;
+
   try {
-    response = await clubServiceApi.getMyClubs(
+    // Lấy danh sách clubs
+    clubsResponse = await clubServiceApi.getMyClubs(
       page,
       size,
       accessToken?.value || ""
     );
-    clubs = response.payload.data.content;
+    clubs = clubsResponse.payload.data.content;
+
+    totalPages = clubsResponse.payload.data.totalPages;
+    currentPage = clubsResponse.payload.data.page;
   } catch (error) {
     console.log("Error fetching clubs:", error);
     return (
@@ -36,11 +44,9 @@ export default async function MyClubs({
     );
   }
 
-  const { totalPages, page: currentPage, last } = response.payload.data;
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-6xl  mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -145,7 +151,7 @@ export default async function MyClubs({
           ))}
         </div>
 
-        {/* Empty state */}
+        {/* Empty state for clubs */}
         {clubs.length === 0 && (
           <div className="text-center py-16">
             <Users className="w-12 h-12 mx-auto text-gray-400" />
@@ -158,7 +164,7 @@ export default async function MyClubs({
           </div>
         )}
 
-        {/* Pagination */}
+        {/* Pagination for clubs */}
         {clubs.length > 0 && totalPages > 1 && (
           <div className="flex justify-center items-center mt-8 space-x-4">
             <Link
@@ -179,7 +185,7 @@ export default async function MyClubs({
             <Link
               href={`?page=${currentPage + 1}`}
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                last
+                currentPage >= totalPages - 1
                   ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed pointer-events-none"
                   : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               }`}

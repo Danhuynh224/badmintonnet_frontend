@@ -1,13 +1,15 @@
 import React from "react";
-import { Calendar, MapPin, Users, Edit } from "lucide-react";
+import { Calendar, MapPin, Users, Edit, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from "next/link";
 
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
 import ClubMembers from "@/app/(main)/my-clubs/_components/member";
+import { CreateEventClubButton } from "@/app/(main)/my-clubs/_components/create-event-club-button";
 
 interface ClubDetailPageProps {
   params: Promise<{ id: string }>;
@@ -74,12 +76,15 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
                 </div>
               </div>
               {clubDetail.owner && (
-                <Button
-                  variant="outline"
-                  className="flex-shrink-0 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <Edit className="h-4 w-4 mr-1" /> Chỉnh sửa CLB
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <Edit className="h-4 w-4 mr-1" /> Chỉnh sửa CLB
+                  </Button>
+                  <CreateEventClubButton clubId={clubDetail.id} />
+                </div>
               )}
             </CardHeader>
             <CardContent>
@@ -110,13 +115,44 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
         </div>
 
         {/* Sidebar */}
-
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-6">
           <ClubMembers
             id={clubDetail.id}
             accessToken={accessToken?.value || ""}
             isOwner={clubDetail.owner}
           />
+          
+          {/* Danh sách hoạt động gần đây */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Hoạt động gần đây
+              </h3>
+              <Link
+                href={`/my-clubs/events?clubId=${clubDetail.id}`}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Xem tất cả
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {/* Placeholder cho danh sách hoạt động */}
+              <div className="text-center py-8">
+                <Calendar className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Chưa có hoạt động nào
+                </p>
+                {clubDetail.owner && (
+                  <Link
+                    href={`/my-clubs/create-event?clubId=${clubDetail.id}`}
+                    className="inline-block mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Tạo hoạt động đầu tiên
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

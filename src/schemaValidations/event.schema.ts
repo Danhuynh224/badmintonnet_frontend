@@ -4,6 +4,11 @@ import z from "zod";
 const EventTypeEnum = z.enum(["TOURNAMENT", "TRAINING", "CLUB_ACTIVITY"]);
 const SportTypeEnum = z.enum(["BADMINTON", "FOOTBALL"]);
 
+// Badminton Category Enum
+const BadmintonCategoryEnum = z.enum([
+  "MEN_SINGLE", "WOMEN_SINGLE", "MEN_DOUBLE", "WOMEN_DOUBLE", "MIXED_DOUBLE"
+]);
+
 // Schema for file uploads (MultipartFile in Java)
 const FileSchema = z
   .any()
@@ -51,4 +56,53 @@ export const CreateEventBody = z.object({
   sportRule: z.record(z.string(), z.any()).optional(),
 });
 
+// Schema for creating event clubs
+export const CreateEventClubBody = z.object({
+  title: z
+    .string()
+    .min(1, "Tiêu đề là bắt buộc")
+    .max(256, "Tiêu đề không được quá 256 ký tự"),
+  description: z
+    .string()
+    .min(1, "Mô tả là bắt buộc")
+    .max(10000, "Mô tả không được quá 10000 ký tự"),
+  image: z.string().optional(),
+  location: z
+    .string()
+    .min(1, "Địa điểm là bắt buộc")
+    .max(256, "Địa điểm không được quá 256 ký tự"),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Ngày không hợp lệ",
+  }),
+  startTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Thời gian bắt đầu không hợp lệ",
+  }),
+  endTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Thời gian kết thúc không hợp lệ",
+  }),
+  totalMember: z
+    .number()
+    .int()
+    .positive("Tổng số thành viên phải là số nguyên dương"),
+  type: z.array(BadmintonCategoryEnum).min(1, "Phải chọn ít nhất một loại hình"),
+  fee: z
+    .number()
+    .min(0, "Phí không được âm")
+    .optional(),
+  deadline: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Hạn đăng ký không hợp lệ",
+  }),
+  openForOutside: z.boolean(),
+  maxClubMembers: z
+    .number()
+    .int()
+    .positive("Số thành viên CLB tối đa phải là số nguyên dương"),
+  maxOutsideMembers: z
+    .number()
+    .int()
+    .min(0, "Số thành viên ngoài tối đa không được âm"),
+  clubId: z.string().min(1, "ID CLB là bắt buộc"),
+});
+
 export type CreateEventBodyType = z.infer<typeof CreateEventBody>;
+export type CreateEventClubBodyType = z.infer<typeof CreateEventClubBody>;
