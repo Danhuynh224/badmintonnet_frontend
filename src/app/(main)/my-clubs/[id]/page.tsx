@@ -10,7 +10,7 @@ import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
 import ClubMembers from "@/app/(main)/my-clubs/_components/member";
 import { CreateEventClubButton } from "@/app/(main)/my-clubs/_components/create-event-club-button";
-import ClubEvents from "@/app/(main)/my-clubs/[id]/events/ClubEvents";
+import ClubEvents from "@/app/(main)/my-clubs/[id]/events/club-event";
 
 interface ClubDetailPageProps {
   params: Promise<{ id: string }>;
@@ -48,7 +48,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex-1">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Image
-                src={clubDetail. logoUrl || ""}
+                src={clubDetail.logoUrl || ""}
                 alt={`${clubDetail.name} logo`}
                 width={80}
                 height={80}
@@ -125,7 +125,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
             accessToken={accessToken?.value || ""}
             isOwner={clubDetail.owner}
           />
-          
+
           {/* Danh sách hoạt động gần đây */}
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1">
             <div className="flex items-center justify-between mb-4">
@@ -160,7 +160,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
         </div>
       </div>
       {/* Full-screen component */}
-      <ClubEvents searchParams={{ clubId: clubDetail.id }} />
+      <ClubEvents searchParams={Promise.resolve({ clubId: clubDetail.id })} />
     </div>
   );
 }

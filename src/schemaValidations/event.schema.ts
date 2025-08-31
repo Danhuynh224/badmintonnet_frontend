@@ -6,7 +6,19 @@ const SportTypeEnum = z.enum(["BADMINTON", "FOOTBALL"]);
 
 // Badminton Category Enum
 const BadmintonCategoryEnum = z.enum([
-  "MEN_SINGLE", "WOMEN_SINGLE", "MEN_DOUBLE", "WOMEN_DOUBLE", "MIXED_DOUBLE"
+  "MEN_SINGLE",
+  "WOMEN_SINGLE",
+  "MEN_DOUBLE",
+  "WOMEN_DOUBLE",
+  "MIXED_DOUBLE",
+]);
+
+const EventStatusEnum = z.enum([
+  "DRAFT",
+  "OPEN",
+  "CLOSED",
+  "FINISHED",
+  "CANCELLED",
 ]);
 
 // Schema for file uploads (MultipartFile in Java)
@@ -28,6 +40,7 @@ export const CreateEventBody = z.object({
     .optional(),
   coverImage: z.string(),
   images: z.string().array().optional(),
+
   location: z
     .string()
     .max(256, "Location must be 256 characters or less")
@@ -66,14 +79,16 @@ export const CreateEventClubBody = z.object({
     .string()
     .min(1, "Mô tả là bắt buộc")
     .max(10000, "Mô tả không được quá 10000 ký tự"),
+  requirements: z
+    .string()
+    .max(1000, "Yêu cầu không được quá 1000 ký tự")
+    .optional(),
+  coverImage: z.string().optional(),
   image: z.string().optional(),
   location: z
     .string()
     .min(1, "Địa điểm là bắt buộc")
     .max(256, "Địa điểm không được quá 256 ký tự"),
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Ngày không hợp lệ",
-  }),
   startTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Thời gian bắt đầu không hợp lệ",
   }),
@@ -84,11 +99,10 @@ export const CreateEventClubBody = z.object({
     .number()
     .int()
     .positive("Tổng số thành viên phải là số nguyên dương"),
-  type: z.array(BadmintonCategoryEnum).min(1, "Phải chọn ít nhất một loại hình"),
-  fee: z
-    .number()
-    .min(0, "Phí không được âm")
-    .optional(),
+  type: z
+    .array(BadmintonCategoryEnum)
+    .min(1, "Phải chọn ít nhất một loại hình"),
+  fee: z.number().min(0, "Phí không được âm").optional(),
   deadline: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Hạn đăng ký không hợp lệ",
   }),
@@ -106,3 +120,33 @@ export const CreateEventClubBody = z.object({
 
 export type CreateEventBodyType = z.infer<typeof CreateEventBody>;
 export type CreateEventClubBodyType = z.infer<typeof CreateEventClubBody>;
+
+export const EventSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  image: z.string().optional(),
+  location: z.string(),
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
+  totalMember: z.number().int(),
+  joinedMember: z.number().int(),
+  fee: z.number().optional(),
+  categories: z.array(BadmintonCategoryEnum).optional(),
+  status: EventStatusEnum,
+});
+
+export const PagedEventResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(EventSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type EventType = z.infer<typeof EventSchema>;
+export type PagedEventResponseType = z.infer<typeof PagedEventResponse>;

@@ -4,7 +4,9 @@ interface CreateActivityPageProps {
   searchParams: Promise<{ clubId?: string }>;
 }
 
-export default async function CreateActivityPage({ searchParams }: CreateActivityPageProps) {
+export default async function CreateActivityPage({
+  searchParams,
+}: CreateActivityPageProps) {
   const { clubId } = await searchParams;
 
   if (!clubId) {
@@ -31,10 +33,22 @@ export default async function CreateActivityPage({ searchParams }: CreateActivit
 
       {/* Floating particles */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-400/40 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-        <div className="absolute top-3/4 left-3/4 w-1.5 h-1.5 bg-cyan-400/40 rounded-full animate-bounce" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/6 w-1 h-1 bg-indigo-400/40 rounded-full animate-bounce" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/6 right-1/4 w-2 h-2 bg-pink-400/40 rounded-full animate-bounce" style={{ animationDelay: '1.5s' }} />
+        <div
+          className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-400/40 rounded-full animate-bounce"
+          style={{ animationDelay: "0s" }}
+        />
+        <div
+          className="absolute top-3/4 left-3/4 w-1.5 h-1.5 bg-cyan-400/40 rounded-full animate-bounce"
+          style={{ animationDelay: "1s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/6 w-1 h-1 bg-indigo-400/40 rounded-full animate-bounce"
+          style={{ animationDelay: "2s" }}
+        />
+        <div
+          className="absolute top-1/6 right-1/4 w-2 h-2 bg-pink-400/40 rounded-full animate-bounce"
+          style={{ animationDelay: "1.5s" }}
+        />
       </div>
 
       <div className="relative z-10 w-full max-w-6xl">
@@ -44,13 +58,13 @@ export default async function CreateActivityPage({ searchParams }: CreateActivit
             <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
             Tạo hoạt động thể thao mới
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 dark:from-purple-400 dark:via-indigo-400 dark:to-cyan-400 bg-clip-text text-transparent mb-6 leading-tight">
             Tạo Hoạt Động
           </h1>
-          
+
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed font-light">
-            Tổ chức các buổi tập luyện, giải đấu và sự kiện đặc biệt. 
+            Tổ chức các buổi tập luyện, giải đấu và sự kiện đặc biệt.
             <span className="block mt-2 text-lg text-gray-500 dark:text-gray-500">
               Kết nối thành viên qua những hoạt động thú vị và bổ ích.
             </span>
@@ -61,21 +75,14 @@ export default async function CreateActivityPage({ searchParams }: CreateActivit
         <div className="relative">
           {/* Glass card effect */}
           <div className="absolute inset-0 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 shadow-2xl"></div>
-          
+
           {/* Inner glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 via-transparent to-cyan-100/20 dark:from-purple-900/10 dark:via-transparent dark:to-cyan-900/10 rounded-3xl"></div>
-          
+
           {/* Form content */}
           <div className="relative z-10 p-10 md:p-16">
             {/* Icon section */}
-            <div className="flex justify-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                </svg>
-              </div>
-            </div>
-            
+
             <CreateEventClubForm clubId={clubId} />
           </div>
         </div>

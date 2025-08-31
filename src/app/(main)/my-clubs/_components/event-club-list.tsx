@@ -2,23 +2,30 @@ import { EventClubCard } from "./event-club-card";
 import { Calendar, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
+import { EventType } from "@/schemaValidations/event.schema";
 
 interface EventClubListProps {
-  events: any[];
+  events: EventType[];
   totalPages: number;
   currentPage: number;
   clubId?: string;
   accessToken: string;
 }
 
-export const EventClubList = ({ 
-  events, 
-  totalPages, 
-  currentPage, 
+export const EventClubList = ({
+  events,
+  totalPages,
+  currentPage,
   clubId,
-  accessToken 
+  accessToken,
 }: EventClubListProps) => {
   return (
     <div className="space-y-6">
@@ -32,7 +39,7 @@ export const EventClubList = ({
             {events.length} hoạt động được tìm thấy
           </p>
         </div>
-        
+
         {/* Nút tạo hoạt động mới */}
         {clubId && (
           <Link href={`/my-clubs/create-event?clubId=${clubId}`}>
@@ -92,7 +99,10 @@ export const EventClubList = ({
           </div>
 
           {/* Nút lọc */}
-          <Button variant="outline" className="border-gray-300 dark:border-gray-600">
+          <Button
+            variant="outline"
+            className="border-gray-300 dark:border-gray-600"
+          >
             <Filter className="w-4 h-4 mr-2" />
             Lọc
           </Button>
@@ -114,10 +124,9 @@ export const EventClubList = ({
             Chưa có hoạt động nào
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {clubId 
+            {clubId
               ? "Hãy tạo hoạt động đầu tiên cho câu lạc bộ của bạn"
-              : "Chưa có hoạt động nào được tổ chức"
-            }
+              : "Chưa có hoạt động nào được tổ chức"}
           </p>
           {clubId && (
             <Link href={`/my-clubs/create-event?clubId=${clubId}`}>
@@ -134,7 +143,9 @@ export const EventClubList = ({
       {events.length > 0 && totalPages > 1 && (
         <div className="flex justify-center items-center mt-8 space-x-4">
           <Link
-            href={`?page=${currentPage - 1}${clubId ? `&clubId=${clubId}` : ''}`}
+            href={`?page=${currentPage - 1}${
+              clubId ? `&clubId=${clubId}` : ""
+            }`}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               currentPage === 0
                 ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed pointer-events-none"
@@ -149,7 +160,9 @@ export const EventClubList = ({
           </span>
 
           <Link
-            href={`?page=${currentPage + 1}${clubId ? `&clubId=${clubId}` : ''}`}
+            href={`?page=${currentPage + 1}${
+              clubId ? `&clubId=${clubId}` : ""
+            }`}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               currentPage >= totalPages - 1
                 ? "bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed pointer-events-none"

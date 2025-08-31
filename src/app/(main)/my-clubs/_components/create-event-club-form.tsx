@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +41,7 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       description: "",
       image: "",
       location: "",
-      date: "",
+      requirements: "",
       startTime: "",
       endTime: "",
       totalMember: 4,
@@ -71,7 +72,9 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
       const formData = new FormData();
       if (imageFile) {
         formData.append("files", imageFile);
-        const uploadRes = await eventClubApiRequest.uploadImageClubEvent(formData);
+        const uploadRes = await eventClubApiRequest.uploadImageClubEvent(
+          formData
+        );
         const uploadedImageUrl = uploadRes.payload.data.fileName;
         values.image = uploadedImageUrl || "";
       }
@@ -224,20 +227,20 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
             </FormItem>
           )}
         />
-
-        {/* Ngày */}
+        {/* Yêu cầu tham gia */}
         <FormField
           control={form.control}
-          name="date"
+          name="requirements"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Ngày diễn ra
+                Yêu cầu tham gia
               </FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                <Textarea
+                  placeholder="Ví dụ: Người tham gia cần mang vợt riêng, có kinh nghiệm thi đấu..."
+                  rows={4}
+                  className="text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   {...field}
                 />
               </FormControl>
@@ -322,7 +325,13 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
                 Loại hình cầu lông
               </FormLabel>
               <div className="space-y-3">
-                {["MEN_SINGLE", "WOMEN_SINGLE", "MEN_DOUBLE", "WOMEN_DOUBLE", "MIXED_DOUBLE"].map((type) => (
+                {[
+                  "MEN_SINGLE",
+                  "WOMEN_SINGLE",
+                  "MEN_DOUBLE",
+                  "WOMEN_DOUBLE",
+                  "MIXED_DOUBLE",
+                ].map((type) => (
                   <FormField
                     key={type}
                     control={form.control}
@@ -428,17 +437,13 @@ const CreateEventClubForm = ({ clubId }: { clubId: string }) => {
                     <FormControl>
                       <RadioGroupItem value="true" />
                     </FormControl>
-                    <FormLabel className="text-sm font-normal">
-                      Có
-                    </FormLabel>
+                    <FormLabel className="text-sm font-normal">Có</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-2">
                     <FormControl>
                       <RadioGroupItem value="false" />
                     </FormControl>
-                    <FormLabel className="text-sm font-normal">
-                      Không
-                    </FormLabel>
+                    <FormLabel className="text-sm font-normal">Không</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>

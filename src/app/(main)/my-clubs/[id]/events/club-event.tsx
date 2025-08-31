@@ -3,9 +3,9 @@ import { EventClubList } from "../../_components/event-club-list";
 import { cookies } from "next/headers";
 
 interface EventsPageProps {
-  searchParams: Promise<{ 
-    page?: string; 
+  searchParams: Promise<{
     clubId?: string;
+    page?: string;
     status?: string;
     type?: string;
     search?: string;
@@ -35,8 +35,8 @@ export default async function ClubEvents({ searchParams }: EventsPageProps) {
     );
   }
 
-  let response: any;
-  let events: any[];
+  let response;
+  let events;
   let totalPages = 0;
   let currentPage = 0;
 
@@ -48,7 +48,7 @@ export default async function ClubEvents({ searchParams }: EventsPageProps) {
       size,
       accessToken?.value || ""
     );
-
+    console.log("Fetched events response:", response);
     events = response.payload.data.content || [];
     totalPages = response.payload.data.totalPages || 0;
     currentPage = response.payload.data.page || 0;
