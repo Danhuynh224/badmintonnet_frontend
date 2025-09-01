@@ -1,3 +1,4 @@
+import ClubProcessAnimation from "@/components/animation-component";
 import {
   TrophyIcon,
   UsersIcon,
@@ -183,24 +184,10 @@ export default function Home() {
               Cách hoạt động
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Chỉ 3 bước đơn giản để bắt đầu hành trình cầu lông của bạn
+              Chỉ 4 bước đơn giản để bắt đầu hành trình cầu lông của bạn
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-green-600 dark:bg-green-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 mx-auto">
-                  {step.step}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
+          <ClubProcessAnimation />
         </div>
       </section>
 
