@@ -5,6 +5,7 @@ import { ModeToggle } from "@/components/dark-toggle";
 import { cookies } from "next/headers";
 import MobileMenu from "@/components/mobile-menu";
 import UserMenu from "@/components/user-menu";
+import HeaderNav from "@/components/header-nav";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
@@ -28,17 +29,7 @@ export default async function Header() {
         </Link>
 
         {/* Menu Desktop */}
-        <nav className="hidden md:flex space-x-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
+        <HeaderNav />
 
         {/* Actions */}
         <div className="flex items-center space-x-4">
