@@ -111,13 +111,20 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
 
         {/* Tab Navigation */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 w-full lg:grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <TabsList className="grid w-full grid-cols-5 w-full lg:grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <TabsTrigger
               value="overview"
               className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300"
             >
               <Club className="h-4 w-4" />
               <span className="hidden sm:inline">Tổng quan</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="activity"
+              className="flex items-center gap-2 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300"
+            >
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Hoạt động</span>
             </TabsTrigger>
             <TabsTrigger
               value="members"
@@ -184,6 +191,14 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Activity Tab */}
+          <TabsContent value="activity" className="mt-6">
+            <ClubEvents
+              searchParams={Promise.resolve({ clubId: clubDetail.id })}
+              owner={clubDetail.owner}
+            />
           </TabsContent>
 
           {/* Members Tab */}
@@ -599,14 +614,6 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Bottom Section - Club Events (Always visible) */}
-        <div className="w-full">
-          <ClubEvents
-            searchParams={Promise.resolve({ clubId: clubDetail.id })}
-            owner={clubDetail.owner}
-          />
-        </div>
       </div>
     </div>
   );

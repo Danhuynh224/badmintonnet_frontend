@@ -70,7 +70,7 @@ export default async function ClubEvents({
   }
 
   return (
-    <div className="w-full bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="w-full bg-gray-50 dark:bg-gray-900">
       <div className="w-full">
         <EventClubList
           events={events}
