@@ -13,11 +13,15 @@ const navItems = [
 
 export default function HeaderNav() {
   const pathname = usePathname();
+  console.log("Pathname: ", pathname);
   return (
     <NavigationMenu.Root className="hidden md:block">
       <NavigationMenu.List className="flex space-x-8 items-center">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href);
           return (
             <NavigationMenu.Item key={item.name} className="flex-shrink-0">
               <NavigationMenu.Link asChild>

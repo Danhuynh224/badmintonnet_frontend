@@ -8,18 +8,9 @@ type CustomOptions = Omit<RequestInit, "method"> & {
   baseUrl?: string | undefined;
 };
 
-const ENTITY_ERROR_STATUS = 422;
 const AUTHENTICATION_ERROR_STATUS = 401;
-const CONFLICT_ERROR_STATUS = 409;
+const BAD_REQUEST_STATUS = 400;
 const SERVER_ERROR_STATUS = 500;
-
-type EntityErrorPayload = {
-  message: string;
-  errors: {
-    field: string;
-    message: string;
-  }[];
-};
 
 export class HttpError extends Error {
   status: number;
@@ -28,39 +19,7 @@ export class HttpError extends Error {
     [key: string]: any;
   };
   constructor({ status, payload }: { status: number; payload: any }) {
-    super("Http Error");
-    this.status = status;
-    this.payload = payload;
-  }
-}
-
-export class EntityError extends HttpError {
-  status: 422;
-  payload: EntityErrorPayload;
-  constructor({
-    status,
-    payload,
-  }: {
-    status: 422;
-    payload: EntityErrorPayload;
-  }) {
-    super({ status, payload });
-    this.status = status;
-    this.payload = payload;
-  }
-}
-
-export class ConflictError extends HttpError {
-  status: 409;
-  payload: EntityErrorPayload;
-  constructor({
-    status,
-    payload,
-  }: {
-    status: 409;
-    payload: EntityErrorPayload;
-  }) {
-    super({ status, payload });
+    super(payload?.message || "Http Error");
     this.status = status;
     this.payload = payload;
   }
@@ -159,10 +118,9 @@ const request = async <Response>(
     credentials: "include", // gửi cookie HttpOnly
   });
 
-  // Nếu accessToken hết hạn → gọi refresh
+  // 👉 Nếu accessToken hết hạn → refresh
   if (res.status === AUTHENTICATION_ERROR_STATUS) {
     if (typeof window !== "undefined") {
-      // 👉 Client side: gọi API backend để refresh
       try {
         const refreshRes = await fetch(
           `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/refresh`,
@@ -206,7 +164,6 @@ const request = async <Response>(
         location.href = "/login";
       }
     } else {
-      // 👉 Server side
       try {
         const refreshRes = await fetch(
           `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/refresh`,
@@ -257,35 +214,21 @@ const request = async <Response>(
     payload,
   };
 
+  // 👉 Chỉ tập trung xử lý 400, 401, 500
   if (!res.ok) {
-    if (res.status === ENTITY_ERROR_STATUS) {
-      throw new EntityError(
-        data as {
-          status: 422;
-          payload: EntityErrorPayload;
-        }
-      );
-    }
-
-    if (res.status === CONFLICT_ERROR_STATUS) {
-      throw new ConflictError(
-        data as {
-          status: 409;
-          payload: EntityErrorPayload;
-        }
-      );
-    }
-
-    if (res.status >= SERVER_ERROR_STATUS) {
-      // 👉 Quăng lỗi 500 để try/catch xử lý ở ngoài
+    if (
+      res.status === BAD_REQUEST_STATUS ||
+      res.status === AUTHENTICATION_ERROR_STATUS ||
+      res.status >= SERVER_ERROR_STATUS
+    ) {
       throw new HttpError({
         status: res.status,
-        payload: payload || { message: "Internal server error" },
+        payload: payload || { message: "Request failed" },
       });
     }
   }
 
-  // Lưu token sau khi login/register
+  // 👉 Lưu token sau login/register
   if (typeof window !== "undefined") {
     if (
       ["auth/login", "auth/register"].some(
