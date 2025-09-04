@@ -92,53 +92,55 @@ export default function ApprovedMembers({
             <MemberSkeleton />
           ) : approvedMembers.length > 0 ? (
             approvedMembers.map((member, index) => (
-              <div
-                key={member.id}
-                className={`group relative p-4 bg-white border-b dark:bg-gray-800`}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Avatar with online indicator */}
-                  <div className="relative">
-                    <Image
-                      src={member.avatar || "/user.png"}
-                      alt={member.name}
-                      width={56}
-                      height={56}
-                      className="h-14 w-14 rounded-full object-cover border-3 border-white dark:border-gray-700 shadow-md"
-                    />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
-                  </div>
-
-                  {/* Member Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
-                        {member.name}
-                      </h4>
-                      {member.role === "OWNER" && (
-                        <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">
-                          <Crown className="h-3 w-3 text-white" />
-                          <span className="text-xs font-medium text-white">
-                            Quản trị viên
-                          </span>
-                        </div>
-                      )}
+              <>
+                <div
+                  key={member.id}
+                  className={`group relative p-4 dark:bg-gray-800`}
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Avatar with online indicator */}
+                    <div className="relative">
+                      <Image
+                        src={member.avatar || "/user.png"}
+                        alt={member.name}
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 rounded-full object-cover border-3 border-white dark:border-gray-700 shadow-md"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                        Tham gia:{" "}
-                        {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        Thành viên
-                      </Badge>
-                    </div>
-                  </div>
 
-                  {/* Action Dropdown */}
-                  {member.role !== "OWNER" && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {/* Member Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
+                          {member.name}
+                        </h4>
+                        {member.role === "OWNER" && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">
+                            <Crown className="h-3 w-3 text-white" />
+                            <span className="text-xs font-medium text-white">
+                              Quản trị viên
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1">
+                          <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                          Tham gia:{" "}
+                          {new Date(member.joinedAt).toLocaleDateString(
+                            "vi-VN"
+                          )}
+                        </span>
+                        <Badge variant="outline" className="text-xs">
+                          Thành viên
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Action Dropdown */}
+                    {member.role !== "OWNER" && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -177,10 +179,13 @@ export default function ApprovedMembers({
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
+                {index < approvedMembers.length - 1 && (
+                  <hr className="border-t border-gray-200 dark:border-gray-700" />
+                )}
+              </>
             ))
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-center">
