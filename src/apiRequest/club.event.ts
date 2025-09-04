@@ -37,9 +37,9 @@ const eventClubApiRequest = {
     ),
   getEventById: (id: string, accessToken: string) =>
     http.get<EventDetailResponseType>(`/club-event/${id}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : undefined,
     }),
   joinEvent: (id: string, accessToken: string) =>
     http.post(`/club-event/join/${id}`, {

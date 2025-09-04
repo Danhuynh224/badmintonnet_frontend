@@ -13,10 +13,10 @@ export const JoinClubButton = ({ clubId, clubName }: JoinClubButtonProps) => {
   const accessToken = clientSessionToken.value;
   const router = useRouter();
   const handleJoinClub = async () => {
-    if (!accessToken) {
-      toast.error("Vui lòng đăng nhập để tham gia câu lạc bộ.");
-      return;
-    }
+    // if (!accessToken) {
+    //   toast.error("Vui lòng đăng nhập để tham gia câu lạc bộ.");
+    //   return;
+    // }
 
     try {
       const res = await clubServiceApi.joinClub(clubId, accessToken);

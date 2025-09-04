@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { cookies } from "next/headers";
 import AppProvider from "@/app/app-provider";
 import Footer from "@/components/footer";
+import RefreshToken from "@/components/refresh-token";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -31,6 +32,7 @@ export default async function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased  `}>
         <Toaster />
+        <RefreshToken />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

@@ -304,7 +304,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       }`}
                     >
                       <Link href={`/events/${event.id}`}>
-                        {isFull ? "Đã đầy" : "Đăng ký ngay"}
+                        {isFull ? "Đã đầy" : "Xem chi tiết"}
                       </Link>
                     </Button>
                   </CardContent>

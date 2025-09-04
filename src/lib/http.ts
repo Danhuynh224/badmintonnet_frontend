@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import envConfig from "@/config";
+
 import { normalizePath } from "@/lib/utils";
 import { LoginResType } from "@/schemaValidations/auth.schema";
 import { redirect } from "next/navigation";
@@ -123,7 +124,7 @@ const request = async <Response>(
     if (typeof window !== "undefined") {
       try {
         const refreshRes = await fetch(
-          `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/refresh`,
+          `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`,
           {
             method: "GET",
             headers: {
@@ -142,7 +143,7 @@ const request = async <Response>(
           clientSessionToken.value = accessToken;
           clientSessionToken.refreshValue = refreshToken;
           clientSessionToken.deviceIdValue = deviceId;
-
+          console.log("Sesion: ", accessToken);
           // retry request gốc
           res = await fetch(fullUrl, {
             ...options,
@@ -164,41 +165,7 @@ const request = async <Response>(
         location.href = "/login";
       }
     } else {
-      try {
-        const refreshRes = await fetch(
-          `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/refresh`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            cache: "no-store",
-          }
-        );
-
-        if (refreshRes.ok) {
-          const refreshData = await refreshRes.json();
-          const { accessToken, refreshToken, deviceId } = refreshData.data;
-
-          // retry request gốc
-          res = await fetch(fullUrl, {
-            ...options,
-            headers: {
-              ...baseHeaders,
-              Authorization: `Bearer ${accessToken}`,
-              "X-Device-Id": deviceId,
-              refreshToken,
-            },
-            body,
-            method,
-          });
-        } else {
-          redirect("/login");
-        }
-      } catch (err) {
-        console.error("Server refresh token failed:", err);
-        redirect("/login");
-      }
+      redirect("/login");
     }
   }
 

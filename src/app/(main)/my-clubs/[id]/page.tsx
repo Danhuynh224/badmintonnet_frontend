@@ -24,7 +24,6 @@ import Link from "next/link";
 
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
-import ClubMembers from "@/app/(main)/my-clubs/_components/member";
 import { CreateEventClubButton } from "@/app/(main)/my-clubs/_components/create-event-club-button";
 import ClubEvents from "@/app/(main)/my-clubs/[id]/events/club-event";
 import ApprovedMembers from "@/app/(main)/my-clubs/_components/approved-members";

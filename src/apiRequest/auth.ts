@@ -11,6 +11,6 @@ const authApiRequest = {
   register: (body: RegisterBodyType) =>
     http.post<RegisterResType>("auth/register", body),
   logout: () => http.post("auth/logout", {}),
-  refreshSession: () => http.get("auth/refresh", {}),
+  refreshSession: () => http.get<LoginResType>("auth/refresh", {}),
 };
 export default authApiRequest;

@@ -27,28 +27,28 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
   const accessToken = cookieStore.get("accessToken");
   const { id } = await params;
 
-  let eventDetail: EventDetailType;
-  try {
-    const response = await eventClubApiRequest.getEventById(
-      id,
-      accessToken?.value || ""
-    );
-    eventDetail = response.payload.data || null;
-  } catch (error) {
-    console.log("Error fetching event detail:", error);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <X className="w-8 h-8 text-red-500" />
-          </div>
-          <p className="text-red-600 dark:text-red-400 font-medium">
-            Đã có lỗi xảy ra khi tải chi tiết sự kiện.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // let eventDetail: EventDetailType;
+  // try {
+  const response = await eventClubApiRequest.getEventById(
+    id,
+    accessToken?.value || ""
+  );
+  const eventDetail = response.payload.data || null;
+  // } catch (error) {
+  //   console.log("Error fetching event detail:", error);
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+  //       <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
+  //         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+  //           <X className="w-8 h-8 text-red-500" />
+  //         </div>
+  //         <p className="text-red-600 dark:text-red-400 font-medium">
+  //           Đã có lỗi xảy ra khi tải chi tiết sự kiện.
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (!eventDetail) {
     return (
