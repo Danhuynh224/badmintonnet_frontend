@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { MapPin, Users, Calendar } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
+import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
 
 interface ClubDetailPageProps {
   params: Promise<{ id: string }>;
@@ -77,9 +78,7 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Hành động
             </h2>
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors dark:bg-green-500 dark:hover:bg-green-600">
-              Tham gia CLB
-            </button>
+            <JoinClubButton clubId={club.id} clubName={club.name} />
           </div>
         </div>
       </div>
