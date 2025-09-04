@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Avatar, MemberSkeleton } from "./member-shared";
 import { Check, X, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
+import Image from "next/image";
 
 export default function PendingMembers({
   id,
@@ -26,7 +27,9 @@ export default function PendingMembers({
   const [pagePending, setPagePending] = useState(0);
   const [totalPagesPending, setTotalPagesPending] = useState(0);
   const [loadingPending, setLoadingPending] = useState(true);
-  const [processingMembers, setProcessingMembers] = useState<Set<string>>(new Set());
+  const [processingMembers, setProcessingMembers] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     if (!isOwner) return;
@@ -62,8 +65,14 @@ export default function PendingMembers({
       if (status === "APPROVED") {
         const member = pendingMembers.find((m) => m.id === memberId);
         try {
-          await clubServiceApi.postApproveMember(id, memberId, true, accessToken);
+          await clubServiceApi.postApproveMember(
+            id,
+            memberId,
+            true,
+            accessToken
+          );
           toast.success("Đã duyệt thành viên.");
+          router.refresh();
         } catch (error) {
           toast.error("Duyệt thành viên thất bại. Vui lòng thử lại.");
           console.error("Error approving member:", error);
@@ -76,7 +85,12 @@ export default function PendingMembers({
         router.refresh();
       } else {
         try {
-          await clubServiceApi.postApproveMember(id, memberId, false, accessToken);
+          await clubServiceApi.postApproveMember(
+            id,
+            memberId,
+            false,
+            accessToken
+          );
           toast.success("Đã từ chối thành viên.");
         } catch (error) {
           toast.error("Từ chối thành viên thất bại. Vui lòng thử lại.");
@@ -102,9 +116,15 @@ export default function PendingMembers({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <UserPlus className="h-5 w-5 text-orange-500" />
-            <h3 className="text-lg font-bold">Chờ duyệt ({pendingMembers.length})</h3>
+            <h3 className="text-lg font-bold">
+              Chờ duyệt ({pendingMembers.length})
+            </h3>
           </div>
-          <Button size="sm" variant="ghost" onClick={() => setCollapsed(!collapsed)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setCollapsed(!collapsed)}
+          >
             {collapsed ? <ChevronDown /> : <ChevronUp />}
           </Button>
         </div>
@@ -115,13 +135,23 @@ export default function PendingMembers({
             <MemberSkeleton />
           ) : pendingMembers.length > 0 ? (
             pendingMembers.map((member) => (
-              <div key={member.id} className="p-4 border rounded-lg mb-3 bg-white dark:bg-gray-900">
+              <div
+                key={member.id}
+                className="p-4 border rounded-lg mb-3 bg-white dark:bg-gray-900"
+              >
                 <div className="flex items-center gap-3 mb-3">
-                  <Avatar name={member.name} className="h-12 w-12" />
+                  <Image
+                    src={member.avatar || "/user.png"}
+                    alt={member.name}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
                   <div>
                     <p className="font-semibold">{member.name}</p>
                     <p className="text-xs text-gray-500">
-                      Ngày tham gia: {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
+                      Ngày tham gia:{" "}
+                      {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
                     </p>
                   </div>
                 </div>
@@ -148,7 +178,9 @@ export default function PendingMembers({
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500 text-center py-4">Không có thành viên chờ duyệt</p>
+            <p className="text-sm text-gray-500 text-center py-4">
+              Không có thành viên chờ duyệt
+            </p>
           )}
 
           {totalPagesPending > 1 && (
@@ -161,7 +193,9 @@ export default function PendingMembers({
               >
                 Trước
               </Button>
-              <span className="text-sm">Trang {pagePending + 1}/{totalPagesPending}</span>
+              <span className="text-sm">
+                Trang {pagePending + 1}/{totalPagesPending}
+              </span>
               <Button
                 size="sm"
                 variant="outline"
@@ -177,5 +211,3 @@ export default function PendingMembers({
     </Card>
   );
 }
-
-

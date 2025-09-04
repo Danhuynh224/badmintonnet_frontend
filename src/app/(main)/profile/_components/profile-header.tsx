@@ -34,6 +34,7 @@ export default function ProfileHeader({
             <Image
               src={profile.avatarUrl ? profile.avatarUrl : "/user.png"}
               alt="Avatar"
+              priority
               width={128}
               height={128}
               className="object-cover w-full h-full"

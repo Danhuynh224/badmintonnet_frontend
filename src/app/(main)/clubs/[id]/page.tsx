@@ -23,6 +23,7 @@ const ClubDetailPage = async ({ params }: ClubDetailPageProps) => {
               width={80}
               height={80}
               className="rounded-full border-2 border-green-500 dark:border-green-400"
+              priority
             />
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

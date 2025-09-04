@@ -69,6 +69,7 @@ export default async function MyClubs({
                 <Image
                   src={club.logoUrl || ""}
                   alt={`${club.name} logo`}
+                  priority
                   width={80}
                   height={80}
                   className="rounded-xl border-2 border-gray-100 dark:border-gray-700 group-hover:border-emerald-200 dark:group-hover:border-emerald-700 transition-colors"

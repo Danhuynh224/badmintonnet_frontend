@@ -65,6 +65,7 @@ export default async function MyClubDetail({ params }: ClubDetailPageProps) {
             <Image
               src={clubDetail.logoUrl || ""}
               alt={`${clubDetail.name} logo`}
+              priority
               width={80}
               height={80}
               className="rounded-xl border-2 border-gray-100 dark:border-gray-700 transition-colors"

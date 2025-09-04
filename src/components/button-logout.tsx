@@ -2,6 +2,7 @@
 
 import authApiRequest from "@/apiRequest/auth";
 import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const handleLogout = async () => {
@@ -15,10 +16,12 @@ export default function LogoutButton() {
 
   return (
     <Button
+      variant="ghost"
       onClick={handleLogout}
-      className="bg-red-600 text-white hover:bg-red-700"
+      className="w-full justify-start gap-3 px-0 py-2.5 h-auto text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300 rounded-md transition-colors duration-150"
     >
-      Đăng xuất
+      <LogOut className="h-4 w-4" />
+      <span>Đăng xuất</span>
     </Button>
   );
 }

@@ -81,6 +81,7 @@ export const EventClubCard = ({ event }: EventClubCardProps) => {
                 src={event.image}
                 alt={event.title}
                 fill
+                priority
                 sizes="(max-width: 640px) 80px, 96px" // Tối ưu hóa kích thước ảnh
                 className="object-cover"
               />

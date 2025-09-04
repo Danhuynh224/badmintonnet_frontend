@@ -204,6 +204,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       src={event.image || "/api/placeholder/400/160"}
                       alt={event.title}
                       fill
+                      priority
                       sizes="(max-width: 768px) 100vw, 400px"
                       className="object-cover  transition-transform duration-500"
                     />

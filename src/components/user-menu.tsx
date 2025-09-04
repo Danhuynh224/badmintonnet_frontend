@@ -10,41 +10,63 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "lucide-react";
+import { User, UserCircle, Users, LogOut } from "lucide-react";
 import LogoutButton from "@/components/button-logout";
 
 export default function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+        >
           <User className="h-5 w-5" />
+          <span className="sr-only">Mở menu tài khoản</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 p-4">
-        <DropdownMenuLabel className="text-base font-semibold text-gray-900 dark:text-gray-100">
-          Tài khoản
+
+      <DropdownMenuContent
+        align="end"
+        className="w-64 p-2 shadow-lg border border-gray-200 dark:border-gray-700"
+        sideOffset={8}
+      >
+        {/* Header */}
+        <DropdownMenuLabel className="px-3 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+          Tài khoản của bạn
         </DropdownMenuLabel>
-        <DropdownMenuSeparator className="my-2" />
-        <DropdownMenuItem asChild className="py-2">
+
+        <DropdownMenuSeparator className="my-1" />
+
+        {/* Menu Items */}
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link
             href="/profile"
-            className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-150"
           >
-            Thông tin cá nhân
+            <UserCircle className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span>Thông tin cá nhân</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild className="py-2">
+
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link
             href="/my-clubs"
-            className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors duration-150"
           >
-            CLB của tôi
+            <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <span>CLB của tôi</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="my-2" />
-        <DropdownMenuItem className="flex justify-center">
-          <LogoutButton />
+
+        <DropdownMenuSeparator className="my-1" />
+
+        {/* Logout Section */}
+        <DropdownMenuItem className="p-0">
+          <div className="w-full">
+            <LogoutButton />
+          </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

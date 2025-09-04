@@ -99,6 +99,7 @@ export type MyClubPageResType = z.infer<typeof MyClubPageRes>;
 export const MemberSchema = z.object({
   id: z.string(),
   name: z.string(),
+  avatar: z.string(),
   role: RoleEnum,
   status: MemberStatusEnum,
   joinedAt: z.coerce.date(),
