@@ -34,9 +34,9 @@ function getCategoryGradient(category: string) {
   const gradients: Record<string, string> = {
     MEN_SINGLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
     WOMEN_SINGLE: "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white",
-    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-emerald-500 text-white",
-    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-blue-500 text-white",
-    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-emerald-600 text-white",
+    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-blue-500 text-white",
+    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white",
+    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
   };
   return (
     gradients[category] ||
@@ -369,7 +369,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
                         isFull
                           ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                          : "bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 hover:shadow-md transform hover:scale-105 active:scale-95"
+                          : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
                       }`}
                     >
                       <Link href={`/events/${event.id}`}>

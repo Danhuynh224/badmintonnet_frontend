@@ -34,9 +34,9 @@ function getCategoryGradient(category: string) {
   const gradients: Record<string, string> = {
     MEN_SINGLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
     WOMEN_SINGLE: "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white",
-    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-emerald-500 text-white",
-    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-blue-500 text-white",
-    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-emerald-600 text-white",
+    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-blue-500 text-white",
+    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white",
+    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
   };
   return (
     gradients[category] ||
@@ -165,9 +165,9 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
             <Link href="/events">
               <Button
                 variant="outline"
-                className="border-2 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                className="border-2 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 font-medium px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
               >
-                <Building2 className="w-4 h-4 mr-2" />
+                <Users className="w-4 h-4 mr-2" />
                 Hoạt động vãng lai
               </Button>
             </Link>
@@ -342,7 +342,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
                         isFull
                           ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                          : "bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 hover:shadow-md transform hover:scale-105 active:scale-95"
+                          : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
                       }`}
                     >
                       <Link href={`/events/${event.id}`}>
