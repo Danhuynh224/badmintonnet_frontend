@@ -34,9 +34,9 @@ function getCategoryGradient(category: string) {
   const gradients: Record<string, string> = {
     MEN_SINGLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
     WOMEN_SINGLE: "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white",
-    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-emerald-500 text-white",
-    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-blue-500 text-white",
-    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-emerald-600 text-white",
+    MEN_DOUBLE: "bg-gradient-to-r from-blue-600 to-blue-500 text-white",
+    WOMEN_DOUBLE: "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white",
+    MIXED_DOUBLE: "bg-gradient-to-r from-blue-500 to-blue-600 text-white",
   };
   return (
     gradients[category] ||
@@ -139,7 +139,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   try {
     const response = await eventClubApiRequest.getAllPublicEventClubs(
       page,
-      size
+      size,
+      accessToken
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -168,7 +169,6 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
@@ -181,7 +181,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
 
           {/* Mô tả */}
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-6">
-            Khám phá và tham gia các hoạt động thể thao sôi động
+            Khám phá và tham gia các hoạt động công khai mọi người đều có thể
+            tham gia.
           </p>
 
           {/* Nút My Clubs */}
@@ -250,7 +251,29 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         </Badge>
                       ))}
                     </div>
-
+                    <div className="absolute bottom-3 right-3">
+                      <Badge
+                        className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
+                          event.participantRole == "GUEST"
+                            ? "bg-white/95 text-orange-600 border-orange-200 hover:bg-orange-50"
+                            : "bg-white/95 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          {event.participantRole == "GUEST" ? (
+                            <>
+                              <Users className="w-3 h-3" />
+                              Vãng lai
+                            </>
+                          ) : (
+                            <>
+                              <Building2 className="w-3 h-3" />
+                              CLB của tôi
+                            </>
+                          )}
+                        </div>
+                      </Badge>
+                    </div>
                     {/* Progress Bar */}
                     <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/50 dark:bg-gray-700/50">
                       <div
@@ -314,22 +337,31 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                               : "text-gray-900 dark:text-white"
                           }`}
                         >
-                          {event.joinedMember}/{event.totalMember} người
+                          {event.joinedMember}/{event.totalMember} thành viên
                         </span>
                       </div>
-
-                      {event.fee != null && event.fee > 0 && (
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                            <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
-                          </div>
-                          <span className="text-sm text-blue-600 dark:text-emerald-400 font-semibold">
-                            {formatCurrency(event.fee)}
-                          </span>
+                      <div className="flex items-center gap-2 ">
+                        {/* Club Name Section */}
+                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                          <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
                         </div>
-                      )}
+                        <p className="text-sm text-gray-900 dark:text-white line-clamp-1 font-medium">
+                          {event.joinedOpenMembers}/{event.maxOutsideMembers}{" "}
+                          vãng lai
+                        </p>
+                      </div>
                     </div>
 
+                    {event.fee != null && event.fee > 0 && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                          <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                        </div>
+                        <span className="text-sm text-blue-600 dark:text-emerald-400 font-semibold">
+                          {formatCurrency(event.fee)}
+                        </span>
+                      </div>
+                    )}
                     {/* Action Button */}
                     <Button
                       asChild
@@ -337,7 +369,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                       className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
                         isFull
                           ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                          : "bg-gradient-to-r from-blue-600 to-emerald-600 text-white hover:from-blue-700 hover:to-emerald-700 hover:shadow-md transform hover:scale-105 active:scale-95"
+                          : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
                       }`}
                     >
                       <Link href={`/events/${event.id}`}>
