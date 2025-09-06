@@ -12,7 +12,6 @@ export default async function Header() {
     { name: "Hoạt động", href: "/events" },
     { name: "Câu lạc bộ", href: "/clubs" },
     { name: "Về chúng tôi", href: "/about" },
-    { name: "Liên hệ", href: "/contact" },
   ];
 
   const cookieStore = await cookies();
