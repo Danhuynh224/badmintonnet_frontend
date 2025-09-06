@@ -116,7 +116,7 @@ export const CreateEventClubBody = z.object({
     .number()
     .int()
     .min(0, "Số thành viên ngoài tối đa không được âm"),
-  clubId: z.string().min(1, "ID CLB là bắt buộc"),
+  clubSlug: z.string().min(1, "ID CLB là bắt buộc"),
 });
 
 export const UpdateEventClubBody = z.object({
@@ -162,6 +162,7 @@ export type UpdateEventClubBodyType = z.infer<typeof UpdateEventClubBody>;
 
 export const EventSchema = z.object({
   id: z.string(),
+  slug: z.string(),
   title: z.string(),
   image: z.string().optional(),
   location: z.string(),
@@ -197,6 +198,7 @@ export type PagedEventResponseType = z.infer<typeof PagedEventResponse>;
 
 export const EventDetailSchema = z.object({
   id: z.string(),
+  slug: z.string(),
   title: z.string(),
   description: z.string(), // có thể null
   image: z.string().url().optional(),

@@ -8,7 +8,6 @@ const navItems = [
   { name: "Hoạt động", href: "/events" },
   { name: "Câu lạc bộ", href: "/clubs" },
   { name: "Về chúng tôi", href: "/about" },
-  { name: "Liên hệ", href: "/contact" },
 ];
 
 export default function HeaderNav() {

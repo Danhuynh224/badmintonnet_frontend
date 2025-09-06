@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { cookies } from "next/headers";
 import AppProvider from "@/app/app-provider";
-import Footer from "@/components/footer";
 import RefreshToken from "@/components/refresh-token";
 
 const inter = Inter({

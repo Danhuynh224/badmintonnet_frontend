@@ -1,4 +1,6 @@
 import ClubProcessAnimation from "@/components/animation-component";
+import BrandMarquee from "@/components/brand-marquee";
+import BrandMarqueeDemo from "@/components/brand-marquee";
 import {
   TrophyIcon,
   UsersIcon,
@@ -11,6 +13,16 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function Home() {
+  const sampleLogos = [
+    { url: "/logos/yonex.png", alt: "Brand 1", id: "b1" },
+    { url: "/logos/victor.png", alt: "Brand 2", id: "b2" },
+    { url: "/logos/lining.png", alt: "Brand 3", id: "b3" },
+    { url: "/logos/vnb.png", alt: "Brand 4", id: "b4" },
+    { url: "/logos/apacs.png", alt: "Brand 1", id: "b5" },
+    { url: "/logos/felet.png", alt: "Brand 2", id: "b6" },
+    { url: "/logos/bwf.png", alt: "Brand 3", id: "b7" },
+    { url: "/logos/haiyen.png", alt: "Brand 4", id: "b8" },
+  ];
   // Mock data
   const features = [
     {
@@ -233,7 +245,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-white dark:bg-gray-900">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -266,6 +278,20 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+      <section className="py-20 bg-white dark:bg-gray-900">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Các nhà tài trợ đồng hành cùng chúng tôi
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Chúng tôi tự hào khi nhận được sự đồng hành và tin tưởng từ các
+              thương hiệu, tổ chức uy tín.
+            </p>
+          </div>
+          <BrandMarquee logos={sampleLogos} />
         </div>
       </section>
 
