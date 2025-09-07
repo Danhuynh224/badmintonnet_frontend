@@ -19,6 +19,7 @@ import { cookies } from "next/headers";
 import { EventDetailType } from "@/schemaValidations/event.schema";
 import { JoinEventButton } from "@/app/(main)/events/_components/join-event-button";
 import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
+import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -325,10 +326,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 {eventDetail.participantRole === "OWNER" && (
                   <div className="flex flex-col gap-3">
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-                      <Edit3 className="w-4 h-4 mr-2" />
-                      Chỉnh sửa sự kiện
-                    </Button>
+                    <EditEventButton eventData={eventDetail} />
                     <Button
                       variant="destructive"
                       className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"

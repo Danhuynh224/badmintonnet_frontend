@@ -120,6 +120,8 @@ export const CreateEventClubBody = z.object({
 });
 
 export const UpdateEventClubBody = z.object({
+  id: z.string(),
+
   title: z
     .string()
     .min(1, "Tiêu đề là bắt buộc")
@@ -132,7 +134,7 @@ export const UpdateEventClubBody = z.object({
     .string()
     .max(1000, "Yêu cầu không được quá 1000 ký tự")
     .optional(),
-  image: z.string().optional(),
+  image: z.string().nullable,
   location: z
     .string()
     .min(1, "Địa điểm là bắt buộc")
@@ -151,6 +153,7 @@ export const UpdateEventClubBody = z.object({
     message: "Hạn đăng ký không hợp lệ",
   }),
   openForOutside: z.boolean(),
+  status: EventStatusEnum,
 });
 
 export type CreateEventBodyType = z.infer<typeof CreateEventBody>;
@@ -197,11 +200,11 @@ export const EventDetailSchema = z.object({
   id: z.string(),
   slug: z.string(),
   title: z.string(),
-  description: z.string().nullable(), // có thể null
+  description: z.string(), // có thể null
   image: z.string().url().optional(),
   location: z.string(),
 
-  requirements: z.string().nullable(), // người dùng nhập tay có thể null
+  requirements: z.string(), // người dùng nhập tay có thể null
 
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),

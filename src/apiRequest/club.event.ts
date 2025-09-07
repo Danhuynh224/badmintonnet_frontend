@@ -6,7 +6,9 @@ import {
   EventDetailResponseType,
   PagedEventResponseType,
   PagedParticipantResponseType,
+  UpdateEventClubBodyType,
 } from "@/schemaValidations/event.schema";
+import { Update } from "next/dist/build/swc/types";
 
 const eventClubApiRequest = {
   uploadImageClubEvent: (body: FormData) =>
@@ -31,15 +33,9 @@ const eventClubApiRequest = {
       }
     ),
 
-  updateEventClub: (
-    body: Partial<CreateEventClubBodyType>,
-    accessToken: string
-  ) =>
-    http.put<EventDetailResponseType>("/club-event/update", body, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }),
+  updateEventClub: (body: Partial<UpdateEventClubBodyType>) =>
+    http.put<EventDetailResponseType>("/club-event/update", body),
+
   //Lấy danh sách event clubs tất cả
   getAllPublicEventClubs: (page: number, size: number, accessToken: string) =>
     http.get<PagedEventResponseType>(
@@ -79,6 +75,16 @@ const eventClubApiRequest = {
   ) =>
     http.get<PagedParticipantResponseType>(
       `/club-event/all-participant/${id}?page=${page}&size=${size}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    ),
+
+  getMyJoinedEventClubs: (page: number, size: number, accessToken: string) =>
+    http.get<PagedEventResponseType>(
+      `/club-event/all/joined?page=${page}&size=${size}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
