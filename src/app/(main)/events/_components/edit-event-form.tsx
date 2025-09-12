@@ -26,13 +26,22 @@ import {
   X,
   AlertCircle,
 } from "lucide-react";
-import { EventDetailResponseType } from "@/schemaValidations/event.schema";
+import {
+  EventDetailResponseType,
+  EventType,
+} from "@/schemaValidations/event.schema";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 // Types
 type EventData = EventDetailResponseType["data"];
+type Category =
+  | "MEN_SINGLE"
+  | "WOMEN_SINGLE"
+  | "MEN_DOUBLE"
+  | "WOMEN_DOUBLE"
+  | "MIXED_DOUBLE";
 
 interface EditEventModalProps {
   isOpen: boolean;
@@ -41,7 +50,7 @@ interface EditEventModalProps {
 }
 
 // Category options
-const CATEGORY_OPTIONS = [
+const CATEGORY_OPTIONS: { value: Category; label: string }[] = [
   { value: "MEN_SINGLE", label: "Đơn nam" },
   { value: "WOMEN_SINGLE", label: "Đơn nữ" },
   { value: "MEN_DOUBLE", label: "Đôi nam" },
@@ -143,11 +152,11 @@ export default function EditEventModal({
       newErrors.deadline = "Hạn đăng ký phải trước thời gian bắt đầu";
     }
 
-    if (formData.fee < 0) {
+    if (formData.fee !== null && formData.fee < 0) {
       newErrors.fee = "Phí tham gia không được âm";
     }
 
-    if (formData.categories.length === 0) {
+    if (!formData.categories || formData.categories.length === 0) {
       newErrors.categories = "Phải chọn ít nhất một nội dung thi đấu";
     }
 
@@ -216,21 +225,25 @@ export default function EditEventModal({
     }
   };
 
-  const toggleCategory = (category: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      categories: prev.categories.includes(category)
-        ? prev.categories.filter((c) => c !== category)
-        : [...prev.categories, category],
-    }));
+  const toggleCategory = (category: Category) => {
+    setFormData((prev) => {
+      const categories = prev.categories ?? [];
+      return {
+        ...prev,
+        categories: categories.includes(category)
+          ? categories.filter((c) => c !== category)
+          : [...categories, category],
+      };
+    });
+
     if (errors.categories) {
       setErrors((prev) => ({ ...prev, categories: "" }));
     }
   };
 
-  const formatDateTimeLocal = (isoString: string) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
+  const formatDateTimeLocal = (value: Date | string) => {
+    if (!value) return "";
+    const date = typeof value === "string" ? new Date(value) : value;
 
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
