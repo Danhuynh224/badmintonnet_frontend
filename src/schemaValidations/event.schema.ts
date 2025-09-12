@@ -122,36 +122,16 @@ export const CreateEventClubBody = z.object({
 export const UpdateEventClubBody = z.object({
   id: z.string(),
 
-  title: z
-    .string()
-    .min(1, "Tiêu đề là bắt buộc")
-    .max(256, "Tiêu đề không được quá 256 ký tự"),
-  description: z
-    .string()
-    .min(1, "Mô tả là bắt buộc")
-    .max(10000, "Mô tả không được quá 10000 ký tự"),
-  requirements: z
-    .string()
-    .max(1000, "Yêu cầu không được quá 1000 ký tự")
-    .optional(),
+  title: z.string(),
+  description: z.string(),
+  requirements: z.string().optional(),
   image: z.string().nullable,
-  location: z
-    .string()
-    .min(1, "Địa điểm là bắt buộc")
-    .max(256, "Địa điểm không được quá 256 ký tự"),
-  startTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Thời gian bắt đầu không hợp lệ",
-  }),
-  endTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Thời gian kết thúc không hợp lệ",
-  }),
-  type: z
-    .array(BadmintonCategoryEnum)
-    .min(1, "Phải chọn ít nhất một loại hình"),
-  fee: z.number().min(0, "Phí không được âm").optional(),
-  deadline: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Hạn đăng ký không hợp lệ",
-  }),
+  location: z.string(),
+  startTime: z.coerce.date(),
+  endTime: z.coerce.date(),
+  type: z.array(BadmintonCategoryEnum),
+  fee: z.number(),
+  deadline: z.coerce.date(),
   openForOutside: z.boolean(),
   status: EventStatusEnum,
 });
@@ -175,7 +155,7 @@ export const EventSchema = z.object({
   openForOutside: z.boolean(),
   nameClub: z.string(),
   fee: z.number().optional(),
-  categories: z.array(BadmintonCategoryEnum).optional(),
+  categories: z.array(BadmintonCategoryEnum),
   status: EventStatusEnum,
   participantRole: ParticipantRoleEnum,
 });
@@ -201,7 +181,7 @@ export const EventDetailSchema = z.object({
   slug: z.string(),
   title: z.string(),
   description: z.string(), // có thể null
-  image: z.string().url().optional(),
+  image: z.string().url().optional().nullable(),
   location: z.string(),
 
   requirements: z.string(), // người dùng nhập tay có thể null
@@ -213,9 +193,9 @@ export const EventDetailSchema = z.object({
   totalMember: z.number().int(),
   joinedMember: z.number().int(),
   nameClub: z.string(),
-  fee: z.number().nullable().default(0),
+  fee: z.number().default(0),
 
-  categories: z.array(BadmintonCategoryEnum).optional(),
+  categories: z.array(BadmintonCategoryEnum).min(1),
   status: EventStatusEnum,
 
   clubId: z.string(),

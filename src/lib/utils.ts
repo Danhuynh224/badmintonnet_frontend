@@ -28,3 +28,17 @@ export function isClubOwner(token: string): boolean {
     return false; // token không hợp lệ
   }
 }
+
+/**
+ * Kiểm tra token JWT có ROLE_ADMIN hay không
+ * @param {string} token - JWT token
+ * @returns {boolean} true nếu có ROLE_ADMIN, false nếu không
+ */
+export function isAdmin(token: string): boolean {
+  try {
+    const decoded = jwtDecode<JwtPayload>(token); // decode mà không cần secret
+    return decoded.authorities?.includes("ROLE_ADMIN") || false;
+  } catch (err) {
+    return false; // token không hợp lệ
+  }
+}

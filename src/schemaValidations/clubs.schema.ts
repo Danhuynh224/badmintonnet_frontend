@@ -1,8 +1,9 @@
-import z from "zod";
+import z, { email } from "zod";
 
 const ClubVisibilityEnum = z.enum(["PRIVATE", "PUBLIC"]);
 const RoleEnum = z.enum(["OWNER", "MEMBER"]);
 const MemberStatusEnum = z.enum(["PENDING", "APPROVED", "REJECTED", "BANNED"]);
+const ClubStatusEnum = z.enum(["PENDING", "ACTIVE", "INACTIVE"]);
 // Schema for the club creation request
 export const CreateClubBody = z.object({
   name: z
@@ -46,6 +47,20 @@ export const ClubSchema = z.object({
   createdAt: z.coerce.date(),
 });
 
+export const ClubAdminSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+  ownerName: z.string(),
+  email: z.string(),
+  memberCount: z.int(),
+  maxMembers: z.int(),
+  status: ClubStatusEnum,
+  createdAt: z.coerce.date(),
+});
+
+export type ClubAdminSchemaType = z.infer<typeof ClubAdminSchema>;
+
 export const MyClubSchema = ClubSchema.extend({
   memberStatus: MemberStatusEnum,
   memberCount: z.number().int(),
@@ -55,6 +70,15 @@ export const MyClubSchema = ClubSchema.extend({
 
 export const PagedClubResponse = z.object({
   content: z.array(ClubSchema),
+  page: z.number(),
+  size: z.number(),
+  totalElements: z.number(),
+  totalPages: z.number(),
+  last: z.boolean(),
+});
+
+export const PagedClubAdminResponse = z.object({
+  content: z.array(ClubAdminSchema),
   page: z.number(),
   size: z.number(),
   totalElements: z.number(),
@@ -89,6 +113,14 @@ export const ClubPageRes = z.object({
 });
 
 export type ClubPageResType = z.infer<typeof ClubPageRes>;
+
+export const ClubAdminPageRes = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: PagedClubAdminResponse,
+});
+
+export type ClubAdminPageResType = z.infer<typeof ClubAdminPageRes>;
 
 export const MyClubPageRes = z.object({
   status: z.number(),
