@@ -154,3 +154,25 @@ export const MemberPageRes = z.object({
   data: PagedMemberResponse,
 });
 export type MemberPageResType = z.infer<typeof MemberPageRes>;
+
+export const ClubMemberDetail = z.object({
+  id: z.string(),
+  email: z.string(),
+  fullName: z.string(),
+  birthDate: z.string(),
+  gender: z.string(),
+  address: z.string(),
+  bio: z.string(),
+  avatarUrl: z.string(),
+  phone: z.string(),
+  note: z.string(),
+  createdAt: z.coerce.date(),
+});
+export const ClubMemberDetailRes = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: ClubMemberDetail,
+});
+
+export type ClubMemberDetailType = z.infer<typeof ClubMemberDetail>;
+export type ClubMemberDetailResType = z.infer<typeof ClubMemberDetailRes>;

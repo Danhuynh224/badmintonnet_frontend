@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import {
+  ClubMemberDetailResType,
   ClubPageResType,
   ClubResType,
   CreateClubBodyType,
@@ -32,10 +33,8 @@ const clubServiceApi = {
     http.get<MyClubResType>(`/clubs/my_clubs/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     }),
-  joinClub: (id: string, token = "") =>
-    http.post(`/clubs/${id}/join`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }),
+  joinClub: (id: string, description: string) =>
+    http.post(`/clubs/${id}/join`, { notification: description }),
 
   getClubMembers: (
     id: string,
@@ -64,5 +63,7 @@ const clubServiceApi = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     ),
+  getClubMemberDetail: (id: string) =>
+    http.get<ClubMemberDetailResType>(`/clubs/my_clubs/detail_member/${id}`),
 };
 export default clubServiceApi;

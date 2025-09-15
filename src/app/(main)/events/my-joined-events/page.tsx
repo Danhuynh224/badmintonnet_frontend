@@ -20,6 +20,33 @@ interface ClubEventsProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+const statusMapVN: Record<string, string> = {
+  DRAFT: "Đang tạo",
+  OPEN: "Mở đăng ký",
+  CLOSED: "Đã đóng đăng ký",
+  ONGOING: "Đang diễn ra",
+  FINISHED: "Đã kết thúc",
+  CANCELLED: "Bị hủy",
+};
+function getStatusBadgeStyle(status: string) {
+  const styles: Record<string, string> = {
+    DRAFT: "bg-white/95 text-gray-600 border border-gray-200 hover:bg-gray-50",
+    OPEN: "bg-white/95 text-green-600 border border-green-200 hover:bg-green-50",
+    CLOSED:
+      "bg-white/95 text-yellow-600 border border-yellow-200 hover:bg-yellow-50",
+    ONGOING:
+      "bg-white/95 text-indigo-600 border border-indigo-200 hover:bg-indigo-50",
+    FINISHED:
+      "bg-white/95 text-purple-600 border border-purple-200 hover:bg-purple-50",
+    CANCELLED: "bg-white/95 text-red-600 border border-red-200 hover:bg-red-50",
+  };
+
+  return (
+    styles[status] ||
+    "bg-white/95 text-gray-600 border border-gray-200 hover:bg-gray-50"
+  );
+}
+
 // Map loại hoạt động sang tiếng Việt
 const categoryMapVN: Record<string, string> = {
   MEN_SINGLE: "Đơn Nam",
@@ -235,6 +262,15 @@ export default async function MyJoinedClubEvents({
                     ))}
                   </div>
 
+                  <div className="absolute bottom-3 left-3 z-10">
+                    <Badge
+                      className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${getStatusBadgeStyle(
+                        event.status
+                      )}`}
+                    >
+                      {statusMapVN[event.status]}
+                    </Badge>
+                  </div>
                   <div className="absolute bottom-3 right-3 z-10">
                     <Badge
                       className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
@@ -354,15 +390,9 @@ export default async function MyJoinedClubEvents({
                   <Button
                     asChild
                     disabled={isFull}
-                    className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
-                      isFull
-                        ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                        : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
-                    }`}
+                    className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${"bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"}`}
                   >
-                    <Link href={`/events/${event.slug}`}>
-                      {isFull ? "Đã đầy" : "Xem chi tiết"}
-                    </Link>
+                    <Link href={`/events/${event.slug}`}>Xem chi tiết</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -33,6 +33,7 @@ import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
 interface ClubDetailPageProps {
   params: { id: string };
   searchParams: {
+    tab?: string;
     page?: string;
     status?: string;
     type?: string;
@@ -48,7 +49,7 @@ export default async function MyClubDetail({
   const accessToken = cookieStore.get("accessToken");
   const awaitedParams = await params;
   const awaitedSearchParams = await searchParams;
-
+  const tab = awaitedSearchParams?.tab ?? "overview";
   const id = awaitedParams.id;
   const page = awaitedSearchParams?.page
     ? parseInt(awaitedSearchParams.page, 10)
@@ -129,7 +130,7 @@ export default async function MyClubDetail({
         </Card>
 
         {/* Tab Navigation */}
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue={tab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 w-full lg:grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <TabsTrigger
               value="overview"
