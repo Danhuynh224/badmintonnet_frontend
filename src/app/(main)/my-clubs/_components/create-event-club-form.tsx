@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { z } from "zod";
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -24,15 +23,36 @@ import {
 } from "@/schemaValidations/event.schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import eventClubApiRequest from "@/apiRequest/club.event";
+import addressApiRequest from "@/apiRequest/address";
+import { MapPin, ChevronDown } from "lucide-react";
+
+// Interfaces for address data
+interface Province {
+  id: string;
+  full_name: string;
+}
+
+interface Ward {
+  id: string;
+  full_name: string;
+}
 
 const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+
+  // Address related states
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedWardId, setSelectedWardId] = useState("");
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+  const [additionalAddress, setAdditionalAddress] = useState("");
 
   const form = useForm<CreateEventClubBodyType>({
     resolver: zodResolver(CreateEventClubBody),
@@ -61,6 +81,93 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
   const maxClubMembers = watch("maxClubMembers");
   const maxOutsideMembers = watch("maxOutsideMembers");
   const openForOutside = watch("openForOutside");
+
+  // Load provinces when component mounts
+  useEffect(() => {
+    const loadProvinces = async () => {
+      try {
+        const response = await addressApiRequest.getProvinces();
+        console.log("Provinces response:", response);
+        setProvinces(response.payload.data.data || []);
+      } catch (error) {
+        console.error("Error loading provinces:", error);
+      } finally {
+        setIsLoadingProvinces(false);
+      }
+    };
+
+    loadProvinces();
+  }, []);
+
+  // Load wards when province changes
+  useEffect(() => {
+    const loadWards = async () => {
+      if (!selectedProvinceId) {
+        setWards([]);
+        setSelectedWardId("");
+        return;
+      }
+
+      setIsLoadingWards(true);
+      try {
+        const response = await addressApiRequest.getWardsByProvinceId(
+          selectedProvinceId
+        );
+        setWards(response.payload.data.data || []);
+        setSelectedWardId("");
+      } catch (error) {
+        console.error("Error loading wards:", error);
+        setWards([]);
+      } finally {
+        setIsLoadingWards(false);
+      }
+    };
+
+    loadWards();
+  }, [selectedProvinceId]);
+
+  // Update location field when province/ward changes
+  useEffect(() => {
+    const updateLocation = () => {
+      const selectedProvince = provinces.find(
+        (p) => p.id === selectedProvinceId
+      );
+      const selectedWard = wards.find((w) => w.id === selectedWardId);
+
+      const locationParts: string[] = [];
+
+      if (selectedWard) {
+        locationParts.push(selectedWard.full_name);
+      }
+      if (selectedProvince) {
+        locationParts.push(selectedProvince.full_name);
+      }
+
+      const baseLocation = locationParts.join(", ");
+      const fullLocation = additionalAddress
+        ? `${additionalAddress}, ${baseLocation}`
+        : baseLocation;
+
+      setValue("location", fullLocation);
+    };
+
+    updateLocation();
+  }, [
+    selectedProvinceId,
+    selectedWardId,
+    additionalAddress,
+    provinces,
+    wards,
+    setValue,
+  ]);
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProvinceId(e.target.value);
+  };
+
+  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedWardId(e.target.value);
+  };
 
   useEffect(() => {
     if (!openForOutside) {
@@ -97,9 +204,15 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
 
       const eventClub = await eventClubApiRequest.createEventClub(values);
       toast.success("Tạo hoạt động thành công");
+
+      // Reset form and address states
       form.reset();
       setImageFile(null);
       setImagePreview("");
+      setSelectedProvinceId("");
+      setSelectedWardId("");
+      setAdditionalAddress("");
+
       router.push(`/events/${eventClub.payload.data.slug}`);
     } catch (error) {
       toast.error("Tạo thất bại", {
@@ -124,7 +237,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Tiêu đề hoạt động
+                Tiêu đề hoạt động <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -145,7 +258,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Mô tả
+                Mô tả <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Textarea
@@ -223,26 +336,108 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           )}
         />
 
-        {/* Địa điểm */}
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Địa điểm
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ví dụ: Sân cầu lông ABC, Quận 1, TP.HCM"
-                  className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Địa điểm - Enhanced with Province/Ward Selection */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-gray-500" />
+            <span className="text-base font-semibold text-gray-700 dark:text-gray-300">
+              Địa điểm <span className="text-red-500">*</span>
+            </span>
+          </div>
+
+          {/* Province and Ward Selection */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Province Select */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tỉnh thành <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedProvinceId}
+                onChange={handleProvinceChange}
+                disabled={isLoadingProvinces}
+                className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">
+                  {isLoadingProvinces ? "Đang tải..." : "Chọn tỉnh thành"}
+                </option>
+                {provinces.map((province) => (
+                  <option key={province.id} value={province.id}>
+                    {province.full_name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Ward Select */}
+            {selectedProvinceId && (
+              <div className="relative animate-in slide-in-from-top-2 duration-300">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Phường/Xã
+                </label>
+                <select
+                  value={selectedWardId}
+                  onChange={handleWardChange}
+                  disabled={isLoadingWards}
+                  className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {isLoadingWards
+                      ? "Đang tải..."
+                      : "Chọn phường xã (tùy chọn)"}
+                  </option>
+                  {wards.map((ward) => (
+                    <option key={ward.id} value={ward.id}>
+                      {ward.full_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Additional Address Details */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Địa chỉ chi tiết (tùy chọn)
+            </label>
+            <Input
+              placeholder="Ví dụ: Sân cầu lông ABC, Số 123, đường DEF..."
+              value={additionalAddress}
+              onChange={(e) => setAdditionalAddress(e.target.value)}
+              className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          {/* Final Location Display */}
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Địa chỉ đầy đủ
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Địa chỉ sẽ được tạo tự động từ lựa chọn trên"
+                    className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 dark:bg-gray-700"
+                    {...field}
+                    readOnly
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -264,7 +459,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
                     onChange={(e) => {
                       const value = Number(e.target.value);
                       const maxLevel = form.getValues("maxLevel") ?? 5;
-                      if (value < 0 || value > 5 || value > maxLevel) return; // chặn nhập ngoài range
+                      if (value < 0 || value > 5 || value > maxLevel) return;
                       field.onChange(value);
                     }}
                   />
@@ -303,6 +498,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
             )}
           />
         </div>
+
         {/* Yêu cầu tham gia */}
         <FormField
           control={form.control}
@@ -310,7 +506,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Yêu cầu tham gia
+                Yêu cầu tham gia <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Textarea
@@ -333,7 +529,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                  Thời gian bắt đầu
+                  Thời gian bắt đầu <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -353,7 +549,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                  Thời gian kết thúc
+                  Thời gian kết thúc <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -375,7 +571,8 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Mở cho thành viên ngoài CLB
+                Mở cho thành viên ngoài CLB{" "}
+                <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <RadioGroup
@@ -409,7 +606,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Số thành viên CLB tối đa
+                Số thành viên CLB tối đa <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -481,7 +678,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={() => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Loại hình cầu lông
+                Loại hình cầu lông <span className="text-red-500">*</span>
               </FormLabel>
               <div className="space-y-3">
                 {[
@@ -563,7 +760,7 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Hạn đăng ký
+                Hạn đăng ký <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input

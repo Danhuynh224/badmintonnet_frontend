@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import addressApiRequest from "@/apiRequest/address";
+import { useRouter } from "next/navigation";
 
 interface Province {
   id: string;
@@ -16,29 +17,29 @@ interface Ward {
 
 interface FilterFormProps {
   searchQuery?: string;
-  provinceId?: string;
-  wardId?: string;
+  province?: string;
+  ward?: string;
 }
 
 export default function FilterForm({
   searchQuery = "",
-  provinceId = "",
-  wardId = "",
+  province = "",
+  ward = "",
 }: FilterFormProps) {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [selectedProvinceId, setSelectedProvinceId] = useState(provinceId);
-  const [selectedWardId, setSelectedWardId] = useState(wardId);
+  const [selectedProvince, setSelectedProvince] = useState(province);
+  const [selectedWard, setSelectedWard] = useState(ward);
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
   const [isLoadingWards, setIsLoadingWards] = useState(false);
   const [searchValue, setSearchValue] = useState(searchQuery);
+  const router = useRouter();
 
   // Load danh sách tỉnh thành khi component mount
   useEffect(() => {
     const loadProvinces = async () => {
       try {
         const response = await addressApiRequest.getProvinces();
-        console.log("Provinces response:", response);
         setProvinces(response.payload.data.data || []);
       } catch (error) {
         console.error("Error loading provinces:", error);
@@ -53,19 +54,19 @@ export default function FilterForm({
   // Load danh sách phường xã khi tỉnh thành thay đổi
   useEffect(() => {
     const loadWards = async () => {
-      if (!selectedProvinceId) {
+      if (!selectedProvince) {
         setWards([]);
-        setSelectedWardId("");
+        setSelectedWard("");
         return;
       }
 
       setIsLoadingWards(true);
       try {
         const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
+          selectedProvince
         );
         setWards(response.payload.data.data || []);
-        setSelectedWardId("");
+        setSelectedWard("");
       } catch (error) {
         console.error("Error loading wards:", error);
         setWards([]);
@@ -75,38 +76,41 @@ export default function FilterForm({
     };
 
     loadWards();
-  }, [selectedProvinceId]);
+  }, [selectedProvince]);
 
   useEffect(() => {
-    if (provinceId && provinceId !== selectedProvinceId) {
-      setSelectedProvinceId(provinceId);
+    if (province && province !== selectedProvince) {
+      setSelectedProvince(province);
     }
-  }, [provinceId]);
+  }, [province]);
 
   const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedProvinceId(e.target.value);
+    setSelectedProvince(e.target.value);
   };
 
   const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedWardId(e.target.value);
+    setSelectedWard(e.target.value);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const provinceSelected = provinces.find((p) => p.id === selectedProvince);
+    const wardSelected = wards.find((w) => w.id === selectedWard);
+
     const params = new URLSearchParams();
     if (searchValue.trim()) params.append("search", searchValue.trim());
-    if (selectedProvinceId) params.append("provinceId", selectedProvinceId);
-    if (selectedWardId) params.append("wardId", selectedWardId);
+    if (selectedProvince)
+      params.append("province", provinceSelected?.full_name || "");
+    if (selectedWard) params.append("ward", wardSelected?.full_name || "");
 
-    const url = `/events${params.toString() ? `?${params.toString()}` : ""}`;
-    // window.location.href = url;
+    router.push(`/events${params.toString() ? `?${params.toString()}` : ""}`);
   };
 
   const clearFilters = () => {
     setSearchValue("");
-    setSelectedProvinceId("");
-    setSelectedWardId("");
+    setSelectedProvince("");
+    setSelectedWard("");
     setWards([]);
   };
 
@@ -154,7 +158,7 @@ export default function FilterForm({
               {/* Province Select - Compact */}
               <div className="relative">
                 <select
-                  value={selectedProvinceId}
+                  value={selectedProvince}
                   onChange={handleProvinceChange}
                   disabled={isLoadingProvinces}
                   className="appearance-none block w-full px-3 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
@@ -174,10 +178,10 @@ export default function FilterForm({
               </div>
 
               {/* Ward Select - Compact */}
-              {selectedProvinceId && (
+              {selectedProvince && (
                 <div className="relative animate-in slide-in-from-top-2 duration-300">
                   <select
-                    value={selectedWardId}
+                    value={selectedWard}
                     onChange={handleWardChange}
                     disabled={isLoadingWards}
                     className="appearance-none block w-full px-3 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
@@ -223,7 +227,7 @@ export default function FilterForm({
           </div>
 
           {/* Active Filters Display - Compact */}
-          {(searchValue || selectedProvinceId || selectedWardId) && (
+          {(searchValue || selectedProvince || selectedWard) && (
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex flex-wrap gap-1.5 items-center">
                 <span className="text-xs text-gray-600 dark:text-gray-400 mr-2">
@@ -234,17 +238,17 @@ export default function FilterForm({
                     {searchValue}
                   </span>
                 )}
-                {selectedProvinceId && (
+                {selectedProvince && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
                     {
-                      provinces.find((p) => p.id === selectedProvinceId)
+                      provinces.find((p) => p.id === selectedProvince)
                         ?.full_name
                     }
                   </span>
                 )}
-                {selectedWardId && (
+                {selectedWard && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
-                    {wards.find((w) => w.id === selectedWardId)?.full_name}
+                    {wards.find((w) => w.id === selectedWard)?.full_name}
                   </span>
                 )}
               </div>

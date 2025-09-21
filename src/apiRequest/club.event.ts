@@ -37,15 +37,28 @@ const eventClubApiRequest = {
     http.put<EventDetailResponseType>("/club-event/update", body),
 
   //Lấy danh sách event clubs tất cả
-  getAllPublicEventClubs: (page: number, size: number, accessToken: string) =>
-    http.get<PagedEventResponseType>(
-      `/club-event/all/public?page=${page}&size=${size}`,
-      {
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined,
-      }
-    ),
+  getAllPublicEventClubs: (
+    page: number,
+    size: number,
+    accessToken?: string,
+    search?: string,
+    province?: string,
+    ward?: string
+  ) => {
+    const query = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+      ...(search ? { search } : {}),
+      ...(province ? { province } : {}),
+      ...(ward ? { ward } : {}),
+    }).toString();
+
+    return http.get<PagedEventResponseType>(`/club-event/all/public?${query}`, {
+      headers: accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : undefined,
+    });
+  },
   getMyClubsEventClubs: (page: number, size: number, accessToken: string) =>
     http.get<PagedEventResponseType>(
       `/club-event/all/my_clubs?page=${page}&size=${size}`,

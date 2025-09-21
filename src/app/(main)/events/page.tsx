@@ -22,8 +22,8 @@ interface ClubEventsProps {
   searchParams: Promise<{
     page?: string;
     search?: string;
-    provinceId?: string;
-    wardId?: string;
+    province?: string;
+    ward?: string;
   }>;
 }
 
@@ -107,8 +107,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const page = parseInt(params.page || "0", 10);
   const size = 8;
   const searchQuery = params.search || "";
-  const provinceId = params.provinceId || "";
-  const wardId = params.wardId || "";
+  const province = params.province || "";
+  const ward = params.ward || "";
 
   let events = [];
   let totalPages = 1;
@@ -119,10 +119,10 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
     const response = await eventClubApiRequest.getAllPublicEventClubs(
       page,
       size,
-      accessToken
-      // searchQuery,
-      // provinceId,
-      // wardId
+      accessToken,
+      searchQuery,
+      province,
+      ward
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -159,8 +159,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
           {/* Phần tìm kiếm và bộ lọc */}
           <FilterForm
             searchQuery={searchQuery}
-            provinceId={provinceId}
-            wardId={wardId}
+            province={province}
+            ward={ward}
           />
 
           {/* Tiêu đề gradient */}
@@ -411,8 +411,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     searchQuery
                       ? `&search=${encodeURIComponent(searchQuery)}`
                       : ""
-                  }${provinceId ? `&provinceId=${provinceId}` : ""}${
-                    wardId ? `&wardId=${wardId}` : ""
+                  }${province ? `&province=${province}` : ""}${
+                    ward ? `&ward=${ward}` : ""
                   }`}
                 >
                   ← Trước
@@ -435,8 +435,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     searchQuery
                       ? `&search=${encodeURIComponent(searchQuery)}`
                       : ""
-                  }${provinceId ? `&provinceId=${provinceId}` : ""}${
-                    wardId ? `&wardId=${wardId}` : ""
+                  }${province ? `&province=${province}` : ""}${
+                    ward ? `&ward=${ward}` : ""
                   }`}
                 >
                   {pageIndex + 1}
@@ -454,8 +454,8 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     searchQuery
                       ? `&search=${encodeURIComponent(searchQuery)}`
                       : ""
-                  }${provinceId ? `&provinceId=${provinceId}` : ""}${
-                    wardId ? `&wardId=${wardId}` : ""
+                  }${province ? `&province=${province}` : ""}${
+                    ward ? `&ward=${ward}` : ""
                   }`}
                 >
                   Sau →

@@ -75,7 +75,6 @@ const CreateClubForm = () => {
     const loadProvinces = async () => {
       try {
         const response = await addressApiRequest.getProvinces();
-        console.log("Provinces response:", response);
         setProvinces(response.payload.data.data || []);
       } catch (error) {
         console.error("Error loading provinces:", error);
@@ -246,7 +245,7 @@ const CreateClubForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Tên Câu Lạc Bộ
+                Tên Câu Lạc Bộ <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -267,7 +266,7 @@ const CreateClubForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Mô tả
+                Mô tả <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Textarea
@@ -349,34 +348,36 @@ const CreateClubForm = () => {
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-gray-500" />
             <span className="text-base font-semibold text-gray-700 dark:text-gray-300">
-              Địa điểm
+              Địa điểm <span className="text-red-500">*</span>
             </span>
           </div>
 
           {/* Province and Ward Selection */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Province Select */}
-            <div className="relative">
+            <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Tỉnh thành <span className="text-red-500">*</span>
               </label>
-              <select
-                value={selectedProvinceId}
-                onChange={handleProvinceChange}
-                disabled={isLoadingProvinces}
-                className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <option value="">
-                  {isLoadingProvinces ? "Đang tải..." : "Chọn tỉnh thành"}
-                </option>
-                {provinces.map((province) => (
-                  <option key={province.id} value={province.id}>
-                    {province.full_name}
+              <div className="relative">
+                <select
+                  value={selectedProvinceId}
+                  onChange={handleProvinceChange}
+                  disabled={isLoadingProvinces}
+                  className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {isLoadingProvinces ? "Đang tải..." : "Chọn tỉnh thành"}
                   </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                  {provinces.map((province) => (
+                    <option key={province.id} value={province.id}>
+                      {province.full_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-3 flex items-center pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
               </div>
             </div>
 
@@ -513,7 +514,7 @@ const CreateClubForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Số thành viên tối đa
+                Số thành viên tối đa <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -535,7 +536,7 @@ const CreateClubForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                Chế độ hiển thị
+                Chế độ hiển thị <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <RadioGroup
