@@ -1,16 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { isAdmin } from './lib/utils';
-import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from "next/server";
+import { isAdmin } from "./lib/utils";
+import { cookies } from "next/headers";
+import { access } from "fs";
+import { is } from "date-fns/locale";
 
 export function middleware(request: NextRequest) {
-  // Kiểm tra nếu đường dẫn bắt đầu bằng /admin
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Lấy token từ cookie
-    const accessToken = request.cookies.get('accessToken')?.value;
+  const accessToken = request.cookies.get("accessToken")?.value;
 
+  // Kiểm tra nếu đường dẫn bắt đầu bằng /admin
+  if (request.nextUrl.pathname.startsWith("/admin")) {
     // Nếu không có token hoặc không phải là admin, chuyển hướng về trang login
     if (!accessToken || !isAdmin(accessToken)) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 
@@ -18,7 +19,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/admin/:path*',
-  ],
+  matcher: ["/admin/:path*"],
 };

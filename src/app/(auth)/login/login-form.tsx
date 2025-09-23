@@ -19,6 +19,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import authApiRequest from "@/apiRequest/auth";
+import { isAborted } from "zod/v3";
+import { prepareFlightRouterStateForRequest } from "next/dist/client/flight-data-helpers";
+import { isAdmin } from "@/lib/utils";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -37,12 +40,19 @@ const LoginForm = () => {
     console.log(values);
     setLoading(true);
     try {
-      await authApiRequest.login(values);
+      const res = await authApiRequest.login(values);
+
+      const accessToken = res.payload.data.accessToken;
 
       toast.success("Đăng nhập thành công", {
         // description: result.payload.message,
       });
-      router.push("/");
+
+      if (isAdmin(accessToken)) {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
     } catch (error: unknown) {
       toast.error("Đăng nhập thất bại", {
         description: "Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",

@@ -30,10 +30,9 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm z-10">
       <div className="flex items-center justify-between h-full px-6">
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Logo" width={32} height={32} />
-          <span className="text-xl font-bold text-gray-800 dark:text-white">
-            SportsNet Admin
+        <div className="flex items-center">
+          <span className="text-3xl font-extrabold italic text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-400 dark:from-green-400 dark:to-blue-300 group-hover:from-blue-700 group-hover:to-blue-500 dark:group-hover:from-blue-500 dark:group-hover:to-blue-400 tracking-tighter transition-all duration-300 drop-shadow-md">
+            BadmintonNet Admin
           </span>
         </div>
 

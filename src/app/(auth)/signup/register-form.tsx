@@ -26,13 +26,33 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronDown, Loader2, MapPin } from "lucide-react";
 import authApiRequest from "@/apiRequest/auth";
+import addressApiRequest from "@/apiRequest/address";
+
+interface Province {
+  id: string;
+  full_name: string;
+}
+
+interface Ward {
+  id: string;
+  full_name: string;
+}
 
 const RegisterForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedWardId, setSelectedWardId] = useState("");
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [isLoadingWards, setIsLoadingWards] = useState(false);
+  const [additionalAddress, setAdditionalAddress] = useState("");
+
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
@@ -46,6 +66,91 @@ const RegisterForm = () => {
     },
   });
 
+  useEffect(() => {
+    const loadProvinces = async () => {
+      try {
+        const response = await addressApiRequest.getProvinces();
+        setProvinces(response.payload.data.data || []);
+      } catch (error) {
+        console.error("Error loading provinces:", error);
+      } finally {
+        setIsLoadingProvinces(false);
+      }
+    };
+
+    loadProvinces();
+  }, []);
+
+  // Load wards when province changes
+  useEffect(() => {
+    const loadWards = async () => {
+      if (!selectedProvinceId) {
+        setWards([]);
+        setSelectedWardId("");
+        return;
+      }
+
+      setIsLoadingWards(true);
+      try {
+        const response = await addressApiRequest.getWardsByProvinceId(
+          selectedProvinceId
+        );
+        setWards(response.payload.data.data || []);
+        setSelectedWardId("");
+      } catch (error) {
+        console.error("Error loading wards:", error);
+        setWards([]);
+      } finally {
+        setIsLoadingWards(false);
+      }
+    };
+
+    loadWards();
+  }, [selectedProvinceId]);
+
+  // Update location field when province/ward changes
+  useEffect(() => {
+    const updateLocation = () => {
+      const selectedProvince = provinces.find(
+        (p) => p.id === selectedProvinceId
+      );
+      const selectedWard = wards.find((w) => w.id === selectedWardId);
+
+      const locationParts: string[] = [];
+
+      if (selectedWard) {
+        locationParts.push(selectedWard.full_name);
+      }
+      if (selectedProvince) {
+        locationParts.push(selectedProvince.full_name);
+      }
+
+      const baseLocation = locationParts.join(", ");
+      const fullLocation = additionalAddress
+        ? `${additionalAddress}, ${baseLocation}`
+        : baseLocation;
+
+      form.setValue("address", fullLocation);
+    };
+
+    updateLocation();
+  }, [
+    selectedProvinceId,
+    selectedWardId,
+    additionalAddress,
+    provinces,
+    wards,
+    form,
+  ]);
+
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProvinceId(e.target.value);
+  };
+
+  const handleWardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedWardId(e.target.value);
+  };
+
   // Xử lý submit
   async function onSubmit(values: RegisterBodyType) {
     if (loading) return;
@@ -53,20 +158,11 @@ const RegisterForm = () => {
     try {
       // Giả lập API call
       await authApiRequest.register(values);
-      // await authApiRequest.auth({
-      //   sessionToken: result.payload.data.token,
-      //   expiresAt: result.payload.data.expiresAt,
-      // });
       toast.success("Đăng ký thành công", {
         description: "Tài khoản của bạn đã được tạo thành công!",
       });
       router.push("/profile/player-rating");
     } catch (error: unknown) {
-      // handleErrorApi({
-      //   error,
-      //   setError: form.setError,
-      //   duration: 3000,
-      // });
       toast.error("Đăng ký thất bại", {
         description: "Vui lòng kiểm tra lại thông tin đăng ký.",
       });
@@ -90,7 +186,7 @@ const RegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  Họ và tên
+                  Họ và tên <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -109,7 +205,7 @@ const RegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  Email
+                  Email <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -133,7 +229,7 @@ const RegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  Mật khẩu
+                  Mật khẩu <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -153,7 +249,7 @@ const RegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  Xác nhận mật khẩu
+                  Xác nhận mật khẩu <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -177,7 +273,7 @@ const RegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  Ngày sinh
+                  Ngày sinh <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -197,7 +293,7 @@ const RegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  Giới tính
+                  Giới tính <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Select
@@ -221,7 +317,7 @@ const RegisterForm = () => {
         </div>
 
         {/* Row 4: Địa chỉ (full width) */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="address"
           render={({ field }) => (
@@ -239,7 +335,108 @@ const RegisterForm = () => {
               <FormMessage className="text-red-500 dark:text-red-400 text-xs" />
             </FormItem>
           )}
-        />
+        /> */}
+
+        <div className="space-y-4">
+          <div className="flex items-center mb-1">
+            <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Địa chỉ <span className="text-red-500">*</span>
+            </FormLabel>
+          </div>
+
+          {/* Province and Ward Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Province Select */}
+            <div>
+              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Tỉnh thành
+              </FormLabel>
+              <div className="relative">
+                <select
+                  value={selectedProvinceId}
+                  onChange={handleProvinceChange}
+                  disabled={isLoadingProvinces}
+                  className="appearance-none block w-full h-10 px-3 py-2 pr-8 text-sm border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 focus:border-blue-600 dark:focus:border-blue-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {isLoadingProvinces ? "Đang tải..." : "Chọn tỉnh thành"}
+                  </option>
+                  {provinces.map((province) => (
+                    <option key={province.id} value={province.id}>
+                      {province.full_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-3 flex items-center pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Ward Select */}
+            <div>
+              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                Phường/Xã
+              </FormLabel>
+              <div className="relative">
+                <select
+                  value={selectedWardId}
+                  onChange={handleWardChange}
+                  disabled={isLoadingWards || !selectedProvinceId}
+                  className="appearance-none block w-full h-10 px-3 py-2 pr-8 text-sm border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 focus:border-blue-600 dark:focus:border-blue-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {isLoadingWards
+                      ? "Đang tải..."
+                      : "Chọn phường xã (tùy chọn)"}
+                  </option>
+                  {wards.map((ward) => (
+                    <option key={ward.id} value={ward.id}>
+                      {ward.full_name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-3 flex items-center pointer-events-none">
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Address Details */}
+          <div>
+            <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              Địa chỉ chi tiết (tùy chọn)
+            </FormLabel>
+            <Input
+              placeholder="Ví dụ: Số 123, đường ABC..."
+              value={additionalAddress}
+              onChange={(e) => setAdditionalAddress(e.target.value)}
+              className="h-10 text-sm border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 rounded-lg transition-all duration-300"
+            />
+          </div>
+
+          {/* Final Location Display */}
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  Địa chỉ đầy đủ
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    className="h-10 text-sm border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 rounded-lg transition-all duration-300 bg-gray-50 dark:bg-gray-800"
+                    {...field}
+                    readOnly
+                  />
+                </FormControl>
+                <FormMessage className="text-red-500 dark:text-red-400 text-xs" />
+              </FormItem>
+            )}
+          />
+        </div>
 
         {/* Login link và Button */}
         <div className="flex flex-col space-y-3 pt-2">
