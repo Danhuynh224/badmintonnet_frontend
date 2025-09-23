@@ -316,27 +316,6 @@ const RegisterForm = () => {
           />
         </div>
 
-        {/* Row 4: Địa chỉ (full width) */}
-        {/* <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Địa chỉ
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Nhập địa chỉ của bạn"
-                  className="h-10 text-sm border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 rounded-lg transition-all duration-300"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage className="text-red-500 dark:text-red-400 text-xs" />
-            </FormItem>
-          )}
-        /> */}
-
         <div className="space-y-4">
           <div className="flex items-center mb-1">
             <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200">

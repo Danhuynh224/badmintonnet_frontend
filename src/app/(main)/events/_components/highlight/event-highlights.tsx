@@ -115,6 +115,7 @@ export default async function EventHighlights({
                     userId={highlight.userId}
                     currentUserId={highlight.currentUserId}
                     highlight={highlightForEdit}
+                    accessToken={accessToken?.value}
                   />
                 </div>
               </CardHeader>
@@ -151,7 +152,6 @@ export default async function EventHighlights({
                   commentCount={highlight.commentCount}
                   isLiked={false}
                   // onLike={handleLike}
-                  // onDelete={handleDelete}
                 />
               </CardFooter>
             </Card>

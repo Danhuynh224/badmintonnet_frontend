@@ -4,7 +4,6 @@ import {
   FileResType,
   HighlightResponseType,
   UpdateHighlightType,
-  // UpdateHighlightType,
 } from "@/schemaValidations/highlight.schema";
 
 const highlightApiRequest = {
@@ -35,13 +34,13 @@ const highlightApiRequest = {
     });
   },
 
-  // deleteHighlight: async (id: string, token: string) => {
-  //   return await http.delete(`/api/highlights/${id}`, {
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   });
-  // },
+  deleteHighlight: async (id: string, token: string) => {
+    return await http.delete(`/posts/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
 
   // likeHighlight: async (id: string, token: string) => {
   //   return await http.post(

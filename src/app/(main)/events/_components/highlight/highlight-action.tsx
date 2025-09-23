@@ -10,6 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import UpdateHighlightDialog from "@/app/(main)/events/_components/highlight/update-highlight";
+import { useRouter } from "next/navigation";
+import highlightApiRequest from "@/apiRequest/highlight";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface MediaItem {
   fileName: string;
@@ -25,7 +36,6 @@ interface HighlightActionsProps {
   commentCount: number;
   isLiked?: boolean;
   onLike?: (highlightId: string) => Promise<void>;
-  onDelete?: (highlightId: string) => Promise<void>;
 }
 
 interface HighlightMenuProps {
@@ -39,7 +49,7 @@ interface HighlightMenuProps {
     authorName: string;
     authorAvatar?: string;
   };
-  onDelete?: (highlightId: string) => Promise<void>;
+  accessToken?: string;
 }
 
 export default function HighlightActions({
@@ -50,10 +60,8 @@ export default function HighlightActions({
   commentCount,
   isLiked = false,
   onLike,
-  onDelete,
 }: HighlightActionsProps) {
   const [isLiking, setIsLiking] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [currentLikeCount, setCurrentLikeCount] = useState(likeCount);
 
@@ -74,23 +82,6 @@ export default function HighlightActions({
     //   setIsLiking(false);
     // }
   };
-
-  const handleDelete = async () => {
-    // if (isDeleting || !onDelete) return;
-    // const confirmed = confirm("Bạn có chắc chắn muốn xóa bài viết này không?");
-    // if (!confirmed) return;
-    // setIsDeleting(true);
-    // try {
-    //   await onDelete(highlightId);
-    // } catch (error) {
-    //   console.error("Failed to delete:", error);
-    //   alert("Không thể xóa bài viết. Vui lòng thử lại.");
-    // } finally {
-    //   setIsDeleting(false);
-    // }
-  };
-
-  const canDelete = currentUserId === userId;
 
   return (
     <div className="flex items-center justify-between w-full border-t border-gray-200 dark:border-gray-700 pt-2">
@@ -136,23 +127,24 @@ export function HighlightMenu({
   userId,
   currentUserId,
   highlight,
-  onDelete,
+  accessToken,
 }: HighlightMenuProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const canDelete = currentUserId === userId;
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async () => {
-    if (isDeleting || !onDelete) return;
-    const confirmed = confirm("Bạn có chắc chắn muốn xóa bài viết này không?");
-    if (!confirmed) return;
+    if (isDeleting) return;
 
     setIsDeleting(true);
     try {
-      await onDelete(highlightId);
+      await highlightApiRequest.deleteHighlight(highlightId, accessToken || "");
+      setIsDeleteDialogOpen(false);
+      router.refresh();
     } catch (error) {
       console.error("Failed to delete:", error);
-      alert("Không thể xóa bài viết. Vui lòng thử lại.");
+      toast("Không thể xóa bài viết. Vui lòng thử lại.");
     } finally {
       setIsDeleting(false);
     }
@@ -162,7 +154,13 @@ export function HighlightMenu({
     setIsEditDialogOpen(true);
   };
 
-  if (!canDelete) return null;
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+  };
 
   return (
     <>
@@ -185,8 +183,9 @@ export function HighlightMenu({
             <Edit className="mr-2 h-4 w-4" />
             Chỉnh sửa
           </DropdownMenuItem>
+
           <DropdownMenuItem
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
             disabled={isDeleting}
             className="text-red-600 dark:text-red-400 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer"
           >
@@ -195,6 +194,35 @@ export function HighlightMenu({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa bài viết</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không
+              thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelDelete}
+              disabled={isDeleting}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Đang xóa..." : "Xóa"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Update Dialog */}
       {highlight && (
