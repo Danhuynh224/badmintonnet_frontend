@@ -21,6 +21,8 @@ export const AccountRes = z
       createdBy: z.string(),
       updatedBy: z.string(),
       slug: z.string(),
+      reputationScore: z.int(),
+      totalParticipatedEvents: z.int(),
     }),
     message: z.string(),
   })

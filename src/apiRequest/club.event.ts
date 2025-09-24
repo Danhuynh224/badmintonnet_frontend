@@ -4,9 +4,12 @@ import { FileResType } from "@/schemaValidations/common.schema";
 import {
   CreateEventClubBodyType,
   EventDetailResponseType,
+  EventParticipantStatus,
   PagedEventResponseType,
   PagedParticipantResponseType,
+  ParticipantType,
   UpdateEventClubBodyType,
+  UpdateEventParticipantStatus,
 } from "@/schemaValidations/event.schema";
 import { Update } from "next/dist/build/swc/types";
 
@@ -104,5 +107,10 @@ const eventClubApiRequest = {
 
   rejectParticipant: (id: string, eventId: string) =>
     http.put(`/club-event/${eventId}/participant/${id}/reject`),
+  updateStatusParticipant: (
+    id: string,
+    eventId: string,
+    body: UpdateEventParticipantStatus
+  ) => http.put(`/club-event/${eventId}/participant/${id}`, body),
 };
 export default eventClubApiRequest;

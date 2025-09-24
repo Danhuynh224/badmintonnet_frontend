@@ -22,12 +22,19 @@ const EventStatusEnum = z.enum([
   "DRAFT",
 ]);
 
-const EventParticipantStatusEnum = z.enum([
+export const EventParticipantStatusEnum = z.enum([
   "PENDING",
   "APPROVED",
   "ATTENDED",
   "ABSENT",
 ]);
+export type EventParticipantStatus = z.infer<typeof EventParticipantStatusEnum>;
+export const UpdateEventParticipantStatus = z.object({
+  status: EventParticipantStatusEnum,
+});
+export type UpdateEventParticipantStatus = z.infer<
+  typeof UpdateEventParticipantStatus
+>;
 export const ParticipantRoleEnum = z.enum(["OWNER", "MEMBER", "GUEST"]);
 // Schema for file uploads (MultipartFile in Java)
 const FileSchema = z
@@ -230,6 +237,7 @@ export const EventDetailSchema = z.object({
   maxLevel: z.number(),
   participantRole: ParticipantRoleEnum,
   participantStatus: EventParticipantStatusEnum,
+  sendReason: z.boolean(),
 });
 
 export const EventDetailResponse = z.object({
@@ -257,6 +265,8 @@ export const ParticipantSchema = z.object({
   overallScore: z.number(),
   skillLevel: z.string(),
   slug: z.string(),
+  reputationScore: z.int(),
+  totalParticipatedEvents: z.int(),
 });
 export const PagedParticipantResponse = z.object({
   status: z.number(),

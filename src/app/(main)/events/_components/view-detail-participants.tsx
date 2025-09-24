@@ -113,8 +113,16 @@ export default function ViewDetailParticipants({
                   {participant.fullName}
                 </h2>
               </a>
-              <p className="text-sm text-gray-500">{participant.email}</p>
 
+              <p className="text-sm text-gray-500">{participant.email}</p>
+              <div className=" sm:flex-row sm:gap-4 justify-center text-sm text-gray-600 dark:text-gray-300">
+                <p className="font-medium">
+                  Uy tín:{" "}
+                  <span className="mt-1 text-gray-900 dark:text-gray-100">
+                    {participant.reputationScore}
+                  </span>
+                </p>
+              </div>
               {/* Giới tính + Ngày tham gia */}
               <div className="flex items-center justify-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span>
@@ -198,6 +206,19 @@ export default function ViewDetailParticipants({
                   {participant.skillLevel}
                 </div>
               </div>
+              {participant.totalParticipatedEvents > 0 ? (
+                <p className="font-medium text-center">
+                  Đã tham gia:{" "}
+                  <span className=" text-gray-900 dark:text-gray-100">
+                    {participant.totalParticipatedEvents}
+                  </span>{" "}
+                  hoạt động
+                </p>
+              ) : (
+                <p className="font-medium text-center">
+                  Chưa từng tham gia hoạt động
+                </p>
+              )}
             </div>
           )}
 

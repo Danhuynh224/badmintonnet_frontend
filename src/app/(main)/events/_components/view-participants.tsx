@@ -16,6 +16,7 @@ import {
 import React from "react";
 import ViewDetailParticipants from "@/app/(main)/events/_components/view-detail-participants";
 import Link from "next/link";
+import Attendance from "@/app/(main)/events/_components/attendance";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:
@@ -159,7 +160,7 @@ function ParticipantCard({
   eventId: string;
 }) {
   return (
-    <div className="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+    <div className="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 ">
       {/* Gradient accent */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-600"></div>
 
@@ -232,21 +233,38 @@ function ParticipantCard({
             </div>
 
             {/* Status + Actions */}
-            <div className="flex items-center justify-between">
-              <Badge
+            <div className="flex items-center justify-end">
+              {/* <Badge
                 className={`${
                   STATUS_COLORS[participant.status]
                 } flex items-center gap-2 px-3 py-2 text-sm font-medium border`}
               >
                 {STATUS_ICONS[participant.status]}
                 {STATUS_LABELS[participant.status]}
-              </Badge>
+              </Badge> */}
 
-              {participant.status === "PENDING" && (
+              {participant.status === "PENDING" ? (
                 <ViewDetailParticipants
                   participant={participant}
                   eventId={eventId}
                 />
+              ) : (
+                <>
+                  {participant.status === "ABSENT" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-500 dark:text-red-400 border-red-300 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-md px-3 py-1 mr-2 transition-colors duration-150"
+                    >
+                      Xem lý do
+                    </Button>
+                  )}
+                  <Attendance
+                    eventId={eventId}
+                    participantId={participant.id}
+                    value={participant.status}
+                  />
+                </>
               )}
             </div>
           </div>
