@@ -3,6 +3,7 @@
 import ProfileEditModal from "@/app/(main)/profile/_components/profile-edit-modal";
 import ProfileHeader from "@/app/(main)/profile/_components/profile-header";
 import { AccountResType } from "@/schemaValidations/account.schema";
+import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
 import { useState } from "react";
 
 type Profile = AccountResType["data"];
@@ -10,11 +11,15 @@ type Profile = AccountResType["data"];
 interface ProfileContainerProps {
   canEdit?: boolean;
   profile: Profile;
+  relationship?: FriendShipSchemaType | null;
+  currentUserId?: string;
 }
 
 export default function ProfileContainer({
   canEdit = true,
   profile,
+  relationship,
+  currentUserId,
 }: ProfileContainerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,6 +38,8 @@ export default function ProfileContainer({
         onEditToggle={handleEditToggle}
         isEditing={isModalOpen}
         canEdit={canEdit}
+        relationship={relationship}
+        currentUserId={currentUserId}
       />
 
       <div className="mt-8">

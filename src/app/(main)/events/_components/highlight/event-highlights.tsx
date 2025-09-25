@@ -12,6 +12,7 @@ import HighlightActions, {
   HighlightMenu,
 } from "@/app/(main)/events/_components/highlight/highlight-action";
 import { MediaSchemaType } from "@/schemaValidations/highlight.schema";
+import Link from "next/link";
 
 interface EventHighlightsProps {
   eventId: string;
@@ -84,31 +85,38 @@ export default async function EventHighlights({
               <CardHeader className="pb-3 px-5 pt-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <Avatar className="w-9 h-9">
-                      <AvatarImage
-                        src={highlight.authorAvatar}
-                        alt={highlight.authorName}
-                      />
-                      <AvatarFallback className="bg-blue-500 text-white text-sm">
-                        {highlight.authorName.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                        {highlight.authorName}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(highlight.createdAt).toLocaleDateString(
-                          "vi-VN",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </p>
-                    </div>
+                    <Link
+                      href={`/profile/${highlight.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-3"
+                    >
+                      <Avatar className="w-9 h-9">
+                        <AvatarImage
+                          src={highlight.authorAvatar}
+                          alt={highlight.authorName}
+                        />
+                        <AvatarFallback className="bg-blue-500 text-white text-sm">
+                          {highlight.authorName.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
+                          {highlight.authorName}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(highlight.createdAt).toLocaleDateString(
+                            "vi-VN",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </p>
+                      </div>
+                    </Link>
                   </div>
                   <HighlightMenu
                     highlightId={highlight.id}
@@ -119,7 +127,6 @@ export default async function EventHighlights({
                   />
                 </div>
               </CardHeader>
-
               {/* Content */}
               <CardContent className="px-5 py-0">
                 {highlight.content && (

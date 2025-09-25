@@ -19,6 +19,7 @@ export const HighlightSchema = z.object({
   likeCount: z.number().default(0),
   commentCount: z.number().default(0),
   userId: z.string(),
+  slug: z.string(),
   currentUserId: z.string().optional(), // ID người dùng hiện tại, có thể null nếu chưa đăng nhập
 });
 

@@ -1,4 +1,5 @@
 import accountApiRequest from "@/apiRequest/account";
+import friendApiRequest from "@/apiRequest/friend";
 import ProfileContainer from "@/app/(main)/profile/_components/profile-container";
 import ProfileStats from "@/app/(main)/profile/_components/profile-stats";
 import { cookies } from "next/headers";
@@ -13,6 +14,10 @@ export default async function ProfileDetailPage({
   const accessToken = cookieStore.get("accessToken");
   const { id } = await params;
   let profile;
+  let relationship = null as unknown as
+    | import("@/schemaValidations/friend.schema").FriendShipSchemaType
+    | null;
+  let currentUserId: string | null = null;
 
   try {
     if (!accessToken?.value) {
@@ -20,6 +25,21 @@ export default async function ProfileDetailPage({
     }
     const res = await accountApiRequest.getOtherAccount(accessToken.value, id);
     profile = res.payload.data;
+
+    // fetch current user to know requester/receiver role for actions
+    const me = await accountApiRequest.getAccount(accessToken.value);
+    currentUserId = me.payload.data.id;
+
+    // Fetch relationship status with this profile
+    try {
+      const relRes = await friendApiRequest.getRelationships(
+        profile.id,
+        accessToken.value
+      );
+      relationship = relRes.payload.data ?? null;
+    } catch (e) {
+      relationship = null;
+    }
     // console.log("Profile data:", profile);
   } catch (error) {
     console.log("Error fetching clubs:", error);
@@ -39,7 +59,12 @@ export default async function ProfileDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           {/* Thông tin cá nhân (chiếm 2 cột trên desktop) */}
           <div className="lg:col-span-2">
-            <ProfileContainer canEdit={false} profile={profile} />
+            <ProfileContainer
+              canEdit={false}
+              profile={profile}
+              relationship={relationship}
+              currentUserId={currentUserId || ""}
+            />
           </div>
 
           {/* Thống kê (chiếm 1 cột) */}

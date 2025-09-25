@@ -124,9 +124,8 @@ export default function ProfileEditModal({
       toast.success(res.payload.message || "Cập nhật hồ sơ thành công");
       router.refresh();
       onClose();
-    } catch (error: any) {
-      const message = error?.payload?.message || "Cập nhật thất bại";
-      toast.error(message);
+    } catch (error: unknown) {
+      toast.error("Cập nhật thất bại. Vui lòng thử lại.");
     } finally {
       setIsUploading(false);
     }
