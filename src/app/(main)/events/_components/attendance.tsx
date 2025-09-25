@@ -18,15 +18,14 @@ const statusConfig: Record<
   ATTENDED: {
     label: "Có mặt",
     color: "text-green-700 dark:text-green-300",
-    bgColor: "bg-green-50 border-green-200 hover:bg-green-100",
-    darkBgColor:
-      "dark:bg-green-950 dark:border-green-800 dark:hover:bg-green-900",
+    bgColor: "bg-green-50 border-green-200",
+    darkBgColor: "dark:bg-green-950 dark:border-green-800",
   },
   ABSENT: {
     label: "Vắng mặt",
     color: "text-red-700 dark:text-red-300",
-    bgColor: "bg-red-50 border-red-200 hover:bg-red-100",
-    darkBgColor: "dark:bg-red-950 dark:border-red-800 dark:hover:bg-red-900",
+    bgColor: "bg-red-50 border-red-200",
+    darkBgColor: "dark:bg-red-950 dark:border-red-800",
   },
   PENDING: { label: "", color: "", bgColor: "", darkBgColor: "" },
   APPROVED: { label: "", color: "", bgColor: "", darkBgColor: "" },
@@ -72,20 +71,22 @@ export default function AttendanceDropdown({
       value={selectedConfig || ""}
       onValueChange={(val) => handleChange(val as EventParticipantStatus)}
     >
+      {/* Trigger */}
       <SelectTrigger
         className={`
-      w-42 border rounded-md transition-all duration-200
-      ${
-        selectedConfig
-          ? `${statusConfig[selectedConfig].color} ${statusConfig[selectedConfig].bgColor} ${statusConfig[selectedConfig].darkBgColor} font-medium`
-          : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
-      }
-      ${isFinal ? "pointer-events-none" : ""} 
-    `}
+          w-42 border rounded-md transition-all duration-200
+          ${
+            selectedConfig
+              ? `${statusConfig[selectedConfig].color} ${statusConfig[selectedConfig].bgColor} ${statusConfig[selectedConfig].darkBgColor} font-medium`
+              : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
+          }
+          ${isFinal ? "pointer-events-none" : ""}
+        `}
       >
         <SelectValue placeholder="Xác nhận tham gia" />
       </SelectTrigger>
 
+      {/* Content */}
       <SelectContent className="rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md dark:shadow-lg">
         {options.map((status) => {
           const config = statusConfig[status];
@@ -93,7 +94,17 @@ export default function AttendanceDropdown({
             <SelectItem
               key={status}
               value={status}
-              className={`${config.color} ${config.bgColor} ${config.darkBgColor} font-medium cursor-pointer data-[highlighted]:bg-opacity-80 dark:data-[highlighted]:bg-opacity-80 rounded-md`}
+              className={`
+                ${config.color} ${config.bgColor} ${
+                config.darkBgColor
+              } font-medium cursor-pointer
+                data-[highlighted]:${
+                  status === "ATTENDED"
+                    ? "bg-green-100 dark:bg-green-900"
+                    : "bg-red-100 dark:bg-red-900"
+                }
+                rounded-md transition-colors duration-200
+              `}
             >
               <div className="flex items-center gap-2">
                 <span

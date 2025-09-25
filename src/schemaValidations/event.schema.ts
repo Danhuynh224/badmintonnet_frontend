@@ -267,6 +267,7 @@ export const ParticipantSchema = z.object({
   slug: z.string(),
   reputationScore: z.int(),
   totalParticipatedEvents: z.int(),
+  sendReason: z.boolean(),
 });
 export const PagedParticipantResponse = z.object({
   status: z.number(),

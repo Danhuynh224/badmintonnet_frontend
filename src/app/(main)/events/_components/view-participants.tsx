@@ -17,6 +17,8 @@ import React from "react";
 import ViewDetailParticipants from "@/app/(main)/events/_components/view-detail-participants";
 import Link from "next/link";
 import Attendance from "@/app/(main)/events/_components/attendance";
+import AbsenceDialog from "@/app/(main)/events/_components/absent-reason/absence-dialog";
+import ReasonDialog from "@/app/(main)/events/_components/absent-reason/view-reason";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:
@@ -249,22 +251,17 @@ function ParticipantCard({
                   eventId={eventId}
                 />
               ) : (
-                <>
-                  {participant.status === "ABSENT" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-500 dark:text-red-400 border-red-300 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-md px-3 py-1 mr-2 transition-colors duration-150"
-                    >
-                      Xem lý do
-                    </Button>
-                  )}
+                <div className="pl-2 flex items-center gap-2">
+                  {participant.status === "ABSENT" &&
+                    participant.sendReason && (
+                      <ReasonDialog idPart={participant.id} />
+                    )}
                   <Attendance
                     eventId={eventId}
                     participantId={participant.id}
                     value={participant.status}
                   />
-                </>
+                </div>
               )}
             </div>
           </div>

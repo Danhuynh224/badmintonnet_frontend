@@ -51,7 +51,7 @@ export default function AbsenceDialog({ eventId }: AbsenceDialogProps) {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border-red-300 rounded-lg shadow-sm hover:bg-red-50 hover:text-red-400 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/20 transition-colors duration-200"
+          className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border-red-300 rounded-lg shadow-sm hover:bg-red-50 hover:text-red-400 dark:text-red-300 dark:bg-red-950 dark:border-red-800 dark:hover:bg-red-900 transition-colors duration-200"
         >
           Gửi lý do
         </Button>

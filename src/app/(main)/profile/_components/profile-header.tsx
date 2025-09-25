@@ -8,6 +8,7 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { AccountResType } from "@/schemaValidations/account.schema";
+import ReputationHistoryDialog from "@/app/(main)/profile/_components/view-reputation-history";
 
 type Profile = AccountResType["data"];
 
@@ -77,7 +78,7 @@ export default function ProfileHeader({
 
           {/* Nút chỉnh sửa (Bottom-left) */}
           {canEdit && (
-            <div className="mt-4 sm:mt-6 flex justify-center sm:justify-start w-full">
+            <div className="mt-4 sm:mt-6  gap-2 flex justify-center sm:justify-start w-full">
               <Button
                 onClick={onEditToggle}
                 variant={isEditing ? "secondary" : "outline"}
@@ -95,6 +96,7 @@ export default function ProfileHeader({
                   </>
                 )}
               </Button>
+              <ReputationHistoryDialog />
             </div>
           )}
         </div>
