@@ -4,6 +4,7 @@ import {
   AccountResType,
   PlayerRatingCreateBodyType,
   PlayerRatingResponseType,
+  ReputationHistoryResponseType,
   UpdateProfileBodyType,
 } from "@/schemaValidations/account.schema";
 import {
@@ -41,6 +42,16 @@ const accountApiRequest = {
 
   getPlayerRating: (accessToken?: string) =>
     http.get<PlayerRatingResponseType>("/account/player-rating", {
+      ...(accessToken
+        ? {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        : {}),
+    }),
+  getReputationHistory: (accessToken?: string) =>
+    http.get<ReputationHistoryResponseType>("/account/reputation-history", {
       ...(accessToken
         ? {
             headers: {

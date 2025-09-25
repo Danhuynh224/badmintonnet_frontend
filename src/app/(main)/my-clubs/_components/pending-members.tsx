@@ -243,35 +243,47 @@ export default function PendingMembers({
                     ) : detailData ? (
                       <div className="space-y-6">
                         {/* Header với avatar và tên */}
-                        <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="flex flex-col items-center text-center space-y-4 bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                           <div className="relative">
                             <Image
                               src={selectedMember?.avatar || "/user.png"}
                               alt={detailData.fullName}
-                              width={80}
-                              height={80}
-                              className="h-20 w-20 rounded-full object-cover border-4 border-blue-100"
+                              width={96}
+                              height={96}
+                              className="h-24 w-24 rounded-full object-cover border-4 border-blue-200 dark:border-blue-800 shadow-md"
                             />
                             <Badge
                               variant="secondary"
-                              className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-orange-100 text-orange-800"
+                              className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-orange-200 text-orange-900 dark:bg-orange-900/30 dark:text-orange-300 text-xs font-medium px-2 py-1 rounded-full"
                             >
                               Chờ duyệt
                             </Badge>
                           </div>
-                          <div>
+                          <div className="space-y-2">
                             <a
                               href={`/profile/${detailData.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
+                              className="hover:underline"
                             >
-                              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                                 {detailData.fullName}
                               </h2>
                             </a>
-                            <p className="text-sm text-gray-500">
-                              Thành viên mới
-                            </p>
+                            <div className=" sm:flex-row sm:gap-4 justify-center text-sm text-gray-600 dark:text-gray-300">
+                              <p className="font-medium">
+                                Uy tín:{" "}
+                                <span className="mt-1 text-gray-900 dark:text-gray-100">
+                                  {detailData.reputationScore}
+                                </span>
+                              </p>
+                              <p className="font-medium mt-1">
+                                Số hoạt động tham gia:{" "}
+                                <span className=" text-gray-900 dark:text-gray-100">
+                                  {detailData.totalParticipatedEvents}
+                                </span>
+                              </p>
+                            </div>
                           </div>
                         </div>
                         {detailData.skillLevel && (

@@ -12,6 +12,7 @@ import {
   CircleStar,
   CheckCircle,
   GraduationCap,
+  UserX,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import ViewRating from "@/app/(main)/events/_components/view-rating";
 import EventHighlights from "@/app/(main)/events/_components/highlight/event-highlights";
 import CreateHighlightButton from "@/app/(main)/events/_components/highlight/create-highlight-button";
 import ParticipantsSection from "@/app/(main)/events/_components/view-participants";
+import AbsenceDialog from "@/app/(main)/events/_components/absent-reason/absence-dialog";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -132,6 +134,97 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
       </Badge>
     );
   };
+  const renderParticipantStatus = (
+    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT"
+  ) => {
+    // const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    if (!status) return null;
+
+    const STATUS_CONFIG = {
+      PENDING: {
+        bg: "bg-amber-50 dark:bg-amber-900/20",
+        border: "border border-amber-200 dark:border-amber-800",
+        icon: <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />,
+        title: "Chờ duyệt",
+        subtitle: "Đang chờ xác nhận tham gia",
+        iconBg: "bg-amber-100 dark:bg-amber-900/30",
+        textColor: "text-amber-900 dark:text-amber-300",
+        subTextColor: "text-amber-700 dark:text-amber-400",
+      },
+      APPROVED: {
+        bg: "bg-emerald-50 dark:bg-emerald-900/20",
+        border: "border border-emerald-200 dark:border-emerald-800",
+        icon: (
+          <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+        ),
+        title: "Đã duyệt",
+        subtitle: "Bạn đã đăng ký thành công",
+        iconBg: "bg-emerald-100 dark:bg-emerald-900/30",
+        textColor: "text-emerald-900 dark:text-emerald-300",
+        subTextColor: "text-emerald-700 dark:text-emerald-400",
+      },
+      ATTENDED: {
+        bg: "bg-green-50 dark:bg-green-900/20",
+        border: "border border-green-200 dark:border-green-800",
+        icon: (
+          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+        ),
+        title: "Đã tham gia",
+        subtitle: "Bạn đã được xác nhận tham gia hoạt động",
+        iconBg: "bg-green-100 dark:bg-green-900/30",
+        textColor: "text-green-900 dark:text-green-300",
+        subTextColor: "text-green-700 dark:text-green-400",
+      },
+      ABSENT: {
+        bg: "bg-red-50 dark:bg-red-900/20",
+        border: "border border-red-200 dark:border-red-800",
+        icon: <UserX className="w-5 h-5 text-red-600 dark:text-red-400" />,
+        title: "Vắng mặt",
+        subtitle: "Bạn đã không tham gia hoạt động",
+        iconBg: "bg-red-100 dark:bg-red-900/30",
+        textColor: "text-red-900 dark:text-red-300",
+        subTextColor: "text-red-700 dark:text-red-400",
+      },
+    };
+
+    const conf = STATUS_CONFIG[status];
+
+    return (
+      <>
+        <div
+          className={`relative flex items-start gap-3 p-3 rounded-xl ${conf.bg} ${conf.border}`}
+        >
+          <div
+            className={`w-10 h-10 ${conf.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}
+          >
+            {conf.icon}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className={`text-sm font-medium ${conf.textColor}`}>
+              {conf.title}
+            </p>
+            <p className={`text-sm font-semibold ${conf.subTextColor}`}>
+              {conf.subtitle}
+            </p>
+          </div>
+
+          {/* Dialog đặt ở góc phải của item */}
+          {status === "ABSENT" && (
+            <div className="ml-auto flex items-center">
+              {!eventDetail.sendReason ? (
+                <AbsenceDialog eventId={eventDetail.id} />
+              ) : (
+                <span className="px-4 py-2 text-sm font-medium text-red-700 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700 transition-colors duration-200">
+                  Đã gửi lý do
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -223,21 +316,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
 
               <div className="space-y-4">
                 {/* Joined Status */}
-                {eventDetail.joined && (
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-green-900 dark:text-green-300">
-                        Trạng thái
-                      </p>
-                      <p className="text-sm text-green-700 dark:text-green-400 font-semibold">
-                        Đã tham gia
-                      </p>
-                    </div>
-                  </div>
-                )}
+                {renderParticipantStatus(eventDetail.participantStatus)}
 
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                   <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">

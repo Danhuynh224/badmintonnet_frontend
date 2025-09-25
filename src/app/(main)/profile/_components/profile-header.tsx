@@ -10,20 +10,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
 import {
   PencilIcon,
-  CameraIcon,
   XMarkIcon,
   EnvelopeIcon,
   EllipsisVerticalIcon,
   UserMinusIcon,
   ShieldExclamationIcon,
+  UserPlusIcon,
+  CheckIcon,
+  ClockIcon,
+  CameraIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 import { AccountResType } from "@/schemaValidations/account.schema";
 import friendApiRequest from "@/apiRequest/friend";
 import { FriendShipSchemaType } from "@/schemaValidations/friend.schema";
 import { clientSessionToken } from "@/lib/http";
+import ReputationHistoryDialog from "@/app/(main)/profile/_components/view-reputation-history";
 
 type Profile = AccountResType["data"];
 
@@ -45,33 +49,15 @@ export default function ProfileHeader({
   currentUserId,
 }: ProfileHeaderProps) {
   const router = useRouter();
-
   const accessToken = clientSessionToken.value;
 
-  const isMe = !canEdit;
+  const isMe = canEdit;
   const isRequester =
     relationship && currentUserId
       ? relationship.requester.id === currentUserId
       : false;
-
   const isFriend = relationship?.status === "ACCEPTED";
   const isPending = relationship?.status === "PENDING";
-
-  const statusLabel = (() => {
-    if (!relationship) return "Thêm bạn bè";
-    switch (relationship.status) {
-      case "PENDING":
-        return isRequester ? "Đã gửi lời mời" : "Phản hồi";
-      case "ACCEPTED":
-        return "Bạn bè";
-      case "REJECTED":
-        return "Thêm bạn bè";
-      case "BLOCKED":
-        return "Đã chặn";
-      default:
-        return "Thêm bạn bè";
-    }
-  })();
 
   const handleSendRequest = async () => {
     if (!accessToken) {
@@ -136,8 +122,6 @@ export default function ProfileHeader({
     if (!accessToken || !relationship) return;
     try {
       console.log("Hủy kết bạn với:", profile.id);
-      // Gọi API hủy kết bạn ở đây
-      // await friendApiRequest.unfriend(profile.id, accessToken);
       toast.success("Đã hủy kết bạn");
       router.refresh();
     } catch (err: unknown) {
@@ -149,8 +133,6 @@ export default function ProfileHeader({
     if (!accessToken) return;
     try {
       console.log("Chặn người dùng:", profile.id);
-      // Gọi API chặn người dùng ở đây
-      // await friendApiRequest.blockUser(profile.id, accessToken);
       toast.success("Đã chặn người dùng");
       router.refresh();
     } catch (err: unknown) {
@@ -159,145 +141,222 @@ export default function ProfileHeader({
   };
 
   return (
-    <div className="relative bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 text-white">
-      <div className="absolute inset-0 bg-black opacity-20 rounded-2xl"></div>
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+      {/* Cover Photo */}
+      <div className="relative h-72 sm:h-80 bg-gray-200 dark:bg-gray-800 overflow-hidden">
+        <Image
+          src={"/cover.jpg"}
+          alt="Cover photo"
+          fill
+          className="object-cover"
+          priority
+        />
 
-      <div className="relative flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
-        {/* Avatar */}
-        <div className="relative">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-xl">
-            <Image
-              src={profile.avatarUrl ? profile.avatarUrl : "/user.png"}
-              alt="Avatar"
-              priority
-              width={128}
-              height={128}
-              className="object-cover w-full h-full"
-            />
+        {/* Cover Photo Edit Button (for own profile) */}
+        {isMe && (
+          <div className="absolute bottom-4 right-4">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="bg-white/90 hover:bg-white text-gray-900 shadow-sm backdrop-blur-sm"
+            >
+              <CameraIcon className="h-4 w-4 mr-2" />
+              Chỉnh sửa ảnh bìa
+            </Button>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Thông tin cơ bản */}
-        <div className="flex-1 text-center sm:text-left">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-bold">
-                {profile.fullName}
-              </h1>
-              <p className="text-white/80 flex items-center justify-center sm:justify-start">
-                <EnvelopeIcon className="h-4 w-4 mr-2" />
-                {profile.email}
-              </p>
+      {/* Profile Info Container */}
+      <div className="relative px-6 pb-6">
+        {/* Avatar positioned over cover */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between -mt-5 relative z-10">
+          {/* Left side - Avatar and Name */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:gap-6">
+            {/* Avatar */}
+            <div className="relative mb-4 sm:mb-0">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-900 shadow-lg bg-white dark:bg-gray-900">
+                <Image
+                  src={profile.avatarUrl || "/user.png"}
+                  alt={profile.fullName}
+                  width={128}
+                  height={128}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </div>
+
+              {/* Avatar Edit Button (for own profile) */}
+              {isMe && (
+                <div className="absolute bottom-2 right-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-8 w-8 p-0 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+                  >
+                    <CameraIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
 
-            {/* Các nút hành động */}
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              {canEdit && (
+            {/* Name and Info */}
+            <div className="flex-1 pb-2">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {profile.fullName}
+              </h1>
+
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-3">
+                <EnvelopeIcon className="h-4 w-4" />
+                <span className="text-sm">{profile.email}</span>
+              </div>
+
+              {/* Stats Row */}
+              <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {profile.reputationScore ?? 0}
+                  </span>
+                  <span>điểm uy tín</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {profile.totalParticipatedEvents ?? 0}
+                  </span>
+                  <span>sự kiện tham gia</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - Action Buttons */}
+          <div className="flex gap-2 mt-4 sm:mt-0 sm:pb-2">
+            {isMe ? (
+              // Own Profile Actions
+              <>
                 <Button
                   onClick={onEditToggle}
-                  variant={isEditing ? "secondary" : "outline"}
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 w-full sm:w-auto"
+                  variant={isEditing ? "outline" : "default"}
+                  className={
+                    isEditing
+                      ? "flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                      : "flex items-center gap-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+                  }
                 >
                   {isEditing ? (
                     <>
-                      <XMarkIcon className="h-4 w-4 mr-2" />
+                      <XMarkIcon className="h-4 w-4" />
                       Hủy
                     </>
                   ) : (
                     <>
-                      <PencilIcon className="h-4 w-4 mr-2" />
-                      Chỉnh sửa
+                      <PencilIcon className="h-4 w-4" />
+                      Chỉnh sửa trang cá nhân
                     </>
                   )}
                 </Button>
-              )}
+                <ReputationHistoryDialog />
+              </>
+            ) : (
+              // Other User Actions
+              <>
+                {/* Pending Request - Received */}
+                {isPending && !isRequester && (
+                  <>
+                    <Button
+                      onClick={handleAccept}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+                    >
+                      <CheckIcon className="h-4 w-4" />
+                      Chấp nhận
+                    </Button>
+                    <Button
+                      onClick={handleReject}
+                      variant="outline"
+                      className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      Từ chối
+                    </Button>
+                  </>
+                )}
 
-              {!canEdit && (
-                <>
-                  {/* Trạng thái chờ kết bạn */}
-                  {isPending && !isRequester && (
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <Button
-                        onClick={handleAccept}
-                        variant="secondary"
-                        className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex-1 sm:flex-none"
-                      >
-                        Chấp nhận
-                      </Button>
-                      <Button
-                        onClick={handleReject}
-                        variant="outline"
-                        className="bg-white/10 border-white/20 text-white hover:bg-white/20 flex-1 sm:flex-none"
-                      >
-                        Từ chối
-                      </Button>
-                    </div>
-                  )}
+                {/* Already Friends */}
+                {isFriend && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-900/20"
+                    >
+                      <UsersIcon className="h-4 w-4" />
+                      Bạn bè
+                    </Button>
+                    <Button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
+                      Nhắn tin
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        >
+                          <EllipsisVerticalIcon className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem
+                          onClick={handleUnfriend}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <UserMinusIcon className="h-4 w-4 mr-2" />
+                          Hủy kết bạn
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={handleBlock}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <ShieldExclamationIcon className="h-4 w-4 mr-2" />
+                          Chặn
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
 
-                  {/* Đã là bạn bè - Hiển thị dropdown */}
-                  {isFriend && (
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <Button
-                        disabled
-                        variant="secondary"
-                        className="bg-white/10 text-white flex-1 sm:flex-none"
-                      >
-                        ✓ Bạn bè
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                          >
-                            <EllipsisVerticalIcon className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem
-                            onClick={handleUnfriend}
-                            className="text-red-600 cursor-pointer"
-                          >
-                            <UserMinusIcon className="h-4 w-4 mr-2" />
-                            Hủy kết bạn
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={handleBlock}
-                            className="text-red-600 cursor-pointer"
-                          >
-                            <ShieldExclamationIcon className="h-4 w-4 mr-2" />
-                            Chặn
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
-
-                  {/* Các trạng thái khác */}
-                  {!isFriend && !isPending && (
+                {/* No Relationship or Rejected */}
+                {!isFriend && !isPending && (
+                  <>
                     <Button
                       onClick={handleSendRequest}
-                      variant="secondary"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 w-full sm:w-auto"
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
                     >
-                      {statusLabel}
+                      <UserPlusIcon className="h-4 w-4" />
+                      Thêm bạn bè
                     </Button>
-                  )}
+                    <Button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
+                      Nhắn tin
+                    </Button>
+                  </>
+                )}
 
-                  {/* Đã gửi lời mời - Chờ phản hồi */}
-                  {isPending && isRequester && (
+                {/* Pending Request - Sent */}
+                {isPending && isRequester && (
+                  <>
                     <Button
                       disabled
-                      variant="secondary"
-                      className="bg-white/10 border-white/20 text-white w-full sm:w-auto"
+                      variant="outline"
+                      className="flex items-center gap-2 border-blue-200 text-blue-600 cursor-not-allowed bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:bg-blue-900/20"
                     >
-                      ⌛ Đã gửi lời mời
+                      <ClockIcon className="h-4 w-4" />
+                      Đã gửi lời mời
                     </Button>
-                  )}
-                </>
-              )}
-            </div>
+                    <Button className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white">
+                      Nhắn tin
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

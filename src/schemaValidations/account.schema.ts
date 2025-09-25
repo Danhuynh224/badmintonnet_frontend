@@ -21,6 +21,8 @@ export const AccountRes = z
       createdBy: z.string(),
       updatedBy: z.string(),
       slug: z.string(),
+      reputationScore: z.int(),
+      totalParticipatedEvents: z.int(),
     }),
     message: z.string(),
   })
@@ -110,3 +112,22 @@ export const PlayerRatingResponse = z.object({
 });
 
 export type PlayerRatingResponseType = z.TypeOf<typeof PlayerRatingResponse>;
+
+export const ReputationHistory = z.object({
+  id: z.string(),
+  change: z.number().int(),
+  reason: z.string(),
+  createdAt: z.coerce.date(),
+});
+
+export type ReputationHistoryType = z.TypeOf<typeof ReputationHistory>;
+
+export const ReputationHistoryResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(ReputationHistory),
+});
+
+export type ReputationHistoryResponseType = z.TypeOf<
+  typeof ReputationHistoryResponse
+>;

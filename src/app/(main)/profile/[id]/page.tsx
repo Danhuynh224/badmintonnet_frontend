@@ -60,7 +60,7 @@ export default async function ProfileDetailPage({
           {/* Thông tin cá nhân (chiếm 2 cột trên desktop) */}
           <div className="lg:col-span-2">
             <ProfileContainer
-              canEdit={false}
+              canEdit={profile.id === currentUserId}
               profile={profile}
               relationship={relationship}
               currentUserId={currentUserId || ""}
@@ -69,7 +69,7 @@ export default async function ProfileDetailPage({
 
           {/* Thống kê (chiếm 1 cột) */}
           <div className="lg:col-span-1">
-            <ProfileStats canEdit={false} />
+            <ProfileStats canEdit={profile.id === currentUserId} />
           </div>
         </div>
       </div>

@@ -188,6 +188,8 @@ export const ClubMemberDetail = z.object({
 
   createdAt: z.coerce.date(),
   slug: z.string(),
+  reputationScore: z.int(),
+  totalParticipatedEvents: z.int(),
 });
 export const ClubMemberDetailRes = z.object({
   status: z.number(),
