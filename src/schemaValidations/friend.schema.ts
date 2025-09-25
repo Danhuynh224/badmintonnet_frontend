@@ -36,3 +36,19 @@ export const AddFriendBody = z.object({
 });
 
 export type AddFriendBodyType = z.TypeOf<typeof AddFriendBody>;
+
+export const AccountFriendSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  avatarUrl: z.string(),
+  skillLevel: z.string(),
+});
+
+export type AccountFriendSchemaType = z.TypeOf<typeof AccountFriendSchema>;
+
+export const FriendListResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(AccountFriendSchema),
+});
+export type FriendListResponseType = z.TypeOf<typeof FriendListResponse>;

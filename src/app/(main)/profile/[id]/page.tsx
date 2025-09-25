@@ -1,7 +1,10 @@
 import accountApiRequest from "@/apiRequest/account";
 import friendApiRequest from "@/apiRequest/friend";
-import ProfileContainer from "@/app/(main)/profile/_components/profile-container";
+import FriendList from "@/app/(main)/profile/_components/profile-friend-list";
+import ProfileHeaderSection from "@/app/(main)/profile/_components/profile-header-section";
+import ProfileInformation from "@/app/(main)/profile/_components/profile-information";
 import ProfileStats from "@/app/(main)/profile/_components/profile-stats";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cookies } from "next/headers";
 
 interface ProfileDetailPageProps {
@@ -55,22 +58,43 @@ export default async function ProfileDetailPage({
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Grid layout cho profile info và stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          {/* Thông tin cá nhân (chiếm 2 cột trên desktop) */}
-          <div className="lg:col-span-2">
-            <ProfileContainer
-              canEdit={profile.id === currentUserId}
-              profile={profile}
-              relationship={relationship}
-              currentUserId={currentUserId || ""}
-            />
-          </div>
+        <ProfileHeaderSection
+          profile={profile}
+          canEdit={profile.id === currentUserId}
+          relationship={relationship}
+          currentUserId={currentUserId || ""}
+        />
 
-          {/* Thống kê (chiếm 1 cột) */}
-          <div className="lg:col-span-1">
-            <ProfileStats canEdit={profile.id === currentUserId} />
-          </div>
+        <div className="mt-8">
+          <Tabs defaultValue="info" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <TabsTrigger value="info">Thông tin</TabsTrigger>
+              <TabsTrigger value="friend">Bạn bè</TabsTrigger>
+              <TabsTrigger value="activity">Hoạt động</TabsTrigger>
+              <TabsTrigger value="stats">Kỹ năng</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info" className="mt-6">
+              <ProfileInformation profile={profile} />
+            </TabsContent>
+
+            <TabsContent value="friend" className="mt-6">
+              <FriendList
+                accountId={profile.id}
+                accessToken={accessToken.value}
+              />
+            </TabsContent>
+
+            <TabsContent value="activity" className="mt-6">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-8 text-gray-600 dark:text-gray-300">
+                Đang phát triển
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stats" className="mt-6">
+              <ProfileStats canEdit={profile.id === currentUserId} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
