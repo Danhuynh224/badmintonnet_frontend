@@ -555,10 +555,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
                     Chia sẻ khoảnh khắc của bạn
                   </h2>
-                  <CreateHighlightButton
-                    eventId={eventDetail.id}
-                    user={user}
-                  />
+                  <CreateHighlightButton eventId={eventDetail.id} user={user} />
                 </div>
               )}
 
@@ -566,6 +563,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               <EventHighlights
                 eventId={eventDetail.id}
                 isFinished={eventDetail.status === "FINISHED"}
+                user={user}
               />
             </div>
           </>

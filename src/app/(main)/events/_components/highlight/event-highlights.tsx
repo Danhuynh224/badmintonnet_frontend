@@ -16,15 +16,18 @@ import {
   PostFriendSchemaType,
 } from "@/schemaValidations/highlight.schema";
 import Link from "next/link";
+import { AccountResType } from "@/schemaValidations/account.schema";
 
 interface EventHighlightsProps {
   eventId: string;
   isFinished: boolean;
+  user: AccountResType["data"];
 }
 
 export default async function EventHighlights({
   eventId,
   isFinished,
+  user,
 }: EventHighlightsProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
@@ -75,6 +78,7 @@ export default async function EventHighlights({
                 mediaType: media.type.toLowerCase() as "image" | "video",
               })
             ),
+            taggedList: highlight.taggedList || [],
             authorName: highlight.authorName,
             authorAvatar: highlight.authorAvatar,
           };
@@ -167,6 +171,7 @@ export default async function EventHighlights({
                     currentUserId={highlight.currentUserId}
                     highlight={highlightForEdit}
                     accessToken={accessToken?.value}
+                    user={user}
                   />
                 </div>
               </CardHeader>

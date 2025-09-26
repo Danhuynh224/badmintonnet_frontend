@@ -61,6 +61,7 @@ export const UpdateHighlightSchema = z.object({
   content: z.string().min(1, "Nội dung không được để trống"),
   keepFileNames: z.array(z.string()).optional(),
   newFileNames: z.array(z.string()).optional(),
+  taggedFriendIds: z.array(z.string()).optional(),
 });
 
 export type PostFriendSchemaType = z.infer<typeof PostFriendSchema>;

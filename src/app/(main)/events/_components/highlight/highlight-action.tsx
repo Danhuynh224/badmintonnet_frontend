@@ -21,6 +21,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AccountResType } from "@/schemaValidations/account.schema";
+import { PostFriendSchemaType } from "@/schemaValidations/highlight.schema";
 
 interface MediaItem {
   fileName: string;
@@ -46,10 +48,12 @@ interface HighlightMenuProps {
     id: string;
     content: string;
     mediaList: MediaItem[];
+    taggedList: PostFriendSchemaType[];
     authorName: string;
     authorAvatar?: string;
   };
   accessToken?: string;
+  user: AccountResType["data"];
 }
 
 export default function HighlightActions({
@@ -128,6 +132,7 @@ export function HighlightMenu({
   currentUserId,
   highlight,
   accessToken,
+  user,
 }: HighlightMenuProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -230,6 +235,7 @@ export function HighlightMenu({
           isOpen={isEditDialogOpen}
           onClose={() => setIsEditDialogOpen(false)}
           highlight={highlight}
+          user={user}
         />
       )}
     </>
