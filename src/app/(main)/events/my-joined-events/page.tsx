@@ -214,11 +214,11 @@ export default async function MyJoinedClubEvents({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
         {/* Header */}
         <div className="mb-8 text-center">
-          <FilterForm
+          {/* <FilterForm
             searchQuery={searchQuery}
             province={province}
             ward={ward}
-          />
+          /> */}
 
           {/* Tiêu đề gradient */}
           <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">

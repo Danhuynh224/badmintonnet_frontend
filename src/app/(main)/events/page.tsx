@@ -152,32 +152,20 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
     );
   }
   return (
-    <div className="min-h-screen p-4 lg:p-8 bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8 text-center">
-          {/* Phần tìm kiếm và bộ lọc */}
-          <FilterForm
-            searchQuery={searchQuery}
-            province={province}
-            ward={ward}
-          />
-
-          {/* Tiêu đề gradient */}
-          <h1 className="text-2xl sm:text-3xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
             Hoạt động của các CLB
           </h1>
-
-          {/* Mô tả */}
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-xl mx-auto mb-6">
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Khám phá và tham gia các hoạt động công khai mọi người đều có thể
             tham gia.
           </p>
 
-          {/* Các nút điều hướng */}
-
           {accessToken && (
-            <div className="flex justify-end space-x-4">
+            <div className="flex flex-wrap gap-4 justify-end">
               <Link href="/events/my-joined-events">
                 <Button
                   variant="outline"
@@ -200,271 +188,296 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
           )}
         </div>
 
-        {/* Events Grid */}
-        {events.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-blue-100/50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-10 h-10 text-blue-600 dark:text-emerald-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-blue-600 dark:text-emerald-300 mb-2">
-              Chưa có hoạt động nào
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Hãy quay lại sau để khám phá các hoạt động mới!
-            </p>
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filter Sidebar - Mobile */}
+          <div className="lg:hidden">
+            <FilterForm
+              searchQuery={searchQuery}
+              province={province}
+              ward={ward}
+            />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {events.map((event) => {
-              const isFull = event.joinedMember >= event.totalMember;
-              const fillPercentage =
-                (event.joinedMember / event.totalMember) * 100;
 
-              return (
-                <Card
-                  key={event.id}
-                  className="group py-0 gap-2 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg border border-blue-100 dark:border-emerald-900 hover:border-blue-300 dark:hover:border-emerald-700 transition-all duration-300 overflow-hidden flex flex-col"
-                >
-                  {/* Event Image */}
-                  <div className="relative h-40 w-full -m-0">
-                    <Image
-                      src={event.image || "/api/placeholder/400/160"}
-                      alt={event.title}
-                      fill
-                      priority
-                      sizes="(max-width: 768px) 100vw, 400px"
-                      className="object-cover transition-transform duration-500 rounded-t-xl"
-                    />
+          {/* Filter Sidebar - Desktop */}
+          <aside className="hidden lg:block lg:col-span-1">
+            <FilterForm
+              searchQuery={searchQuery}
+              province={province}
+              ward={ward}
+            />
+          </aside>
 
-                    {/* Categories */}
-                    <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
-                      {event.categories?.map((cat) => (
-                        <Badge
-                          key={cat}
-                          className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
-                            cat
-                          )}`}
-                        >
-                          {categoryMapVN[cat] || cat}
-                        </Badge>
-                      ))}
-                    </div>
+          {/* Events Content */}
+          <main className="lg:col-span-3">
+            {/* Events Grid */}
+            {events.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-blue-100/50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-10 h-10 text-blue-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-blue-600 dark:text-emerald-300 mb-2">
+                  Chưa có hoạt động nào
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  Hãy quay lại sau để khám phá các hoạt động mới!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {events.map((event) => {
+                  const isFull = event.joinedMember >= event.totalMember;
+                  const fillPercentage =
+                    (event.joinedMember / event.totalMember) * 100;
 
-                    <div className="absolute bottom-3 right-3 z-10">
-                      <Badge
-                        className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
-                          event.participantRole == "GUEST"
-                            ? "bg-white/95 text-orange-600 border-orange-200 hover:bg-orange-50"
-                            : "bg-white/95 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          {event.participantRole == "GUEST" ? (
-                            <>
-                              <Users className="w-3 h-3" />
-                              Vãng lai
-                            </>
-                          ) : (
-                            <>
-                              <Building2 className="w-3 h-3" />
-                              CLB của tôi
-                            </>
-                          )}
+                  return (
+                    <Card
+                      key={event.id}
+                      className="group py-0 gap-2 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg border border-blue-100 dark:border-emerald-900 hover:border-blue-300 dark:hover:border-emerald-700 transition-all duration-300 overflow-hidden flex flex-col"
+                    >
+                      {/* Event Image */}
+                      <div className="relative h-40 w-full -m-0">
+                        <Image
+                          src={event.image || "/api/placeholder/400/160"}
+                          alt={event.title}
+                          fill
+                          priority
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          className="object-cover transition-transform duration-500 rounded-t-xl"
+                        />
+
+                        {/* Categories */}
+                        <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10">
+                          {event.categories?.map((cat) => (
+                            <Badge
+                              key={cat}
+                              className={`px-2 py-0.5 text-xs font-semibold rounded-full shadow-sm ${getCategoryGradient(
+                                cat
+                              )}`}
+                            >
+                              {categoryMapVN[cat] || cat}
+                            </Badge>
+                          ))}
                         </div>
-                      </Badge>
-                    </div>
 
-                    {/* Progress Bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/50 dark:bg-gray-700/50 z-10">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500"
-                        style={{ width: `${fillPercentage}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Card Content */}
-                  <CardContent className="p-4 flex flex-col flex-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 ">
-                      {event.title}
-                    </h3>
-
-                    {/* Location */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
-                      </div>
-                      <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
-                        {event.location}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
-                      </div>
-
-                      <span className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Trình độ yêu cầu:
-                        </span>{" "}
-                        {event.minLevel.toFixed(1)} -{" "}
-                        {event.maxLevel.toFixed(1)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mb-3">
-                      {/* Club Name Section */}
-                      <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                        <CircleStar className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
-                      </div>
-                      <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
-                        {event.nameClub}
-                      </p>
-                    </div>
-
-                    {/* Date and Time Section */}
-                    <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg p-3 mb-3">
-                      <InfoItem
-                        icon={Calendar}
-                        label="Ngày"
-                        value={formatDate(event.startTime)}
-                        className="mb-2"
-                      />
-                      <InfoItem
-                        icon={Clock}
-                        label="Giờ"
-                        value={`${formatTime(event.startTime)} - ${formatTime(
-                          event.endTime
-                        )}`}
-                      />
-                    </div>
-
-                    {/* Members and Fee */}
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                          <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                        <div className="absolute bottom-3 right-3 z-10">
+                          <Badge
+                            className={`px-3 py-1.5 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
+                              event.participantRole == "GUEST"
+                                ? "bg-white/95 text-orange-600 border-orange-200 hover:bg-orange-50"
+                                : "bg-white/95 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              {event.participantRole == "GUEST" ? (
+                                <>
+                                  <Users className="w-3 h-3" />
+                                  Vãng lai
+                                </>
+                              ) : (
+                                <>
+                                  <Building2 className="w-3 h-3" />
+                                  CLB của tôi
+                                </>
+                              )}
+                            </div>
+                          </Badge>
                         </div>
-                        <span
-                          className={`text-sm font-semibold ${
+
+                        {/* Progress Bar */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-200/50 dark:bg-gray-700/50 z-10">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500"
+                            style={{ width: `${fillPercentage}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card Content */}
+                      <CardContent className="p-4 flex flex-col flex-1">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 ">
+                          {event.title}
+                        </h3>
+
+                        {/* Location */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                            <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                          </div>
+                          <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
+                            {event.location}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                            <GraduationCap className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                          </div>
+
+                          <span className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                              Trình độ yêu cầu:
+                            </span>{" "}
+                            {event.minLevel.toFixed(1)} -{" "}
+                            {event.maxLevel.toFixed(1)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-3">
+                          {/* Club Name Section */}
+                          <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                            <CircleStar className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                          </div>
+                          <p className="text-sm text-blue-600 dark:text-emerald-400 line-clamp-1 font-medium">
+                            {event.nameClub}
+                          </p>
+                        </div>
+
+                        {/* Date and Time Section */}
+                        <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-lg p-3 mb-3">
+                          <InfoItem
+                            icon={Calendar}
+                            label="Ngày"
+                            value={formatDate(event.startTime)}
+                            className="mb-2"
+                          />
+                          <InfoItem
+                            icon={Clock}
+                            label="Giờ"
+                            value={`${formatTime(
+                              event.startTime
+                            )} - ${formatTime(event.endTime)}`}
+                          />
+                        </div>
+
+                        {/* Members and Fee */}
+                        <div className="flex justify-between items-center mb-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                              <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                            </div>
+                            <span
+                              className={`text-sm font-semibold ${
+                                isFull
+                                  ? "text-red-600 dark:text-red-400"
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              {event.joinedMember}/{event.totalMember} thành
+                              viên
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 ">
+                            {/* Club Name Section */}
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                              <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                            </div>
+                            <p className="text-sm text-gray-900 dark:text-white line-clamp-1 font-medium">
+                              {event.joinedOpenMembers}/
+                              {event.maxOutsideMembers} vãng lai
+                            </p>
+                          </div>
+                        </div>
+
+                        {event.fee != null && event.fee > 0 && (
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
+                              <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
+                            </div>
+                            <span className="text-sm text-blue-600 dark:text-emerald-400 font-semibold">
+                              {formatCurrency(event.fee)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Action Button */}
+                        <Button
+                          asChild
+                          disabled={isFull}
+                          className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
                             isFull
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-gray-900 dark:text-white"
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
+                              : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
                           }`}
                         >
-                          {event.joinedMember}/{event.totalMember} thành viên
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 ">
-                        {/* Club Name Section */}
-                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                          <Users className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
-                        </div>
-                        <p className="text-sm text-gray-900 dark:text-white line-clamp-1 font-medium">
-                          {event.joinedOpenMembers}/{event.maxOutsideMembers}{" "}
-                          vãng lai
-                        </p>
-                      </div>
-                    </div>
+                          <Link href={`/events/${event.slug}`}>
+                            {isFull ? "Đã đầy" : "Xem chi tiết"}
+                          </Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
 
-                    {event.fee != null && event.fee > 0 && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-emerald-100 dark:from-blue-900/40 dark:to-emerald-900/40 rounded-md flex items-center justify-center flex-shrink-0">
-                          <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-emerald-300" />
-                        </div>
-                        <span className="text-sm text-blue-600 dark:text-emerald-400 font-semibold">
-                          {formatCurrency(event.fee)}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Action Button */}
-                    <Button
-                      asChild
-                      disabled={isFull}
-                      className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 mt-auto ${
-                        isFull
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400"
-                          : "bg-gradient-to-r from-emerald-500 to-emerald-600  hover:from-emerald-700 hover:to-emerald-800 dark:from-blue-400 dark:to-blue-500  dark:hover:from-blue-600 dark:hover:to-blue-700 text-white hover:shadow-md transform hover:scale-105 active:scale-95"
+            {/* Pagination */}
+            {events.length > 0 && (
+              <div className="flex justify-center items-center mt-10 gap-2 flex-wrap">
+                {currentPage > 0 && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
+                  >
+                    <Link
+                      href={`?page=${currentPage - 1}${
+                        searchQuery
+                          ? `&search=${encodeURIComponent(searchQuery)}`
+                          : ""
+                      }${province ? `&province=${province}` : ""}${
+                        ward ? `&ward=${ward}` : ""
                       }`}
                     >
-                      <Link href={`/events/${event.slug}`}>
-                        {isFull ? "Đã đầy" : "Xem chi tiết"}
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {events.length > 0 && (
-          <div className="flex justify-center items-center mt-10 gap-2 flex-wrap">
-            {currentPage > 0 && (
-              <Button
-                asChild
-                variant="outline"
-                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
-              >
-                <Link
-                  href={`?page=${currentPage - 1}${
-                    searchQuery
-                      ? `&search=${encodeURIComponent(searchQuery)}`
-                      : ""
-                  }${province ? `&province=${province}` : ""}${
-                    ward ? `&ward=${ward}` : ""
-                  }`}
-                >
-                  ← Trước
-                </Link>
-              </Button>
+                      ← Trước
+                    </Link>
+                  </Button>
+                )}
+                {Array.from({ length: totalPages }, (_, pageIndex) => (
+                  <Button
+                    key={pageIndex}
+                    asChild
+                    variant={pageIndex === currentPage ? "default" : "outline"}
+                    className={`px-3 py-1 rounded-lg text-sm font-semibold ${
+                      pageIndex === currentPage
+                        ? "bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md"
+                        : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
+                    }`}
+                  >
+                    <Link
+                      href={`?page=${pageIndex}${
+                        searchQuery
+                          ? `&search=${encodeURIComponent(searchQuery)}`
+                          : ""
+                      }${province ? `&province=${province}` : ""}${
+                        ward ? `&ward=${ward}` : ""
+                      }`}
+                    >
+                      {pageIndex + 1}
+                    </Link>
+                  </Button>
+                ))}
+                {!last && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
+                  >
+                    <Link
+                      href={`?page=${currentPage + 1}${
+                        searchQuery
+                          ? `&search=${encodeURIComponent(searchQuery)}`
+                          : ""
+                      }${province ? `&province=${province}` : ""}${
+                        ward ? `&ward=${ward}` : ""
+                      }`}
+                    >
+                      Sau →
+                    </Link>
+                  </Button>
+                )}
+              </div>
             )}
-            {Array.from({ length: totalPages }, (_, pageIndex) => (
-              <Button
-                key={pageIndex}
-                asChild
-                variant={pageIndex === currentPage ? "default" : "outline"}
-                className={`px-3 py-1 rounded-lg text-sm font-semibold ${
-                  pageIndex === currentPage
-                    ? "bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-md"
-                    : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
-                }`}
-              >
-                <Link
-                  href={`?page=${pageIndex}${
-                    searchQuery
-                      ? `&search=${encodeURIComponent(searchQuery)}`
-                      : ""
-                  }${province ? `&province=${province}` : ""}${
-                    ward ? `&ward=${ward}` : ""
-                  }`}
-                >
-                  {pageIndex + 1}
-                </Link>
-              </Button>
-            ))}
-            {!last && (
-              <Button
-                asChild
-                variant="outline"
-                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
-              >
-                <Link
-                  href={`?page=${currentPage + 1}${
-                    searchQuery
-                      ? `&search=${encodeURIComponent(searchQuery)}`
-                      : ""
-                  }${province ? `&province=${province}` : ""}${
-                    ward ? `&ward=${ward}` : ""
-                  }`}
-                >
-                  Sau →
-                </Link>
-              </Button>
-            )}
-          </div>
-        )}
+          </main>
+        </div>
       </div>
     </div>
   );
