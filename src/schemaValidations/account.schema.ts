@@ -1,7 +1,12 @@
-import z from "zod";
+import z, { array } from "zod";
 
 const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER"]);
 
+export const OwnerClub = z.object({
+  clubName: z.string(),
+  slug: z.string(),
+  urlLogo: z.string()
+});
 export const AccountRes = z
   .object({
     data: z.object({
@@ -23,6 +28,7 @@ export const AccountRes = z
       slug: z.string(),
       reputationScore: z.int(),
       totalParticipatedEvents: z.int(),
+      ownerClubs: array(OwnerClub),
     }),
     message: z.string(),
   })
