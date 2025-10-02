@@ -46,7 +46,13 @@ const eventClubApiRequest = {
     accessToken?: string,
     search?: string,
     province?: string,
-    ward?: string
+    ward?: string,
+    quickTimeFilter?: string,
+    isFree?: boolean,
+    minFee?: number,
+    maxFee?: number,
+    startDate?: string,
+    endDate?: string
   ) => {
     const query = new URLSearchParams({
       page: String(page),
@@ -54,6 +60,12 @@ const eventClubApiRequest = {
       ...(search ? { search } : {}),
       ...(province ? { province } : {}),
       ...(ward ? { ward } : {}),
+      ...(quickTimeFilter ? { quickTimeFilter } : {}),
+      ...(isFree !== undefined ? { isFree: String(isFree) } : {}),
+      ...(minFee !== undefined ? { minFee: String(minFee) } : {}),
+      ...(maxFee !== undefined ? { maxFee: String(maxFee) } : {}),
+      ...(startDate ? { startDate } : {}),
+      ...(endDate ? { endDate } : {}),
     }).toString();
 
     return http.get<PagedEventResponseType>(`/club-event/all/public?${query}`, {

@@ -24,6 +24,12 @@ interface ClubEventsProps {
     search?: string;
     province?: string;
     ward?: string;
+    quickTimeFilter?: string;
+    isFree?: string;
+    minFee?: string;
+    maxFee?: string;
+    startDate?: string;
+    endDate?: string;
   }>;
 }
 
@@ -109,6 +115,12 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const searchQuery = params.search || "";
   const province = params.province || "";
   const ward = params.ward || "";
+  const quickTimeFilter = params.quickTimeFilter || "";
+  const isFree = params.isFree !== undefined ? params.isFree === "true" : undefined;
+  const minFee = params.minFee !== undefined ? Number(params.minFee) : undefined;
+  const maxFee = params.maxFee !== undefined ? Number(params.maxFee) : undefined;
+  const startDate = params.startDate || "";
+  const endDate = params.endDate || "";
 
   let events = [];
   let totalPages = 1;
@@ -122,7 +134,13 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
       accessToken,
       searchQuery,
       province,
-      ward
+      ward,
+      quickTimeFilter,
+      isFree,
+      minFee,
+      maxFee,
+      startDate,
+      endDate
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -196,6 +214,12 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
               searchQuery={searchQuery}
               province={province}
               ward={ward}
+            quickTimeFilter={quickTimeFilter}
+            isFree={isFree}
+            minFee={minFee ?? 0}
+            maxFee={maxFee ?? 500}
+            startDate={startDate}
+            endDate={endDate}
             />
           </div>
 
@@ -205,6 +229,12 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
               searchQuery={searchQuery}
               province={province}
               ward={ward}
+              quickTimeFilter={quickTimeFilter}
+              isFree={isFree}
+              minFee={minFee ?? 0}
+              maxFee={maxFee ?? 500}
+              startDate={startDate}
+              endDate={endDate}
             />
           </aside>
 
@@ -418,15 +448,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     variant="outline"
                     className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                   >
-                    <Link
-                      href={`?page=${currentPage - 1}${
-                        searchQuery
-                          ? `&search=${encodeURIComponent(searchQuery)}`
-                          : ""
-                      }${province ? `&province=${province}` : ""}${
-                        ward ? `&ward=${ward}` : ""
-                      }`}
-                    >
+                    <Link href={`?page=${currentPage - 1}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}${province ? `&province=${province}` : ""}${ward ? `&ward=${ward}` : ""}${quickTimeFilter ? `&quickTimeFilter=${encodeURIComponent(quickTimeFilter)}` : ""}${isFree !== undefined ? `&isFree=${isFree}` : ""}${minFee !== undefined ? `&minFee=${minFee}` : ""}${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${startDate ? `&startDate=${encodeURIComponent(startDate)}` : ""}${endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""}` }>
                       ← Trước
                     </Link>
                   </Button>
@@ -442,15 +464,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                     }`}
                   >
-                    <Link
-                      href={`?page=${pageIndex}${
-                        searchQuery
-                          ? `&search=${encodeURIComponent(searchQuery)}`
-                          : ""
-                      }${province ? `&province=${province}` : ""}${
-                        ward ? `&ward=${ward}` : ""
-                      }`}
-                    >
+                    <Link href={`?page=${pageIndex}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}${province ? `&province=${province}` : ""}${ward ? `&ward=${ward}` : ""}${quickTimeFilter ? `&quickTimeFilter=${encodeURIComponent(quickTimeFilter)}` : ""}${isFree !== undefined ? `&isFree=${isFree}` : ""}${minFee !== undefined ? `&minFee=${minFee}` : ""}${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${startDate ? `&startDate=${encodeURIComponent(startDate)}` : ""}${endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""}` }>
                       {pageIndex + 1}
                     </Link>
                   </Button>
@@ -461,15 +475,7 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     variant="outline"
                     className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                   >
-                    <Link
-                      href={`?page=${currentPage + 1}${
-                        searchQuery
-                          ? `&search=${encodeURIComponent(searchQuery)}`
-                          : ""
-                      }${province ? `&province=${province}` : ""}${
-                        ward ? `&ward=${ward}` : ""
-                      }`}
-                    >
+                    <Link href={`?page=${currentPage + 1}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}${province ? `&province=${province}` : ""}${ward ? `&ward=${ward}` : ""}${quickTimeFilter ? `&quickTimeFilter=${encodeURIComponent(quickTimeFilter)}` : ""}${isFree !== undefined ? `&isFree=${isFree}` : ""}${minFee !== undefined ? `&minFee=${minFee}` : ""}${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${startDate ? `&startDate=${encodeURIComponent(startDate)}` : ""}${endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""}` }>
                       Sau →
                     </Link>
                   </Button>

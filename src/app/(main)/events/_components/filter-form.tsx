@@ -1,5 +1,6 @@
 "use client";
 
+import "@ant-design/v5-patch-for-react-19";
 import { useState, useEffect, use } from "react";
 import {
   Search,
@@ -28,6 +29,8 @@ import {
 } from "@/components/ui/sheet";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
+import { DatePicker, Slider } from "antd";
+import dayjs from "dayjs";
 
 interface Province {
   id: string;
@@ -49,6 +52,12 @@ interface FilterSidebarProps {
   searchQuery?: string;
   province?: string;
   ward?: string;
+  quickTimeFilter?: string;
+  isFree?: boolean;
+  minFee?: number;
+  maxFee?: number;
+  startDate?: string;
+  endDate?: string;
   onFilterChange?: (filters: any) => void;
 }
 
@@ -56,6 +65,12 @@ export default function FilterForm({
   searchQuery = "",
   province = "",
   ward = "",
+  quickTimeFilter = "",
+  isFree = false,
+  minFee = 0,
+  maxFee = 500,
+  startDate = "",
+  endDate = "",
   onFilterChange,
 }: FilterSidebarProps) {
   // Filter states
@@ -68,10 +83,13 @@ export default function FilterForm({
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
 
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
-  const [quickTimeFilter, setQuickTimeFilter] = useState("");
-  const [feeRange, setFeeRange] = useState({ min: 0, max: 500 });
-  const [isFree, setIsFree] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    start: startDate ? dayjs(startDate).format("DD/MM/YYYY HH:mm") : "",
+    end: endDate ? dayjs(endDate).format("DD/MM/YYYY HH:mm") : "",
+  });
+  const [quickTime, setQuickTime] = useState(quickTimeFilter);
+  const [feeRange, setFeeRange] = useState({ min: minFee, max: maxFee });
+  const [freeOnly, setFreeOnly] = useState(isFree);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [participantRange, setParticipantRange] = useState({ min: 2, max: 50 });
@@ -79,6 +97,8 @@ export default function FilterForm({
   const [minRating, setMinRating] = useState(0);
   const [selectedClubs, setSelectedClubs] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+
+  const { RangePicker } = DatePicker;
 
   const router = useRouter();
 
@@ -98,7 +118,7 @@ export default function FilterForm({
     { id: "3", name: "Victory Sports Club", logo: "🏆" },
   ];
   const statusOptions = ["Đang mở đăng ký", "Sắp diễn ra", "Đã kết thúc"];
-  const quickTimeFilters = ["Hôm nay", "Cuối tuần", "Tuần này", "Tuyển gấp"];
+  const quickTimeFilters = ["Tuyển gấp", "Hôm nay", "Cuối tuần", "Tuần này"];
   const quickSizeFilters = ["Nhóm nhỏ (<10)", "Vừa (10-20)", "Đông (>20)"];
 
   useEffect(() => {
@@ -175,8 +195,8 @@ export default function FilterForm({
   };
 
   const handleQuickTimeFilter = (filter: string) => {
-    setQuickTimeFilter(quickTimeFilter === filter ? "" : filter);
-    if (filter !== quickTimeFilter) {
+    setQuickTime(quickTime === filter ? "" : filter);
+    if (filter !== quickTime) {
       setDateRange({ start: "", end: "" });
     }
   };
@@ -206,9 +226,9 @@ export default function FilterForm({
     setSelectedWard("");
     setWards([]);
     setDateRange({ start: "", end: "" });
-    setQuickTimeFilter("");
+    setQuickTime("");
     setFeeRange({ min: 0, max: 500 });
-    setIsFree(false);
+    setFreeOnly(false);
     setSelectedLevels([]);
     setSelectedCategories([]);
     setParticipantRange({ min: 2, max: 50 });
@@ -223,8 +243,8 @@ export default function FilterForm({
     if (searchValue) count++;
     if (selectedProvince) count++;
     if (selectedWard) count++;
-    if (dateRange.start || dateRange.end || quickTimeFilter) count++;
-    if (feeRange.min > 0 || feeRange.max < 500 || isFree) count++;
+    if (dateRange.start || dateRange.end || quickTime) count++;
+    if (feeRange.min > 0 || feeRange.max < 500 || freeOnly) count++;
     if (selectedLevels.length > 0) count++;
     if (selectedCategories.length > 0) count++;
     if (
@@ -249,6 +269,22 @@ export default function FilterForm({
       params.append("province", provinceSelected?.full_name || "");
     if (selectedWard) params.append("ward", wardSelected?.full_name || "");
 
+    if (quickTime) params.append("quickTimeFilter", quickTime);
+    if (freeOnly) params.append("isFree", "true");
+    if (feeRange.min > 0) params.append("minFee", feeRange.min.toString());
+    if (feeRange.max < 500) params.append("maxFee", feeRange.max.toString());
+    if (dateRange.start)
+      params.append(
+        "startDate",
+        dayjs(dateRange.start, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+      );
+    if (dateRange.end)
+      params.append(
+        "endDate",
+        dayjs(dateRange.end, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+      );
+    console.log(params.toString());
+
     router.push(`/events${params.toString() ? `?${params.toString()}` : ""}`);
 
     // TODO: Implement filter application logic
@@ -257,9 +293,9 @@ export default function FilterForm({
       province: selectedProvince,
       ward: selectedWard,
       dateRange,
-      quickTimeFilter,
+      quickTimeFilter: quickTime,
       feeRange,
-      isFree,
+      isFree: freeOnly,
       levels: selectedLevels,
       categories: selectedCategories,
       participantRange,
@@ -314,7 +350,7 @@ export default function FilterForm({
                   key={filter}
                   onClick={() => handleQuickTimeFilter(filter)}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    quickTimeFilter === filter
+                    quickTime === filter
                       ? "bg-blue-500 text-white border-blue-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
                   }`}
@@ -324,7 +360,29 @@ export default function FilterForm({
               ))}
             </div>
             <div className="space-y-2">
-              <input
+              <RangePicker
+                className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                value={
+                  dateRange.start && dateRange.end
+                    ? [
+                        dayjs(dateRange.start, "DD/MM/YYYY HH:mm"),
+                        dayjs(dateRange.end, "DD/MM/YYYY HH:mm"),
+                      ]
+                    : null
+                }
+                onChange={(dates, dateStrings) => {
+                  setDateRange({
+                    start: dateStrings[0] || "",
+                    end: dateStrings[1] || "",
+                  });
+                  console.log(dateStrings);
+                  console.log(dates);
+                }}
+                placeholder={["Từ ngày", "Đến ngày"]}
+                showTime={true}
+                format="DD/MM/YYYY hh:mm"
+              />
+              {/* <input
                 type="date"
                 value={dateRange.start}
                 onChange={(e) =>
@@ -344,7 +402,7 @@ export default function FilterForm({
                 }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500"
                 placeholder="Đến ngày"
-              />
+              /> */}
             </div>
           </div>
 
@@ -415,8 +473,8 @@ export default function FilterForm({
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={isFree}
-                onChange={(e) => setIsFree(e.target.checked)}
+                checked={freeOnly}
+                onChange={(e) => setFreeOnly(e.target.checked)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -424,7 +482,16 @@ export default function FilterForm({
               </span>
             </label>
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+              <Slider
+                range
+                defaultValue={[20, 50]}
+                value={[feeRange.min, feeRange.max]}
+                onChange={(value) =>
+                  setFeeRange({ min: value[0], max: value[1] })
+                }
+                className="w-full"
+              />
+              {/* <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
                 <span>{feeRange.min.toLocaleString()}đ</span>
                 <span>
                   {feeRange.max >= 500 ? "500k+" : `${feeRange.max}k`}
@@ -443,7 +510,7 @@ export default function FilterForm({
                   }))
                 }
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
+              /> */}
             </div>
           </div>
         </div>
