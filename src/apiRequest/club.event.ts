@@ -4,6 +4,7 @@ import { FileResType } from "@/schemaValidations/common.schema";
 import {
   CreateEventClubBodyType,
   EventDetailResponseType,
+  EventFilterType,
   EventParticipantStatus,
   PagedEventResponseType,
   PagedParticipantResponseType,
@@ -52,7 +53,8 @@ const eventClubApiRequest = {
     minFee?: number,
     maxFee?: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    advancedFilter?: EventFilterType
   ) => {
     const query = new URLSearchParams({
       page: String(page),
@@ -68,11 +70,15 @@ const eventClubApiRequest = {
       ...(endDate ? { endDate } : {}),
     }).toString();
 
-    return http.get<PagedEventResponseType>(`/club-event/all/public?${query}`, {
-      headers: accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined,
-    });
+    return http.post<PagedEventResponseType>(
+      `/club-event/all/public?${query}`,
+      advancedFilter,
+      {
+        headers: accessToken
+          ? { Authorization: `Bearer ${accessToken}` }
+          : undefined,
+      }
+    );
   },
   getMyClubsEventClubs: (page: number, size: number, accessToken: string) =>
     http.get<PagedEventResponseType>(

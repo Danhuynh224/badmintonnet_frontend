@@ -58,7 +58,6 @@ interface FilterSidebarProps {
   maxFee?: number;
   startDate?: string;
   endDate?: string;
-  onFilterChange?: (filters: any) => void;
 }
 
 export default function FilterForm({
@@ -71,7 +70,6 @@ export default function FilterForm({
   maxFee = 500,
   startDate = "",
   endDate = "",
-  onFilterChange,
 }: FilterSidebarProps) {
   // Filter states
   const [searchValue, setSearchValue] = useState(searchQuery);
@@ -92,7 +90,6 @@ export default function FilterForm({
   const [freeOnly, setFreeOnly] = useState(isFree);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [participantRange, setParticipantRange] = useState({ min: 2, max: 50 });
   const [quickSizeFilter, setQuickSizeFilter] = useState("");
   const [minRating, setMinRating] = useState(0);
   const [selectedClubs, setSelectedClubs] = useState<string[]>([]);
@@ -111,15 +108,32 @@ export default function FilterForm({
     "Khá",
     "Bán chuyên",
   ];
-  const categories = ["Đơn Nam", "Đơn Nữ", "Đôi Nam", "Đôi Nữ", "Đôi Nam Nữ"];
+  // const categories = ["Đơn Nam", "Đơn Nữ", "Đôi Nam", "Đôi Nữ", "Đôi Nam Nữ"];
+  const categories = [
+    { key: "MEN_SINGLE", value: "Đơn Nam" },
+    { key: "WOMEN_SINGLE", value: "Đơn Nữ" },
+    { key: "MEN_DOUBLE", value: "Đôi Nam" },
+    { key: "WOMEN_DOUBLE", value: "Đôi Nữ" },
+    { key: "MIXED_DOUBLE", value: "Đôi Nam Nữ" },
+  ];
   const clubs: Club[] = [
     { id: "1", name: "CLB Cầu Lông Sài Gòn", logo: "🏸" },
     { id: "2", name: "Badminton Pro Club", logo: "⭐" },
     { id: "3", name: "Victory Sports Club", logo: "🏆" },
   ];
-  const statusOptions = ["Đang mở đăng ký", "Sắp diễn ra", "Đã kết thúc"];
+  const statusOptions = [
+    { key: "OPEN", value: "Đang mở đăng ký" },
+    { key: "ONGOING", value: "Sắp diễn ra" },
+    { key: "FINISHED", value: "Đã kết thúc" },
+    { key: "CLOSED", value: "Đã đóng" },
+    { key: "CANCELLED", value: "Đã hủy" },
+  ];
   const quickTimeFilters = ["Tuyển gấp", "Hôm nay", "Cuối tuần", "Tuần này"];
-  const quickSizeFilters = ["Nhóm nhỏ (<10)", "Vừa (10-20)", "Đông (>20)"];
+  const quickSizeFilters = [
+    { key: "NHO", value: "Nhóm nhỏ (<10)" },
+    { key: "VUA", value: "Vừa (10-20)" },
+    { key: "DONG", value: "Đông (>20)" },
+  ];
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -170,19 +184,17 @@ export default function FilterForm({
     );
   };
 
-  const handleCategoryToggle = (category: string) => {
+  const handleCategoryToggle = (key: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
+      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
     );
   };
 
-  const handleClubToggle = (clubId: string) => {
+  const handleClubToggle = (clubName: string) => {
     setSelectedClubs((prev) =>
-      prev.includes(clubId)
-        ? prev.filter((c) => c !== clubId)
-        : [...prev, clubId]
+      prev.includes(clubName)
+        ? prev.filter((c) => c !== clubName)
+        : [...prev, clubName]
     );
   };
 
@@ -203,21 +215,6 @@ export default function FilterForm({
 
   const handleQuickSizeFilter = (filter: string) => {
     setQuickSizeFilter(quickSizeFilter === filter ? "" : filter);
-    if (filter !== quickSizeFilter) {
-      switch (filter) {
-        case "Nhóm nhỏ (<10)":
-          setParticipantRange({ min: 2, max: 9 });
-          break;
-        case "Vừa (10-20)":
-          setParticipantRange({ min: 10, max: 20 });
-          break;
-        case "Đông (>20)":
-          setParticipantRange({ min: 21, max: 50 });
-          break;
-        default:
-          setParticipantRange({ min: 2, max: 50 });
-      }
-    }
   };
 
   const clearAllFilters = () => {
@@ -231,7 +228,6 @@ export default function FilterForm({
     setFreeOnly(false);
     setSelectedLevels([]);
     setSelectedCategories([]);
-    setParticipantRange({ min: 2, max: 50 });
     setQuickSizeFilter("");
     setMinRating(0);
     setSelectedClubs([]);
@@ -247,12 +243,7 @@ export default function FilterForm({
     if (feeRange.min > 0 || feeRange.max < 500 || freeOnly) count++;
     if (selectedLevels.length > 0) count++;
     if (selectedCategories.length > 0) count++;
-    if (
-      participantRange.min > 2 ||
-      participantRange.max < 50 ||
-      quickSizeFilter
-    )
-      count++;
+    if (quickSizeFilter) count++;
     if (minRating > 0) count++;
     if (selectedClubs.length > 0) count++;
     if (selectedStatus.length > 0) count++;
@@ -283,31 +274,37 @@ export default function FilterForm({
         "endDate",
         dayjs(dateRange.end, "DD/MM/YYYY HH:mm").format("YYYY-MM-DDTHH:mm:ss")
       );
-    console.log(params.toString());
+
+    // Advanced filters (encode as comma-separated values)
+    if (selectedLevels.length > 0)
+      params.append("levels", selectedLevels.join(","));
+    if (selectedCategories.length > 0)
+      params.append("categories", selectedCategories.join(","));
+    if (quickSizeFilter) params.append("participantSize", quickSizeFilter);
+    if (minRating > 0) params.append("minRating", String(minRating));
+    if (selectedClubs.length > 0)
+      params.append("clubNames", selectedClubs.join(","));
+    if (selectedStatus.length > 0)
+      params.append("status", selectedStatus.join(","));
 
     router.push(`/events${params.toString() ? `?${params.toString()}` : ""}`);
 
-    // TODO: Implement filter application logic
-    const filters = {
-      search: searchValue,
-      province: selectedProvince,
-      ward: selectedWard,
-      dateRange,
-      quickTimeFilter: quickTime,
-      feeRange,
-      isFree: freeOnly,
-      levels: selectedLevels,
-      categories: selectedCategories,
-      participantRange,
-      quickSizeFilter,
-      minRating,
-      clubs: selectedClubs,
-      status: selectedStatus,
-    };
-
-    if (onFilterChange) {
-      onFilterChange(filters);
-    }
+    // // TODO: Implement filter application logic
+    // const filters = {
+    //   search: searchValue,
+    //   province: selectedProvince,
+    //   ward: selectedWard,
+    //   dateRange,
+    //   quickTimeFilter: quickTime,
+    //   feeRange,
+    //   isFree: freeOnly,
+    //   levels: selectedLevels,
+    //   categories: selectedCategories,
+    //   quickSizeFilter,
+    //   minRating,
+    //   clubs: selectedClubs,
+    //   status: selectedStatus,
+    // };
   };
 
   // Reusable filter content component
@@ -382,27 +379,6 @@ export default function FilterForm({
                 showTime={true}
                 format="DD/MM/YYYY hh:mm"
               />
-              {/* <input
-                type="date"
-                value={dateRange.start}
-                onChange={(e) =>
-                  setDateRange((prev) => ({
-                    ...prev,
-                    start: e.target.value,
-                  }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500"
-                placeholder="Từ ngày"
-              />
-              <input
-                type="date"
-                value={dateRange.end}
-                onChange={(e) =>
-                  setDateRange((prev) => ({ ...prev, end: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-emerald-500"
-                placeholder="Đến ngày"
-              /> */}
             </div>
           </div>
 
@@ -491,26 +467,6 @@ export default function FilterForm({
                 }
                 className="w-full"
               />
-              {/* <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-                <span>{feeRange.min.toLocaleString()}đ</span>
-                <span>
-                  {feeRange.max >= 500 ? "500k+" : `${feeRange.max}k`}
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="500"
-                step="10"
-                value={feeRange.min}
-                onChange={(e) =>
-                  setFeeRange((prev) => ({
-                    ...prev,
-                    min: parseInt(e.target.value),
-                  }))
-                }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              /> */}
             </div>
           </div>
         </div>
@@ -552,18 +508,18 @@ export default function FilterForm({
             <div className="flex flex-wrap gap-1.5">
               {categories.map((category) => (
                 <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
+                  key={category.key}
+                  onClick={() => handleCategoryToggle(category.key)}
                   className={`px-2.5 py-1.5 text-xs rounded-lg border transition-all flex items-center gap-1 ${
-                    selectedCategories.includes(category)
+                    selectedCategories.includes(category.key)
                       ? "bg-blue-500 text-white border-blue-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-400"
                   }`}
                 >
-                  {selectedCategories.includes(category) && (
+                  {selectedCategories.includes(category.key) && (
                     <Check className="h-3 w-3" />
                   )}
-                  {category}
+                  {category.value}
                 </button>
               ))}
             </div>
@@ -578,36 +534,17 @@ export default function FilterForm({
             <div className="flex flex-wrap gap-1.5">
               {quickSizeFilters.map((filter) => (
                 <button
-                  key={filter}
-                  onClick={() => handleQuickSizeFilter(filter)}
+                  key={filter.key}
+                  onClick={() => handleQuickSizeFilter(filter.key)}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
-                    quickSizeFilter === filter
+                    quickSizeFilter === filter.key
                       ? "bg-purple-500 text-white border-purple-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
                   }`}
                 >
-                  {filter}
+                  {filter.value}
                 </button>
               ))}
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-                <span>{participantRange.min} người</span>
-                <span>{participantRange.max} người</span>
-              </div>
-              <input
-                type="range"
-                min="2"
-                max="50"
-                value={participantRange.min}
-                onChange={(e) =>
-                  setParticipantRange((prev) => ({
-                    ...prev,
-                    min: parseInt(e.target.value),
-                  }))
-                }
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
             </div>
           </div>
         </div>
@@ -658,7 +595,7 @@ export default function FilterForm({
                   <input
                     type="checkbox"
                     checked={selectedClubs.includes(club.id)}
-                    onChange={() => handleClubToggle(club.id)}
+                    onChange={() => handleClubToggle(club.name)}
                     className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm">{club.logo}</span>
@@ -679,18 +616,18 @@ export default function FilterForm({
             <div className="flex flex-wrap gap-1.5">
               {statusOptions.map((status) => (
                 <button
-                  key={status}
-                  onClick={() => handleStatusToggle(status)}
+                  key={status.key}
+                  onClick={() => handleStatusToggle(status.key)}
                   className={`px-2.5 py-1.5 text-xs rounded-lg border transition-all flex items-center gap-1 ${
-                    selectedStatus.includes(status)
+                    selectedStatus.includes(status.key)
                       ? "bg-indigo-500 text-white border-indigo-500"
                       : "bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-indigo-400"
                   }`}
                 >
-                  {selectedStatus.includes(status) && (
+                  {selectedStatus.includes(status.key) && (
                     <Check className="h-3 w-3" />
                   )}
-                  {status}
+                  {status.value}
                 </button>
               ))}
             </div>

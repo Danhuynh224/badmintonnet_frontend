@@ -17,6 +17,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
 import FilterForm from "./_components/filter-form";
+import {
+  BadmintonCategory,
+  EventStatus,
+} from "@/schemaValidations/event.schema";
 
 interface ClubEventsProps {
   searchParams: Promise<{
@@ -30,6 +34,12 @@ interface ClubEventsProps {
     maxFee?: string;
     startDate?: string;
     endDate?: string;
+    levels?: string;
+    categories?: string;
+    participantSize?: string;
+    minRating?: string;
+    clubNames?: string;
+    status?: string;
   }>;
 }
 
@@ -116,11 +126,21 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
   const province = params.province || "";
   const ward = params.ward || "";
   const quickTimeFilter = params.quickTimeFilter || "";
-  const isFree = params.isFree !== undefined ? params.isFree === "true" : undefined;
-  const minFee = params.minFee !== undefined ? Number(params.minFee) : undefined;
-  const maxFee = params.maxFee !== undefined ? Number(params.maxFee) : undefined;
+  const isFree =
+    params.isFree !== undefined ? params.isFree === "true" : undefined;
+  const minFee =
+    params.minFee !== undefined ? Number(params.minFee) : undefined;
+  const maxFee =
+    params.maxFee !== undefined ? Number(params.maxFee) : undefined;
   const startDate = params.startDate || "";
   const endDate = params.endDate || "";
+  const levels = (params.levels || "").split(",").filter(Boolean);
+  const categories = (params.categories || "").split(",").filter(Boolean);
+  const participantSize = params.participantSize || "";
+  const minRatingParam = params.minRating || "";
+  const minRating = minRatingParam ? Number(minRatingParam) : undefined;
+  const clubNames = (params.clubNames || "").split(",").filter(Boolean);
+  const status = (params.status || "").split(",").filter(Boolean);
 
   let events = [];
   let totalPages = 1;
@@ -140,7 +160,19 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
       minFee,
       maxFee,
       startDate,
-      endDate
+      endDate,
+      {
+        levels: levels.length ? levels : undefined,
+        categories: categories.length
+          ? (categories.filter(
+              (cat): cat is BadmintonCategory => !!cat
+            ) as BadmintonCategory[])
+          : undefined,
+        participantSize: participantSize || undefined,
+        minRating,
+        clubNames: clubNames.length ? clubNames : undefined,
+        status: status.length ? (status as EventStatus[]) : undefined,
+      }
     );
     events = response.payload.data.content || [];
     ({ totalPages, page: currentPage, last } = response.payload.data);
@@ -214,12 +246,12 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
               searchQuery={searchQuery}
               province={province}
               ward={ward}
-            quickTimeFilter={quickTimeFilter}
-            isFree={isFree}
-            minFee={minFee ?? 0}
-            maxFee={maxFee ?? 500}
-            startDate={startDate}
-            endDate={endDate}
+              quickTimeFilter={quickTimeFilter}
+              isFree={isFree}
+              minFee={minFee ?? 0}
+              maxFee={maxFee ?? 500}
+              startDate={startDate}
+              endDate={endDate}
             />
           </div>
 
@@ -448,7 +480,57 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     variant="outline"
                     className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                   >
-                    <Link href={`?page=${currentPage - 1}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}${province ? `&province=${province}` : ""}${ward ? `&ward=${ward}` : ""}${quickTimeFilter ? `&quickTimeFilter=${encodeURIComponent(quickTimeFilter)}` : ""}${isFree !== undefined ? `&isFree=${isFree}` : ""}${minFee !== undefined ? `&minFee=${minFee}` : ""}${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${startDate ? `&startDate=${encodeURIComponent(startDate)}` : ""}${endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""}` }>
+                    <Link
+                      href={`?page=${currentPage - 1}${
+                        searchQuery
+                          ? `&search=${encodeURIComponent(searchQuery)}`
+                          : ""
+                      }${province ? `&province=${province}` : ""}${
+                        ward ? `&ward=${ward}` : ""
+                      }${
+                        quickTimeFilter
+                          ? `&quickTimeFilter=${encodeURIComponent(
+                              quickTimeFilter
+                            )}`
+                          : ""
+                      }${isFree !== undefined ? `&isFree=${isFree}` : ""}${
+                        minFee !== undefined ? `&minFee=${minFee}` : ""
+                      }${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${
+                        startDate
+                          ? `&startDate=${encodeURIComponent(startDate)}`
+                          : ""
+                      }${
+                        endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""
+                      }${
+                        levels.length
+                          ? `&levels=${encodeURIComponent(levels.join(","))}`
+                          : ""
+                      }${
+                        categories.length
+                          ? `&categories=${encodeURIComponent(
+                              categories.join(",")
+                            )}`
+                          : ""
+                      }${
+                        participantSize
+                          ? `&participantSize=${encodeURIComponent(
+                              participantSize
+                            )}`
+                          : ""
+                      }${
+                        minRating !== undefined ? `&minRating=${minRating}` : ""
+                      }${
+                        clubNames.length
+                          ? `&clubNames=${encodeURIComponent(
+                              clubNames.join(",")
+                            )}`
+                          : ""
+                      }${
+                        status.length
+                          ? `&status=${encodeURIComponent(status.join(","))}`
+                          : ""
+                      }`}
+                    >
                       ← Trước
                     </Link>
                   </Button>
@@ -464,7 +546,57 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                         : "bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                     }`}
                   >
-                    <Link href={`?page=${pageIndex}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}${province ? `&province=${province}` : ""}${ward ? `&ward=${ward}` : ""}${quickTimeFilter ? `&quickTimeFilter=${encodeURIComponent(quickTimeFilter)}` : ""}${isFree !== undefined ? `&isFree=${isFree}` : ""}${minFee !== undefined ? `&minFee=${minFee}` : ""}${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${startDate ? `&startDate=${encodeURIComponent(startDate)}` : ""}${endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""}` }>
+                    <Link
+                      href={`?page=${pageIndex}${
+                        searchQuery
+                          ? `&search=${encodeURIComponent(searchQuery)}`
+                          : ""
+                      }${province ? `&province=${province}` : ""}${
+                        ward ? `&ward=${ward}` : ""
+                      }${
+                        quickTimeFilter
+                          ? `&quickTimeFilter=${encodeURIComponent(
+                              quickTimeFilter
+                            )}`
+                          : ""
+                      }${isFree !== undefined ? `&isFree=${isFree}` : ""}${
+                        minFee !== undefined ? `&minFee=${minFee}` : ""
+                      }${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${
+                        startDate
+                          ? `&startDate=${encodeURIComponent(startDate)}`
+                          : ""
+                      }${
+                        endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""
+                      }${
+                        levels.length
+                          ? `&levels=${encodeURIComponent(levels.join(","))}`
+                          : ""
+                      }${
+                        categories.length
+                          ? `&categories=${encodeURIComponent(
+                              categories.join(",")
+                            )}`
+                          : ""
+                      }${
+                        participantSize
+                          ? `&participantSize=${encodeURIComponent(
+                              participantSize
+                            )}`
+                          : ""
+                      }${
+                        minRating !== undefined ? `&minRating=${minRating}` : ""
+                      }${
+                        clubNames.length
+                          ? `&clubNames=${encodeURIComponent(
+                              clubNames.join(",")
+                            )}`
+                          : ""
+                      }${
+                        status.length
+                          ? `&status=${encodeURIComponent(status.join(","))}`
+                          : ""
+                      }`}
+                    >
                       {pageIndex + 1}
                     </Link>
                   </Button>
@@ -475,7 +607,57 @@ export default async function ClubEvents({ searchParams }: ClubEventsProps) {
                     variant="outline"
                     className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-blue-600 dark:text-emerald-300 hover:bg-blue-50 dark:hover:bg-emerald-900/20 border-blue-200 dark:border-emerald-800 shadow-sm hover:shadow-md"
                   >
-                    <Link href={`?page=${currentPage + 1}${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ""}${province ? `&province=${province}` : ""}${ward ? `&ward=${ward}` : ""}${quickTimeFilter ? `&quickTimeFilter=${encodeURIComponent(quickTimeFilter)}` : ""}${isFree !== undefined ? `&isFree=${isFree}` : ""}${minFee !== undefined ? `&minFee=${minFee}` : ""}${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${startDate ? `&startDate=${encodeURIComponent(startDate)}` : ""}${endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""}` }>
+                    <Link
+                      href={`?page=${currentPage + 1}${
+                        searchQuery
+                          ? `&search=${encodeURIComponent(searchQuery)}`
+                          : ""
+                      }${province ? `&province=${province}` : ""}${
+                        ward ? `&ward=${ward}` : ""
+                      }${
+                        quickTimeFilter
+                          ? `&quickTimeFilter=${encodeURIComponent(
+                              quickTimeFilter
+                            )}`
+                          : ""
+                      }${isFree !== undefined ? `&isFree=${isFree}` : ""}${
+                        minFee !== undefined ? `&minFee=${minFee}` : ""
+                      }${maxFee !== undefined ? `&maxFee=${maxFee}` : ""}${
+                        startDate
+                          ? `&startDate=${encodeURIComponent(startDate)}`
+                          : ""
+                      }${
+                        endDate ? `&endDate=${encodeURIComponent(endDate)}` : ""
+                      }${
+                        levels.length
+                          ? `&levels=${encodeURIComponent(levels.join(","))}`
+                          : ""
+                      }${
+                        categories.length
+                          ? `&categories=${encodeURIComponent(
+                              categories.join(",")
+                            )}`
+                          : ""
+                      }${
+                        participantSize
+                          ? `&participantSize=${encodeURIComponent(
+                              participantSize
+                            )}`
+                          : ""
+                      }${
+                        minRating !== undefined ? `&minRating=${minRating}` : ""
+                      }${
+                        clubNames.length
+                          ? `&clubNames=${encodeURIComponent(
+                              clubNames.join(",")
+                            )}`
+                          : ""
+                      }${
+                        status.length
+                          ? `&status=${encodeURIComponent(status.join(","))}`
+                          : ""
+                      }`}
+                    >
                       Sau →
                     </Link>
                   </Button>
