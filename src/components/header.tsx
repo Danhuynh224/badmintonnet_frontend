@@ -7,6 +7,8 @@ import MobileMenu from "@/components/mobile-menu";
 import UserMenu from "@/components/user-menu";
 import HeaderNav from "@/components/header-nav";
 import NotificationBell from "@/components/notification";
+import ChatButton from "@/components/chat/chat-button";
+import ChatWidget from "@/components/chat/chat-widget";
 export default async function Header() {
   const navItems = [
     { name: "Trang chủ", href: "/" },
@@ -42,6 +44,17 @@ export default async function Header() {
               className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
             >
               <NotificationBell />
+            </Button>
+          )}
+          {accessToken && (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
+            >
+              {/* <ChatWidget /> */}
+              <ChatWidget />
             </Button>
           )}
 
