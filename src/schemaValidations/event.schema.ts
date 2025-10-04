@@ -112,10 +112,7 @@ export const CreateEventClubBody = z.object({
   endTime: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Thời gian kết thúc không hợp lệ",
   }),
-  totalMember: z
-    .number()
-    .int()
-    .positive("Tổng số thành viên phải là số nguyên dương"),
+  totalMember: z.number().int(),
   type: z
     .array(BadmintonCategoryEnum)
     .min(1, "Phải chọn ít nhất một loại hình"),
