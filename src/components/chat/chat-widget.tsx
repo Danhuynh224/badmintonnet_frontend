@@ -67,6 +67,7 @@ export default function ChatWidget() {
       setText("");
       sendTyping(false);
       setTimeout(scrollToBottom, 50);
+      setPage((prev) => prev + 1);
     } catch (err) {
       console.error("Lỗi khi gửi tin nhắn:", err);
     }
@@ -237,6 +238,7 @@ export default function ChatWidget() {
             const newMsg = JSON.parse(msg.body);
             setMessages((prev) => [...prev, newMsg]); // append vào cuối
             setTimeout(scrollToBottom, 50);
+            setPage((prev) => prev + 1);
           }
         }
       );
