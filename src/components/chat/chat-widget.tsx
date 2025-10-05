@@ -146,10 +146,15 @@ export default function ChatWidget() {
       loadMessages(selectedConversation.id, nextPage, true);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      loadConversation();
+    }
+  }, [open]);
   useEffect(() => {
     loadConversation();
   }, []);
-
   useEffect(() => {
     if (selectedConversation) {
       setPage(0);
@@ -344,18 +349,26 @@ export default function ChatWidget() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setSelectedConversation(null)}
+                    onClick={() => {
+                      loadConversation();
+                      setSelectedConversation(null);
+                    }}
                     className="h-8 w-8 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </Button>
-                  <Image
-                    src={selectedConversation?.avatarUrl || "/user.png"}
-                    alt={selectedConversation?.name || "Avatar"}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600"
-                  />
+                  <div className="relative w-8 h-8">
+                    <Image
+                      src={selectedConversation?.avatarUrl || "/user.png"}
+                      alt={selectedConversation?.name || "Avatar"}
+                      fill
+                      sizes="48px"
+                      className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600 transition-transform hover:scale-105 duration-200"
+                      quality={100}
+                      placeholder="blur"
+                      blurDataURL="/user.png"
+                    />
+                  </div>
                 </>
               )}
 
@@ -393,13 +406,19 @@ export default function ChatWidget() {
                     setSelectedConversation(conversation);
                   }}
                 >
-                  <Image
-                    src={conversation.avatarUrl || "/user.png"}
-                    alt={conversation.name}
-                    width={48}
-                    height={48}
-                    className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600"
-                  />
+                  <div className="relative w-12 h-12">
+                    <Image
+                      src={conversation.avatarUrl || "/user.png"}
+                      alt={conversation.name}
+                      fill
+                      sizes="48px"
+                      className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600 transition-transform hover:scale-105 duration-200"
+                      quality={100}
+                      placeholder="blur"
+                      blurDataURL="/user.png"
+                    />
+                  </div>
+
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {conversation.name}
@@ -422,11 +441,11 @@ export default function ChatWidget() {
 
           {/* Chat view */}
           {selectedConversation && (
-            <div className="flex flex-col min-h-0 bg-gray-50 dark:bg-gray-800">
+            <div className="flex flex-col min-h-0 bg-gray-50 dark:bg-gray-800 h-full">
               <div
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto p-4 space-y-4"
+                className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0"
               >
                 {loadingMore && (
                   <div className="flex justify-center py-2">
@@ -458,39 +477,59 @@ export default function ChatWidget() {
                     (i === messages.length - 1 ||
                       messages[i + 1].senderName !== msg.senderName);
 
+                  // Hiển thị tên nếu là nhóm và là tin đầu tiên của người gửi này (so với tin trước đó)
+                  const showSenderName =
+                    selectedConversation.groupChat &&
+                    msg.received &&
+                    (i === 0 || messages[i - 1].senderName !== msg.senderName);
+
                   return (
                     <div
                       key={msg.id}
-                      className={`flex items-end gap-3 ${
-                        isMine ? "justify-end" : "justify-start"
-                      }`}
+                      className={`flex flex-col items-end ${
+                        !isMine ? "items-start" : ""
+                      } gap-0.5`}
                     >
-                      {!isMine &&
-                        (showAvatar ? (
-                          <Image
-                            src={msg.senderAvatar || "/user.png"}
-                            alt={msg.senderName}
-                            width={32}
-                            height={32}
-                            className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600"
-                          />
-                        ) : (
-                          <div className="w-8" />
-                        ))}
+                      {showSenderName && (
+                        <span className="ml-12 text-xs font-semibold text-blue-600  mt-3 mb-2">
+                          {msg.senderName}
+                        </span>
+                      )}
                       <div
-                        className={`p-3 rounded-2xl max-w-[75%] text-sm shadow-sm ${
-                          isMine
-                            ? "bg-blue-500 text-white ml-8"
-                            : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 mr-8"
+                        className={`flex items-end gap-3 ${
+                          isMine ? "justify-end" : "justify-start"
                         }`}
                       >
-                        <p>{msg.content}</p>
-                        <span className="text-xs block text-right opacity-70">
-                          {new Date(msg.createdAt).toLocaleTimeString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
+                        {!isMine &&
+                          (showAvatar ? (
+                            <Image
+                              src={msg.senderAvatar || "/user.png"}
+                              alt={msg.senderName}
+                              width={32}
+                              height={32}
+                              className="rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-600"
+                            />
+                          ) : (
+                            <div className="w-8" />
+                          ))}
+                        <div
+                          className={`p-3 rounded-2xl max-w-[75%] text-sm shadow-sm ${
+                            isMine
+                              ? "bg-blue-500 text-white ml-8"
+                              : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 mr-8"
+                          }`}
+                        >
+                          <p>{msg.content}</p>
+                          <span className="text-xs block text-right opacity-70">
+                            {new Date(msg.createdAt).toLocaleTimeString(
+                              "vi-VN",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );

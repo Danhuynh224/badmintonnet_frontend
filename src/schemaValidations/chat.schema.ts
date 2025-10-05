@@ -5,6 +5,7 @@ export const conversation = z.object({
   firstMessage: z.string(),
   avatarUrl: z.string().nullable(),
   unreadCount: z.number(),
+  groupChat: z.boolean(),
 });
 export const conversationResponse = z.object({
   status: z.number(),
