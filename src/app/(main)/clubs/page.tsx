@@ -6,28 +6,51 @@ import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
 import { isClubOwner } from "@/lib/utils";
 import Link from "next/link";
-import { tree } from "next/dist/build/templates/app-page";
 import ClubFilterForm from "@/app/(main)/clubs/_components/club-filter-form";
 
 const ClubList = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: {
+    page?: string;
+    search?: string;
+    province?: string;
+    ward?: string;
+    levels?: string; // comma-separated
+    reputationSort?: string;
+    clubs?: string; // comma-separated
+  };
 }) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
   // const clubOwner = isClubOwner(accessToken?.value || "");
   // Extract page number from query params, default to 0
-  const params = await searchParams;
+  const params = searchParams || {};
   const page = parseInt(params.page || "0", 10);
   const size = 20; // Match the API's default page size
 
+  // Lấy các tham số lọc từ URL - aligned with client-side filter
+  const search = params.search || "";
+  const province = params.province || "";
+  const ward = params.ward || "";
+  const selectedLevels = params.levels
+    ? params.levels.split(",").filter(Boolean)
+    : [];
+  const reputationSort = params.reputationSort || "";
+  const clubNames = params.clubs ? params.clubs.split(",").filter(Boolean) : [];
+
   // Fetch clubs dynamically from the API
-  const response = await clubServiceApi.getAllPublicClubs(
+  const response = await clubServiceApi.getAllPublicClubs({
     page,
     size,
-    accessToken?.value
-  );
+    search,
+    province,
+    ward,
+    selectedLevels,
+    reputationSort,
+    clubNames,
+    token: accessToken?.value,
+  });
   const clubs = response.payload.data.content;
   const { totalPages, page: currentPage, last } = response.payload.data;
 

@@ -17,10 +17,50 @@ const clubServiceApi = {
 
   createClub: (body: CreateClubBodyType) =>
     http.post<ClubResType>("/clubs", body),
-  getAllPublicClubs: (page = 0, size = 10, token = "") =>
-    http.get<ClubPageResType>(`/clubs/all_public?page=${page}&size=${size}`, {
+  // getAllPublicClubs: (page = 0, size = 10, token = "") =>
+  //   http.get<ClubPageResType>(`/clubs/all_public?page=${page}&size=${size}`, {
+  //     headers: token ? { Authorization: `Bearer ${token}` } : {},
+  //   }),
+
+  getAllPublicClubs: ({
+    page = 0,
+    size = 10,
+    search = "",
+    province = "",
+    ward = "",
+    selectedLevels = [],
+    reputationSort = "",
+    clubNames = [],
+    token = "",
+  }: {
+    page?: number;
+    size?: number;
+    search?: string;
+    province?: string;
+    ward?: string;
+    selectedLevels?: string[];
+    reputationSort?: string;
+    clubNames?: string[];
+    token?: string;
+  }) => {
+    const params = new URLSearchParams();
+
+    params.append("page", page.toString());
+    params.append("size", size.toString());
+
+    if (search) params.append("search", search);
+    if (province) params.append("province", province);
+    if (ward) params.append("ward", ward);
+    if (reputationSort) params.append("reputationSort", reputationSort);
+
+    selectedLevels.forEach((level) => params.append("selectedLevels", level));
+    clubNames.forEach((name) => params.append("clubNames", name));
+
+    return http.get<ClubPageResType>(`/clubs/all_public?${params.toString()}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }),
+    });
+  },
+
   getMyClubs: (page = 0, size = 10, token = "") =>
     http.get<MyClubPageResType>(
       `/clubs/my_clubs/all?page=${page}&size=${size}`,

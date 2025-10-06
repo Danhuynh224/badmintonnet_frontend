@@ -18,8 +18,12 @@ import {
   Star,
   TrendingUp,
   TrendingDown,
+  Building2,
 } from "lucide-react";
+import { Select } from "antd";
 import addressApiRequest from "@/apiRequest/address";
+import { useRouter } from "next/navigation";
+import { set } from "zod";
 
 interface Province {
   id: string;
@@ -31,12 +35,19 @@ interface Ward {
   full_name: string;
 }
 
+interface Club {
+  id: string;
+  name: string;
+  logo?: string;
+}
+
 interface ClubFilterProps {
   searchQuery?: string;
   province?: string;
   ward?: string;
   selectedLevels?: string[];
   reputationSort?: string;
+  clubNames?: string[];
 }
 
 export default function ClubFilterForm({
@@ -45,6 +56,7 @@ export default function ClubFilterForm({
   ward = "",
   selectedLevels = [],
   reputationSort = "",
+  clubNames = [],
 }: ClubFilterProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState(searchQuery);
@@ -53,6 +65,7 @@ export default function ClubFilterForm({
   const [selectedWard, setSelectedWard] = useState(ward);
   const [levels, setLevels] = useState<string[]>(selectedLevels);
   const [sortReputation, setSortReputation] = useState(reputationSort);
+  const [selectedClubs, setSelectedClubs] = useState<string[]>(clubNames);
 
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
@@ -69,8 +82,20 @@ export default function ClubFilterForm({
   ];
 
   const reputationOptions = [
-    { key: "DESC", value: "Cao → Thấp", icon: TrendingDown },
-    { key: "ASC", value: "Thấp → Cao", icon: TrendingUp },
+    { key: "desc", value: "Cao → Thấp", icon: TrendingDown },
+    { key: "asc", value: "Thấp → Cao", icon: TrendingUp },
+  ];
+
+  // Mock clubs data - Replace with actual API call
+  const clubs: Club[] = [
+    { id: "1", name: "CLB Cầu Lông Sài Gòn", logo: "🏸" },
+    { id: "2", name: "Badminton Pro Club", logo: "⭐" },
+    { id: "3", name: "Victory Sports Club", logo: "🏆" },
+    { id: "4", name: "Star Badminton Center", logo: "✨" },
+    { id: "5", name: "Elite Sports Club", logo: "👑" },
+    { id: "6", name: "Phoenix Badminton Academy", logo: "🔥" },
+    { id: "7", name: "Champions Club HCM", logo: "🥇" },
+    { id: "8", name: "Royal Badminton Team", logo: "👑" },
   ];
 
   // Fetch provinces
@@ -126,6 +151,7 @@ export default function ClubFilterForm({
     setWards([]);
     setLevels([]);
     setSortReputation("");
+    setSelectedClubs([]);
     if (searchInputRef.current) {
       searchInputRef.current.value = "";
     }
@@ -138,8 +164,18 @@ export default function ClubFilterForm({
     if (selectedWard) count++;
     if (levels.length > 0) count++;
     if (sortReputation) count++;
+    if (selectedClubs.length > 0) count++;
     return count;
-  }, [searchValue, selectedProvince, selectedWard, levels, sortReputation]);
+  }, [
+    searchValue,
+    selectedProvince,
+    selectedWard,
+    levels,
+    sortReputation,
+    selectedClubs,
+  ]);
+
+  const router = useRouter();
 
   const handleApplyFilters = useCallback(() => {
     const provinceSelected = provinces.find((p) => p.id === selectedProvince);
@@ -153,8 +189,10 @@ export default function ClubFilterForm({
     if (selectedWard) params.append("ward", wardSelected?.full_name || "");
     if (levels.length > 0) params.append("levels", levels.join(","));
     if (sortReputation) params.append("reputationSort", sortReputation);
+    if (selectedClubs.length > 0)
+      params.append("clubs", selectedClubs.join(","));
 
-    // router.push(`/clubs?${params.toString()}`);
+    router.push(`/clubs?${params.toString()}`);
   }, [
     provinces,
     selectedProvince,
@@ -163,6 +201,8 @@ export default function ClubFilterForm({
     searchValue,
     levels,
     sortReputation,
+    selectedClubs,
+    router,
   ]);
 
   return (
@@ -179,16 +219,13 @@ export default function ClubFilterForm({
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                Bộ lọc câu lạc bộ
+                Bộ lọc
                 {activeFilterCount > 0 && (
                   <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
                     {activeFilterCount}
                   </span>
                 )}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
-                Tìm kiếm câu lạc bộ phù hợp với bạn
-              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -280,6 +317,38 @@ export default function ClubFilterForm({
                 </div>
               </div>
 
+              {/* Club Names */}
+              <div className="bg-white dark:bg-gray-700 rounded-lg p-3.5 shadow-sm border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1 bg-indigo-100 dark:bg-indigo-900/30 rounded">
+                    <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Câu lạc bộ
+                  </h4>
+                </div>
+                <Select
+                  mode="multiple"
+                  showSearch
+                  placeholder="Tìm câu lạc bộ"
+                  value={selectedClubs}
+                  onChange={setSelectedClubs}
+                  style={{ width: "100%" }}
+                  size="middle"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={clubs.map((club) => ({
+                    value: club.id,
+                    label: `${club.logo} ${club.name}`,
+                  }))}
+                  className="dark:bg-gray-800"
+                  maxTagCount={2}
+                />
+              </div>
+
               {/* Reputation Sort */}
               <div className="bg-white dark:bg-gray-700 rounded-lg p-3.5 shadow-sm border border-gray-200 dark:border-gray-600">
                 <div className="flex items-center gap-2 mb-3">
@@ -314,35 +383,33 @@ export default function ClubFilterForm({
                   })}
                 </div>
               </div>
-            </div>
-
-            {/* Levels Section */}
-            <div className="bg-white dark:bg-gray-700 rounded-lg p-3.5 shadow-sm border border-gray-200 dark:border-gray-600">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-1 bg-amber-100 dark:bg-amber-900/30 rounded">
-                  <Star className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <div className="bg-white dark:bg-gray-700 rounded-lg p-3.5 shadow-sm border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1 bg-amber-100 dark:bg-amber-900/30 rounded">
+                    <Star className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Trình độ
+                  </h4>
                 </div>
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  Trình độ
-                </h4>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {levelOptions.map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => handleLevelToggle(level)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                      levels.includes(level)
-                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700"
-                        : "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
-                    }`}
-                  >
-                    {levels.includes(level) && (
-                      <Check className="inline h-3 w-3 mr-0.5" />
-                    )}
-                    {level}
-                  </button>
-                ))}
+                <div className="flex flex-wrap gap-1.5">
+                  {levelOptions.map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => handleLevelToggle(level)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                        levels.includes(level)
+                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700"
+                          : "bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                      }`}
+                    >
+                      {levels.includes(level) && (
+                        <Check className="inline h-3 w-3 mr-0.5" />
+                      )}
+                      {level}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -352,6 +419,7 @@ export default function ClubFilterForm({
                 onClick={() => {
                   clearAllFilters();
                   setIsFilterOpen(false);
+                  router.push("/clubs");
                 }}
                 className="flex-1 py-2.5 px-3 text-sm font-medium border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all flex items-center justify-center gap-1.5"
               >
@@ -359,7 +427,9 @@ export default function ClubFilterForm({
                 Xóa bộ lọc
               </button>
               <button
-                onClick={handleApplyFilters}
+                onClick={() => {
+                  handleApplyFilters();
+                }}
                 className="flex-[2] py-2.5 px-3 text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
               >
                 <Search className="h-4 w-4" />
