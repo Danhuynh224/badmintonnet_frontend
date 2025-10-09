@@ -55,7 +55,9 @@ export default function ParticipantsSection({
   eventId,
 }: ParticipantsSectionProps) {
   const pending = participants.filter((p) => p.status === "PENDING");
-  const others = participants.filter((p) => p.status !== "PENDING");
+  const others = participants.filter(
+    (p) => p.status !== "PENDING" && p.status !== "CANCELLED"
+  );
 
   const getStatusCounts = () => {
     return {

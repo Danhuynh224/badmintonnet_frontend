@@ -13,6 +13,7 @@ import {
   CheckCircle,
   GraduationCap,
   UserX,
+  XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,8 @@ import CreateHighlightButton from "@/app/(main)/events/_components/highlight/cre
 import ParticipantsSection from "@/app/(main)/events/_components/view-participants";
 import AbsenceDialog from "@/app/(main)/events/_components/absent-reason/absence-dialog";
 import accountApiRequest from "@/apiRequest/account";
-import { CancelEventDialog } from "@/app/(main)/events/_components/cancel_event_button";
+import { CancelEventDialog } from "@/app/(main)/events/_components/cancel-event-button";
+import { CancelJoinEventButton } from "@/app/(main)/events/_components/cancel-join-button";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -140,7 +142,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
     );
   };
   const renderParticipantStatus = (
-    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT"
+    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT" | "CANCELLED"
   ) => {
     // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -190,6 +192,16 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
         iconBg: "bg-red-100 dark:bg-red-900/30",
         textColor: "text-red-900 dark:text-red-300",
         subTextColor: "text-red-700 dark:text-red-400",
+      },
+      CANCELLED: {
+        bg: "bg-gray-50 dark:bg-gray-900/20",
+        border: "border border-gray-200 dark:border-gray-800",
+        icon: <XCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />,
+        title: "Đã hủy",
+        subtitle: "Bạn đã hủy tham gia hoạt động này",
+        iconBg: "bg-gray-100 dark:bg-gray-900/30",
+        textColor: "text-gray-900 dark:text-gray-300",
+        subTextColor: "text-gray-700 dark:text-gray-400",
       },
     };
 
@@ -442,16 +454,17 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                {eventDetail.participantRole === "OWNER" ||
-                  (eventDetail.status === "CANCELLED" && (
-                    <div className="flex flex-col gap-3">
-                      <EditEventButton eventData={eventDetail} />
+                {eventDetail.participantRole === "OWNER" && (
+                  <div className="flex flex-col gap-3">
+                    <EditEventButton eventData={eventDetail} />
+                    {eventDetail.status !== "CANCELLED" && (
                       <CancelEventDialog
                         eventId={eventDetail.id}
                         token={accessToken?.value || ""}
                       />
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                )}
 
                 {eventDetail.participantRole === "MEMBER" &&
                   eventDetail.status == "OPEN" && (
@@ -462,13 +475,12 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                           isMember={true}
                         />
                       ) : (
-                        <Button
-                          variant="destructive"
-                          className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                        >
-                          <UserMinus className="w-4 h-4 mr-2" />
-                          Hủy tham gia
-                        </Button>
+                        eventDetail.participantStatus !== "CANCELLED" && (
+                          <CancelJoinEventButton
+                            eventId={eventDetail.id}
+                            token={accessToken?.value || ""}
+                          />
+                        )
                       )}
                     </div>
                   )}
@@ -495,13 +507,12 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                               )}
                             </>
                           ) : eventDetail.participantStatus !== "PENDING" ? (
-                            <Button
-                              variant="destructive"
-                              className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-medium py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                            >
-                              <UserMinus className="w-4 h-4 mr-2" />
-                              Hủy tham gia
-                            </Button>
+                            eventDetail.participantStatus !== "CANCELLED" && (
+                              <CancelJoinEventButton
+                                eventId={eventDetail.id}
+                                token={accessToken?.value || ""}
+                              />
+                            )
                           ) : (
                             <Button
                               variant="ghost"

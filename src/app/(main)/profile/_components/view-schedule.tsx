@@ -264,7 +264,10 @@ export default function ScheduleDialog() {
                                       )} 
                                       font-semibold text-xs px-3 py-1.5 border whitespace-nowrap`}
                                     >
-                                      {getStatusText(item.status)}
+                                      {
+                                        (console.log(item.status),
+                                        getStatusText(item.status))
+                                      }
                                     </Badge>
                                   </div>
                                 </div>
