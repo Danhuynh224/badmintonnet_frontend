@@ -7,6 +7,7 @@ const navItems = [
   { name: "Trang chủ", href: "/" },
   { name: "Hoạt động", href: "/events" },
   { name: "Câu lạc bộ", href: "/clubs" },
+  { name: "Giải đấu", href: "/tournaments" },
   { name: "Về chúng tôi", href: "/about" },
 ];
 
