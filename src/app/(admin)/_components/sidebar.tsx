@@ -35,6 +35,11 @@ const menuItems = [
     icon: Calendar,
   },
   {
+    title: "Quản lý sân vận động",
+    href: "/admin/facilities",
+    icon: BarChart3,
+  },
+  {
     title: "Báo cáo thống kê",
     href: "/admin/analytics",
     icon: BarChart3,

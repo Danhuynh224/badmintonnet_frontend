@@ -337,3 +337,53 @@ export const CanJoinSchemaResponse = z.object({
 
 export type CanJoinSchemaType = z.infer<typeof CanJoinSchema>;
 export type CanJoinSchemaResponseType = z.infer<typeof CanJoinSchemaResponse>;
+
+export const FacilitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  address: z.string(),
+  city: z.string(),
+  district: z.string(),
+  location: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  image: z.string(),
+});
+export type FacilityType = z.infer<typeof FacilitySchema>;
+
+export const PagedFacilityResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(FacilitySchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+export type PagedFacilityResponseType = z.infer<typeof PagedFacilityResponse>;
+
+export const CreateFacilityBody = z.object({
+  name: z.string(),
+  address: z.string(),
+  city: z.string().min(1, "Tỉnh/Thành phố là bắt buộc"),
+  district: z.string().min(1, "Quận/Huyện là bắt buộc"),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  image: z.string().optional(),
+});
+
+export type CreateFacilityBodyType = z.infer<typeof CreateFacilityBody>;
+
+// export const UpdateFacilityBody = z.object({
+//   id: z.string(),
+//   name: z.string(),
+//   address: z.string(),
+//   province: z.string().min(1, "Tỉnh/Thành phố là bắt buộc"),
+//   ward: z.string().min(1, "Quận/Huyện là bắt buộc"),
+//   latitude: z.number().optional(),
+//   longitude: z.number().optional(),
+//   image: z.string().optional(),
+// });
