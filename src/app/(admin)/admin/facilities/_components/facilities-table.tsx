@@ -238,7 +238,7 @@ export function FacilitiesTable({
             <div className="mt-6">
               <CustomPagination
                 totalPages={totalPages}
-                currentPage={currentPage + 1} // Chuyển từ 0-based sang 1-based cho UI
+                currentPage={currentPage}
               />
             </div>
           )}

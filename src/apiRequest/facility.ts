@@ -3,6 +3,7 @@ import http from "@/lib/http";
 import { FileResType } from "@/schemaValidations/common.schema";
 import {
   CreateFacilityBodyType,
+  FacilitiesResponseType,
   FacilityType,
   PagedFacilityResponseType,
 } from "@/schemaValidations/event.schema";
@@ -18,6 +19,9 @@ const facilityApiRequest = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     ),
+
+  getAllFacilitiesFilter: () =>
+    http.get<FacilitiesResponseType>(`/facilities/all/filter`),
 
   createFacility: (body: CreateFacilityBodyType) =>
     http.post<FacilityType>("/facilities", body),

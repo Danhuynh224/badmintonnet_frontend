@@ -89,7 +89,7 @@ export function UpdateFacilityDialog({
       name: facility.name,
       address: facility.address,
       district: facility.district,
-      province: facility.province,
+      province: facility.city,
       latitude: facility.latitude?.toString() || "",
       longitude: facility.longitude?.toString() || "",
     },

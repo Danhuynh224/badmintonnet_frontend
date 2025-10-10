@@ -351,6 +351,13 @@ export const FacilitySchema = z.object({
 });
 export type FacilityType = z.infer<typeof FacilitySchema>;
 
+export const FacilitiesResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(FacilitySchema),
+});
+export type FacilitiesResponseType = z.infer<typeof FacilitiesResponse>;
+
 export const PagedFacilityResponse = z.object({
   status: z.number(),
   message: z.string(),

@@ -44,12 +44,12 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface Province {
   id: string;
-  name: string;
+  full_name: string;
 }
 
 interface Ward {
   id: string;
-  name: string;
+  full_name: string;
 }
 
 interface CreateFacilityDialogProps {
@@ -124,7 +124,7 @@ export function CreateFacilityDialog({
     setSelectedProvinceId(provinceId);
     const province = provinces.find((p) => p.id === provinceId);
     if (province) {
-      form.setValue("city", province.name);
+      form.setValue("city", province.full_name);
     }
     form.setValue("district", "");
   };
@@ -133,7 +133,7 @@ export function CreateFacilityDialog({
   const handleWardChange = (wardId: string) => {
     const ward = wards.find((w) => w.id === wardId);
     if (ward) {
-      form.setValue("district", ward.name);
+      form.setValue("district", ward.full_name);
     }
   };
 
@@ -260,7 +260,7 @@ export function CreateFacilityDialog({
                       <SelectContent>
                         {provinces.map((province) => (
                           <SelectItem key={province.id} value={province.id}>
-                            {province.name}
+                            {province.full_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -290,7 +290,7 @@ export function CreateFacilityDialog({
                       <SelectContent>
                         {wards.map((ward) => (
                           <SelectItem key={ward.id} value={ward.id}>
-                            {ward.name}
+                            {ward.full_name}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -11,6 +11,7 @@ import {
   BarChart3,
   FileText,
   MessageSquare,
+  LandPlot,
 } from "lucide-react";
 
 const menuItems = [
@@ -37,7 +38,7 @@ const menuItems = [
   {
     title: "Quản lý sân vận động",
     href: "/admin/facilities",
-    icon: BarChart3,
+    icon: LandPlot,
   },
   {
     title: "Quản lý giải đấu",
