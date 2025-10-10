@@ -30,7 +30,7 @@ const menuItems = [
     icon: Users,
   },
   {
-    title: "Quản lý sự kiện",
+    title: "Quản lý hoạt động",
     href: "/admin/events",
     icon: Calendar,
   },
@@ -40,15 +40,16 @@ const menuItems = [
     icon: BarChart3,
   },
   {
+    title: "Quản lý giải đấu",
+    href: "/admin/tournaments",
+    icon: FileText,
+  },
+  {
     title: "Báo cáo thống kê",
     href: "/admin/analytics",
     icon: BarChart3,
   },
-  {
-    title: "Quản lý nội dung",
-    href: "/admin/content",
-    icon: FileText,
-  },
+
   {
     title: "Phản hồi người dùng",
     href: "/admin/feedback",
