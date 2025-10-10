@@ -29,6 +29,7 @@ const statusConfig: Record<
   },
   PENDING: { label: "", color: "", bgColor: "", darkBgColor: "" },
   APPROVED: { label: "", color: "", bgColor: "", darkBgColor: "" },
+  CANCELLED: { label: "", color: "", bgColor: "", darkBgColor: "" },
 };
 
 interface AttendanceDropdownProps {

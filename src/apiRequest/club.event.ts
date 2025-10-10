@@ -41,6 +41,19 @@ const eventClubApiRequest = {
   updateEventClub: (body: Partial<UpdateEventClubBodyType>) =>
     http.put<EventDetailResponseType>("/club-event/update", body),
 
+  cancelEventClub: (id: string, accessToken: string) =>
+    http.post<void>(`/club-event/cancel/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+  cancelJoinEventClub: (id: string, accessToken: string) =>
+    http.post<void>(`/club-event/${id}/cancel-join`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+
   //Lấy danh sách event clubs tất cả
   getAllPublicEventClubs: (
     page: number,

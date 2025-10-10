@@ -29,6 +29,7 @@ export const EventParticipantStatusEnum = z.enum([
   "APPROVED",
   "ATTENDED",
   "ABSENT",
+  "CANCELLED",
 ]);
 export type EventParticipantStatus = z.infer<typeof EventParticipantStatusEnum>;
 export const UpdateEventParticipantStatus = z.object({
