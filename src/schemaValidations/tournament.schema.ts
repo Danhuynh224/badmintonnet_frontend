@@ -48,6 +48,16 @@ export function getTournamentStatusInfo(status: TournamentStatusEnum) {
       };
   }
 }
+export function getCategoryLabel(category: string): string {
+  const map: Record<string, string> = {
+    MEN_SINGLE: "Đơn nam",
+    WOMEN_SINGLE: "Đơn nữ",
+    MEN_DOUBLE: "Đôi nam",
+    WOMEN_DOUBLE: "Đôi nữ",
+    MIXED_DOUBLE: "Đôi nam nữ",
+  };
+  return map[category] ?? category;
+}
 export type TournamentStatusEnum = z.infer<typeof TournamentStatusEnum>;
 // Schema cho từng hạng mục thi đấu (TournamentCategoryRequest)
 export const TournamentCategoryRequest = z.object({
@@ -152,3 +162,11 @@ export const PagedTournamentResponse = z.object({
   }),
 });
 export type PagedTournamentResponse = z.infer<typeof PagedTournamentResponse>;
+
+export const TournamentDetailResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: TournamentResponse,
+});
+
+export type TournamentDetailResponse = z.infer<typeof TournamentDetailResponse>;

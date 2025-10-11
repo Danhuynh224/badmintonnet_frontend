@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  getCategoryLabel,
   getTournamentStatusInfo,
   TournamentResponse,
 } from "@/schemaValidations/tournament.schema";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 interface TournamentPageProps {
   tournaments: TournamentResponse[];
@@ -61,48 +63,97 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                     }`}
                   >
                     {/* Card giải đấu */}
-                    <div
-                      className={`w-full bg-white/90 dark:bg-slate-800/90 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col sm:flex-row border border-slate-200 dark:border-slate-700 hover:border-sky-400/50 dark:hover:border-sky-500/70 backdrop-blur-sm ${
-                        side === "right" ? "sm:flex-row-reverse" : ""
-                      }`}
+                    <Link
+                      href={`/tournaments/${tournament.slug}`}
+                      className="w-full"
                     >
-                      {/* Logo */}
-                      <div className="w-full sm:w-1/3 bg-slate-100 dark:bg-slate-900/40 flex items-center justify-center p-5">
-                        <Image
-                          src={tournament.logoUrl || "/default-logo.png"}
-                          alt={tournament.name || "Logo giải đấu"}
-                          width={130}
-                          height={130}
-                          className="object-contain rounded-lg drop-shadow-md"
-                        />
-                      </div>
+                      <div
+                        className={`w-full bg-white/90 dark:bg-slate-800/90 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col sm:flex-row border border-slate-200 dark:border-slate-700 hover:border-sky-400/50 dark:hover:border-sky-500/70 backdrop-blur-sm ${
+                          side === "right" ? "sm:flex-row-reverse" : ""
+                        }`}
+                      >
+                        {/* Logo */}
+                        <div className="w-full sm:w-1/3 bg-slate-100 dark:bg-slate-900/40 flex items-center justify-center p-5">
+                          <Image
+                            src={tournament.logoUrl || "/default-logo.png"}
+                            alt={tournament.name || "Logo giải đấu"}
+                            width={130}
+                            height={130}
+                            className="object-contain rounded-lg drop-shadow-md"
+                          />
+                        </div>
 
-                      {/* Banner + Info */}
-                      <div className="w-full sm:w-2/3 flex flex-col">
-                        <Image
-                          src={tournament.bannerUrl || "/default-banner.jpg"}
-                          alt={tournament.name || "Ảnh banner giải đấu"}
-                          width={400}
-                          height={240}
-                          className="object-cover w-full h-48 sm:h-56"
-                        />
-                        <div className="p-5 flex flex-col flex-grow">
-                          <div
-                            className={`${
-                              getTournamentStatusInfo(tournament.status).color
-                            } text-xs font-semibold uppercase mb-2 tracking-wider`}
-                          >
-                            {getTournamentStatusInfo(tournament.status).label}
-                          </div>
-                          <h3
-                            className={`text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug`}
-                          >
-                            {tournament.name}
-                          </h3>
-                          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2 flex-grow">
-                            {tournament.location || "Địa điểm chưa xác định"}
-                          </p>
-                          <p className="text-slate-400 dark:text-slate-500 text-xs mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                        {/* Banner + Info */}
+                        <div className="w-full sm:w-2/3 flex flex-col">
+                          <Image
+                            src={tournament.bannerUrl || "/default-banner.jpg"}
+                            alt={tournament.name || "Ảnh banner giải đấu"}
+                            width={400}
+                            height={240}
+                            className="object-cover w-full h-48 sm:h-56"
+                          />
+                          <div className="p-5 flex flex-col flex-grow">
+                            <div
+                              className={`${
+                                getTournamentStatusInfo(tournament.status).color
+                              } text-xs font-semibold uppercase mb-2 tracking-wider`}
+                            >
+                              {getTournamentStatusInfo(tournament.status).label}
+                            </div>
+                            <h3
+                              className={`text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug`}
+                            >
+                              {tournament.name}
+                            </h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2 flex-grow">
+                              {tournament.location || "Địa điểm chưa xác định"}
+                            </p>
+                            {tournament.categories &&
+                              tournament.categories.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                  {tournament.categories.map((cat) => (
+                                    <span
+                                      key={cat.id}
+                                      className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                                    >
+                                      {getCategoryLabel(cat.category)}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                            {/* Thời gian đăng ký */}
+                            <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                              Đăng ký:{" "}
+                              <span className="text-sky-600 dark:text-sky-400 font-medium">
+                                {new Date(
+                                  tournament.registrationStartDate
+                                ).toLocaleDateString("vi-VN")}
+                              </span>{" "}
+                              →{" "}
+                              <span className="text-sky-600 dark:text-sky-400 font-medium">
+                                {new Date(
+                                  tournament.registrationEndDate
+                                ).toLocaleDateString("vi-VN")}
+                              </span>
+                            </div>
+
+                            {/* Thời gian thi đấu */}
+                            <p className="text-slate-400 dark:text-slate-500 text-xs mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                              Thi đấu:{" "}
+                              <span className="text-sky-500 dark:text-sky-400 font-medium">
+                                {new Date(
+                                  tournament.startDate
+                                ).toLocaleDateString("vi-VN")}
+                              </span>{" "}
+                              →{" "}
+                              <span className="text-sky-500 dark:text-sky-400 font-medium">
+                                {new Date(
+                                  tournament.endDate
+                                ).toLocaleDateString("vi-VN")}
+                              </span>
+                            </p>
+                            {/* <p className="text-slate-400 dark:text-slate-500 text-xs mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
                             {new Date(tournament.startDate).toLocaleDateString(
                               "vi-VN"
                             )}{" "}
@@ -110,10 +161,11 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                             {new Date(tournament.endDate).toLocaleDateString(
                               "vi-VN"
                             )}
-                          </p>
+                          </p> */}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
 
                     {/* Chấm timeline */}
                     <div
