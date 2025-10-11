@@ -23,16 +23,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import tournamentApiRequest from "@/apiRequest/tournament";
 import addressApiRequest from "@/apiRequest/address";
+import { useRouter } from "next/navigation";
 
 // Interfaces for address data
 interface Province {
@@ -64,7 +58,11 @@ function toLocalDateTime(dateString: string) {
   return dateString.includes("T") ? dateString : `${dateString}T00:00:00`;
 }
 
-export default function TournamentCreateForm() {
+export default function TournamentCreateForm({
+  onCreated,
+}: {
+  onCreated?: () => void;
+}) {
   const [bannerImage, setBannerImage] = useState<File | null>(null);
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
@@ -78,7 +76,7 @@ export default function TournamentCreateForm() {
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
   const [isLoadingWards, setIsLoadingWards] = useState(false);
   const [additionalAddress, setAdditionalAddress] = useState("");
-
+  const router = useRouter();
   const form = useForm<TournamentCreateRequest>({
     resolver: zodResolver(TournamentCreateRequest),
     defaultValues: {
@@ -89,8 +87,10 @@ export default function TournamentCreateForm() {
       logoUrl: "",
       startDate: "",
       endDate: "",
+      rules: "",
       registrationStartDate: "",
       registrationEndDate: "",
+      fee: 0,
       categories: [
         {
           categoryType: "MEN_SINGLE",
@@ -246,6 +246,8 @@ export default function TournamentCreateForm() {
       setLogoImage(null);
       setSelectedProvinceId("");
       setAdditionalAddress("");
+      router.refresh();
+      onCreated?.();
     } catch (error) {
       toast.error("Tạo giải đấu thất bại!", {
         description: "Có lỗi xảy ra, vui lòng kiểm tra lại thông tin.",
@@ -255,11 +257,6 @@ export default function TournamentCreateForm() {
 
   return (
     <Card className="border border-gray-200 dark:border-gray-700 shadow-lg dark:bg-gray-800 max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">
-          Tạo Giải Đấu Mới
-        </CardTitle>
-      </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -294,6 +291,24 @@ export default function TournamentCreateForm() {
                       placeholder="Nhập mô tả chi tiết về giải đấu..."
                       {...field}
                       rows={4}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="rules"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Điều lệ giải đấu</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Nhập điều lệ giải đấu..."
+                      {...field}
+                      rows={6}
+                      className="whitespace-pre-line"
                     />
                   </FormControl>
                   <FormMessage />
@@ -486,7 +501,25 @@ export default function TournamentCreateForm() {
                 />
               </div>
             </div>
-
+            <FormField
+              control={form.control}
+              name="fee"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phí tham gia (VNĐ)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Ví dụ: 50000"
+                      className="h-12 text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {/* Date Fields */}
             <div className="grid sm:grid-cols-2 gap-6">
               <FormField
@@ -584,7 +617,7 @@ export default function TournamentCreateForm() {
                     </label>
                     <select
                       {...register(`categories.${index}.categoryType` as const)}
-                      className="border rounded-md p-2 w-full"
+                      className="border rounded-md p-2 w-full dark:bg-gray-700 dark:text-white"
                     >
                       {BadmintonCategoryEnum.options.map((opt) => (
                         <option key={opt} value={opt}>
@@ -597,11 +630,11 @@ export default function TournamentCreateForm() {
                   {/* Trình độ */}
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Min Level
+                      Trình độ tối thiểu
                     </label>
                     <input
                       type="number"
-                      step="0.1"
+                      step="0.5"
                       min={0}
                       max={5}
                       {...register(`categories.${index}.minLevel`, {
@@ -613,11 +646,11 @@ export default function TournamentCreateForm() {
 
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Max Level
+                      Trình độ tối đa
                     </label>
                     <input
                       type="number"
-                      step="0.1"
+                      step="0.5"
                       min={0}
                       max={5}
                       {...register(`categories.${index}.maxLevel`, {

@@ -24,30 +24,54 @@ export function getTournamentStatusInfo(status: TournamentStatusEnum) {
       return {
         label: "Sắp diễn ra",
         color: "text-yellow-500 dark:text-yellow-400",
+        buttonClass:
+          "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
       };
     case "REGISTRATION_OPEN":
       return {
         label: "Đang mở đăng ký",
         color: "text-green-500 dark:text-green-400",
+        buttonClass:
+          "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
       };
     case "REGISTRATION_CLOSED":
       return {
         label: "Đã đóng đăng ký",
         color: "text-orange-500 dark:text-orange-400",
+        buttonClass:
+          "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
       };
     case "IN_PROGRESS":
-      return { label: "Đang diễn ra", color: "text-sky-500 dark:text-sky-400" };
+      return {
+        label: "Đang diễn ra",
+        color: "text-sky-500 dark:text-sky-400",
+        buttonClass:
+          "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+      };
     case "COMPLETED":
-      return { label: "Hoàn thành", color: "text-gray-500 dark:text-gray-400" };
+      return {
+        label: "Hoàn thành",
+        color: "text-gray-500 dark:text-gray-400",
+        buttonClass:
+          "bg-gray-200 text-gray-700 dark:bg-gray-800/60 dark:text-gray-300",
+      };
     case "CANCELLED":
-      return { label: "Đã hủy", color: "text-red-500 dark:text-red-400" };
+      return {
+        label: "Đã hủy",
+        color: "text-red-500 dark:text-red-400",
+        buttonClass:
+          "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+      };
     default:
       return {
         label: "Không xác định",
-        color: "text-gray-500 dark:text-gray-400 ",
+        color: "text-gray-500 dark:text-gray-400",
+        buttonClass:
+          "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300",
       };
   }
 }
+
 export function getCategoryLabel(category: string): string {
   const map: Record<string, string> = {
     MEN_SINGLE: "Đơn nam",
@@ -92,7 +116,8 @@ export const TournamentCreateRequest = z.object({
   location: z.string().max(255, "Địa điểm không được quá 255 ký tự").optional(),
   bannerUrl: z.string().optional(),
   logoUrl: z.string().optional(),
-
+  rules: z.string().optional(),
+  fee: z.number().optional(),
   startDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Ngày bắt đầu không hợp lệ",
   }),
@@ -124,13 +149,26 @@ export const TournamentCategoryResponse = z.object({
 export type TournamentCategoryResponse = z.infer<
   typeof TournamentCategoryResponse
 >;
+
+export const TournamentCategoryDetailResponse = z.object({
+  id: z.string(),
+  category: BadmintonCategoryEnum,
+  maxParticipants: z.number(),
+  currentParticipantCount: z.number(),
+  minLevel: z.number(),
+  maxLevel: z.number(),
+});
+
+export type TournamentCategoryDetailResponse = z.infer<
+  typeof TournamentCategoryDetailResponse
+>;
 export const TournamentResponse = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
-  slug: z.string().nullable().optional(),
-
+  slug: z.string().nullable(),
+  fee: z.number(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   registrationStartDate: z.coerce.date(),
@@ -144,7 +182,7 @@ export const TournamentResponse = z.object({
   status: TournamentStatusEnum,
   createdBy: z.string().nullable().optional(),
 
-  categories: z.array(TournamentCategoryResponse).optional(),
+  categories: z.array(TournamentCategoryResponse),
 });
 
 export type TournamentResponse = z.infer<typeof TournamentResponse>;
@@ -163,10 +201,65 @@ export const PagedTournamentResponse = z.object({
 });
 export type PagedTournamentResponse = z.infer<typeof PagedTournamentResponse>;
 
+export const TournamentDetail = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+  slug: z.string().nullable(),
+  fee: z.number(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  registrationStartDate: z.coerce.date(),
+  registrationEndDate: z.coerce.date(),
+  rules: z.string(),
+  logoUrl: z.string().nullable().optional(),
+  bannerUrl: z.string().nullable().optional(),
+
+  createdAt: z.coerce.date(),
+
+  status: TournamentStatusEnum,
+  createdBy: z.string().nullable().optional(),
+
+  categories: z.array(TournamentCategoryDetailResponse),
+});
+
+export type TournamentDetail = z.infer<typeof TournamentDetail>;
 export const TournamentDetailResponse = z.object({
   status: z.number(),
   message: z.string(),
-  data: TournamentResponse,
+  data: TournamentDetail,
 });
-
 export type TournamentDetailResponse = z.infer<typeof TournamentDetailResponse>;
+
+export const TournamentAdminResponse = z.object({
+  id: z.string(),
+  name: z.string(),
+  location: z.string().nullable().optional(),
+  slug: z.string().nullable().optional(),
+  fee: z.number(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  registrationStartDate: z.coerce.date(),
+  registrationEndDate: z.coerce.date(),
+  createdAt: z.coerce.date(),
+
+  status: TournamentStatusEnum,
+  categories: z.array(TournamentCategoryResponse).optional(),
+});
+export type TournamentAdminResponse = z.infer<typeof TournamentAdminResponse>;
+export const PagedTournamentAdminResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(TournamentAdminResponse),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+export type PagedTournamentAdminResponse = z.infer<
+  typeof PagedTournamentAdminResponse
+>;

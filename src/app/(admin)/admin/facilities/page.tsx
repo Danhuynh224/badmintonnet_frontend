@@ -7,7 +7,7 @@ export default async function FacilitiesPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const params = searchParams;
+  const params = await searchParams;
   const page = Math.max(0, parseInt((params.page as string) || "0", 10));
   const search = (params.search as string) || "";
   const size = 10;
