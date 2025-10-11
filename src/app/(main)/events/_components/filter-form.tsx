@@ -28,9 +28,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import addressApiRequest from "@/apiRequest/address";
+import facilityApiRequest from "@/apiRequest/facility";
 import { useRouter } from "next/navigation";
 import { DatePicker, Slider, Select } from "antd";
 import dayjs from "dayjs";
+import { FacilityType } from "@/schemaValidations/event.schema";
+import Image from "next/image";
 
 interface Province {
   id: string;
@@ -40,12 +43,6 @@ interface Province {
 interface Ward {
   id: string;
   full_name: string;
-}
-
-interface Club {
-  id: string;
-  name: string;
-  logo?: string;
 }
 
 interface FilterSidebarProps {
@@ -94,7 +91,9 @@ export default function FilterForm({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [quickSizeFilter, setQuickSizeFilter] = useState("");
   const [minRating, setMinRating] = useState(0);
-  const [selectedClubs, setSelectedClubs] = useState<string[]>([]);
+  const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
+  const [facilities, setFacilities] = useState<FacilityType[]>([]);
+  const [loadingFacilities, setLoadingFacilities] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 
   const { RangePicker } = DatePicker;
@@ -114,13 +113,6 @@ export default function FilterForm({
     { key: "MEN_DOUBLE", value: "Đôi Nam" },
     { key: "WOMEN_DOUBLE", value: "Đôi Nữ" },
     { key: "MIXED_DOUBLE", value: "Đôi Nam Nữ" },
-  ];
-  const clubs: Club[] = [
-    { id: "1", name: "CLB Cầu Lông Sài Gòn", logo: "🏸" },
-    { id: "2", name: "Badminton Pro Club", logo: "⭐" },
-    { id: "3", name: "Victory Sports Club", logo: "🏆" },
-    { id: "4", name: "Star Badminton Center", logo: "✨" },
-    { id: "5", name: "Elite Sports Club", logo: "👑" },
   ];
   const statusOptions = [
     { key: "OPEN", value: "Đang mở", color: "emerald" },
@@ -179,6 +171,22 @@ export default function FilterForm({
     fetchWards();
   }, [selectedProvince]);
 
+  useEffect(() => {
+    const fetchFacilities = async () => {
+      setLoadingFacilities(true);
+      try {
+        const response = await facilityApiRequest.getAllFacilitiesFilter();
+        setFacilities(response.payload.data || []);
+      } catch (error) {
+        console.error("Error fetching facilities:", error);
+        setFacilities([]);
+      } finally {
+        setLoadingFacilities(false);
+      }
+    };
+    fetchFacilities();
+  }, []);
+
   const handleLevelToggle = useCallback((level: string) => {
     setSelectedLevels((prev) =>
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
@@ -227,7 +235,7 @@ export default function FilterForm({
     setSelectedCategories([]);
     setQuickSizeFilter("");
     setMinRating(0);
-    setSelectedClubs([]);
+    setSelectedFacilities([]);
     setSelectedStatus([]);
     if (searchInputRef.current) {
       searchInputRef.current.value = "";
@@ -245,7 +253,7 @@ export default function FilterForm({
     if (selectedCategories.length > 0) count++;
     if (quickSizeFilter) count++;
     if (minRating > 0) count++;
-    if (selectedClubs.length > 0) count++;
+    if (selectedFacilities.length > 0) count++;
     if (selectedStatus.length > 0) count++;
     return count;
   }, [
@@ -260,7 +268,7 @@ export default function FilterForm({
     selectedCategories,
     quickSizeFilter,
     minRating,
-    selectedClubs,
+    selectedFacilities,
     selectedStatus,
   ]);
 
@@ -295,8 +303,15 @@ export default function FilterForm({
       params.append("categories", selectedCategories.join(","));
     if (quickSizeFilter) params.append("participantSize", quickSizeFilter);
     if (minRating > 0) params.append("minRating", String(minRating));
-    if (selectedClubs.length > 0)
-      params.append("clubNames", selectedClubs.join(","));
+    if (selectedFacilities.length > 0) {
+      const facilityNames = selectedFacilities
+        .map((id) => {
+          const facility = facilities.find((f) => f.id === id);
+          return facility ? facility.name : "";
+        })
+        .filter(Boolean);
+      params.append("facilityNames", facilityNames.join(","));
+    }
     if (selectedStatus.length > 0)
       params.append("status", selectedStatus.join(","));
 
@@ -315,7 +330,8 @@ export default function FilterForm({
     selectedCategories,
     quickSizeFilter,
     minRating,
-    selectedClubs,
+    selectedFacilities,
+    facilities,
     selectedStatus,
     router,
   ]);
@@ -537,31 +553,52 @@ export default function FilterForm({
                 </div>
               </div>
 
-              {/* Club Card with Select */}
+              {/* Facility Card with Select */}
               <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-md border border-gray-100 dark:border-gray-600">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                     <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100">
-                    CLB tổ chức
+                    Sân vận động
                   </h4>
                 </div>
                 <Select
                   mode="multiple"
                   showSearch
-                  placeholder="Tìm và chọn câu lạc bộ"
-                  value={selectedClubs}
-                  onChange={setSelectedClubs}
+                  loading={loadingFacilities}
+                  placeholder="Tìm và chọn sân"
+                  value={selectedFacilities}
+                  onChange={setSelectedFacilities}
                   style={{ width: "100%" }}
                   filterOption={(input, option) =>
                     (option?.label ?? "")
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
-                  options={clubs.map((club) => ({
-                    value: club.id,
-                    label: `${club.logo} ${club.name}`,
+                  optionRender={(option) => {
+                    const facility = facilities.find(
+                      (f) => f.id === option.value
+                    );
+                    return (
+                      <div className="flex items-center gap-2">
+                        {facility?.image && (
+                          <div className="w-10 h-10 relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <Image
+                              src={facility.image}
+                              alt={facility.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        <span>{facility?.name}</span>
+                      </div>
+                    );
+                  }}
+                  options={facilities.map((facility) => ({
+                    value: facility.id,
+                    label: facility.name,
                   }))}
                   className="dark:bg-gray-800"
                   maxTagCount={2}

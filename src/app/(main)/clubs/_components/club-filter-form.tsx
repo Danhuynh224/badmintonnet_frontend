@@ -23,7 +23,9 @@ import {
 import { Select } from "antd";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { set } from "zod";
+import facilityApiRequest from "@/apiRequest/facility";
 
 interface Province {
   id: string;
@@ -35,10 +37,10 @@ interface Ward {
   full_name: string;
 }
 
-interface Club {
+interface Facility {
   id: string;
   name: string;
-  logo?: string;
+  image?: string;
 }
 
 interface ClubFilterProps {
@@ -47,7 +49,7 @@ interface ClubFilterProps {
   ward?: string;
   selectedLevels?: string[];
   reputationSort?: string;
-  clubNames?: string[];
+  facilityIds?: string[];
 }
 
 export default function ClubFilterForm({
@@ -56,7 +58,7 @@ export default function ClubFilterForm({
   ward = "",
   selectedLevels = [],
   reputationSort = "",
-  clubNames = [],
+  facilityIds = [],
 }: ClubFilterProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState(searchQuery);
@@ -65,38 +67,55 @@ export default function ClubFilterForm({
   const [selectedWard, setSelectedWard] = useState(ward);
   const [levels, setLevels] = useState<string[]>(selectedLevels);
   const [sortReputation, setSortReputation] = useState(reputationSort);
-  const [selectedClubs, setSelectedClubs] = useState<string[]>(clubNames);
+  const [selectedFacilities, setSelectedFacilities] =
+    useState<string[]>(facilityIds);
 
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
 
+  // Facilities
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [loadingFacilities, setLoadingFacilities] = useState(false);
+
   const levelOptions = [
-    "Mới tập chơi",
-    "Cơ bản",
+    "Mới bắt đầu",
     "Trung bình",
-    "Trung bình khá",
     "Khá",
-    "Bán chuyên",
+    "Nâng cao",
+    "Chuyên nghiệp",
   ];
 
   const reputationOptions = [
-    { key: "desc", value: "Cao → Thấp", icon: TrendingDown },
-    { key: "asc", value: "Thấp → Cao", icon: TrendingUp },
+    {
+      key: "asc",
+      value: "Thấp đến cao",
+      icon: ChevronUp,
+    },
+    {
+      key: "desc",
+      value: "Cao đến thấp",
+      icon: ChevronDown,
+    },
   ];
 
-  // Mock clubs data - Replace with actual API call
-  const clubs: Club[] = [
-    { id: "1", name: "CLB Cầu Lông Sài Gòn", logo: "🏸" },
-    { id: "2", name: "Badminton Pro Club", logo: "⭐" },
-    { id: "3", name: "Victory Sports Club", logo: "🏆" },
-    { id: "4", name: "Star Badminton Center", logo: "✨" },
-    { id: "5", name: "Elite Sports Club", logo: "👑" },
-    { id: "6", name: "Phoenix Badminton Academy", logo: "🔥" },
-    { id: "7", name: "Champions Club HCM", logo: "🥇" },
-    { id: "8", name: "Royal Badminton Team", logo: "👑" },
-  ];
+  // Fetch facilities data
+  useEffect(() => {
+    const fetchFacilities = async () => {
+      setLoadingFacilities(true);
+      try {
+        const response = await facilityApiRequest.getAllFacilitiesFilter();
+        setFacilities(response.payload.data || []);
+      } catch (error) {
+        console.error("Error fetching facilities:", error);
+      } finally {
+        setLoadingFacilities(false);
+      }
+    };
+
+    fetchFacilities();
+  }, []);
 
   // Fetch provinces
   useEffect(() => {
@@ -151,7 +170,7 @@ export default function ClubFilterForm({
     setWards([]);
     setLevels([]);
     setSortReputation("");
-    setSelectedClubs([]);
+    setSelectedFacilities([]);
     if (searchInputRef.current) {
       searchInputRef.current.value = "";
     }
@@ -164,7 +183,7 @@ export default function ClubFilterForm({
     if (selectedWard) count++;
     if (levels.length > 0) count++;
     if (sortReputation) count++;
-    if (selectedClubs.length > 0) count++;
+    if (selectedFacilities.length > 0) count++;
     return count;
   }, [
     searchValue,
@@ -172,7 +191,7 @@ export default function ClubFilterForm({
     selectedWard,
     levels,
     sortReputation,
-    selectedClubs,
+    selectedFacilities,
   ]);
 
   const router = useRouter();
@@ -189,10 +208,11 @@ export default function ClubFilterForm({
     if (selectedWard) params.append("ward", wardSelected?.full_name || "");
     if (levels.length > 0) params.append("levels", levels.join(","));
     if (sortReputation) params.append("reputationSort", sortReputation);
-    if (selectedClubs.length > 0)
-      params.append("clubs", selectedClubs.join(","));
+    if (selectedFacilities.length > 0)
+      params.append("facilities", selectedFacilities.join(","));
 
     router.push(`/clubs?${params.toString()}`);
+    setIsFilterOpen(false);
   }, [
     provinces,
     selectedProvince,
@@ -201,7 +221,7 @@ export default function ClubFilterForm({
     searchValue,
     levels,
     sortReputation,
-    selectedClubs,
+    selectedFacilities,
     router,
   ]);
 
@@ -265,7 +285,7 @@ export default function ClubFilterForm({
                   const value = e.target.value;
                   setTimeout(() => setSearchValue(value), 500);
                 }}
-                placeholder="Tìm kiếm câu lạc bộ..."
+                placeholder="Tìm kiếm cơ sở..."
                 className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all"
               />
             </div>
@@ -317,33 +337,54 @@ export default function ClubFilterForm({
                 </div>
               </div>
 
-              {/* Club Names */}
+              {/* Facility Names */}
               <div className="bg-white dark:bg-gray-700 rounded-lg p-3.5 shadow-sm border border-gray-200 dark:border-gray-600">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1 bg-indigo-100 dark:bg-indigo-900/30 rounded">
                     <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Sân câu lạc bộ
+                    Sân vận động
                   </h4>
                 </div>
                 <Select
                   mode="multiple"
                   showSearch
-                  placeholder="Tìm sân câu lạc bộ"
-                  value={selectedClubs}
-                  onChange={setSelectedClubs}
+                  placeholder="Tìm và chọn sân"
+                  value={selectedFacilities}
+                  onChange={setSelectedFacilities}
                   style={{ width: "100%" }}
                   size="middle"
+                  loading={loadingFacilities}
                   filterOption={(input, option) =>
                     (option?.label ?? "")
                       .toLowerCase()
                       .includes(input.toLowerCase())
                   }
-                  options={clubs.map((club) => ({
-                    value: club.id,
-                    label: `${club.logo} ${club.name}`,
+                  options={facilities.map((facility) => ({
+                    value: facility.id,
+                    label: facility.name,
                   }))}
+                  optionRender={(option) => {
+                    const facility = facilities.find(
+                      (f) => f.id === option.value
+                    );
+                    return (
+                      <div className="flex items-center gap-2">
+                        {facility?.image && (
+                          <div className="w-9 h-9 relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                            <Image
+                              src={facility.image}
+                              alt={facility.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        <span>{facility?.name}</span>
+                      </div>
+                    );
+                  }}
                   className="dark:bg-gray-800"
                   maxTagCount={2}
                 />

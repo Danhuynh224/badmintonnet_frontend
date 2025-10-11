@@ -99,7 +99,7 @@ export default function ScheduleDialog() {
       case "COMPLETED":
         return "Đã tham gia";
       case "CANCELLED":
-        return "Đã hủy";
+        return "Đã hủy tham gia";
       case "ABSENT":
         return "Vắng mặt";
       default:
