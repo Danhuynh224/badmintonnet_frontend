@@ -106,7 +106,9 @@ export default function TournamentPage({ tournaments }: TournamentPageProps) {
                               {tournament.name}
                             </h3>
                             <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 line-clamp-2 flex-grow">
-                              {tournament.location || "Địa điểm chưa xác định"}
+                              {tournament.facility
+                                ? tournament.facility.location
+                                : tournament.location ?? "Chưa cập nhật"}
                             </p>
                             {tournament.categories &&
                               tournament.categories.length > 0 && (

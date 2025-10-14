@@ -103,6 +103,18 @@ export type TournamentCategoryRequest = z.infer<
   typeof TournamentCategoryRequest
 >;
 
+export const FacilitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  address: z.string(),
+  city: z.string(),
+  district: z.string(),
+  location: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  image: z.string(),
+});
+
 // Schema cho TournamentCreateRequest
 export const TournamentCreateRequest = z.object({
   name: z
@@ -114,6 +126,7 @@ export const TournamentCreateRequest = z.object({
     .max(2000, "Mô tả không được vượt quá 2000 ký tự")
     .optional(),
   location: z.string().max(255, "Địa điểm không được quá 255 ký tự").optional(),
+  facilityId: z.string().optional(),
   bannerUrl: z.string().optional(),
   logoUrl: z.string().optional(),
   rules: z.string().optional(),
@@ -167,6 +180,7 @@ export const TournamentResponse = z.object({
   name: z.string(),
   description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
+  facility: FacilitySchema,
   slug: z.string().nullable(),
   fee: z.number(),
   startDate: z.coerce.date(),
@@ -206,6 +220,7 @@ export const TournamentDetail = z.object({
   name: z.string(),
   description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
+  facility: FacilitySchema,
   slug: z.string().nullable(),
   fee: z.number(),
   startDate: z.coerce.date(),
@@ -236,6 +251,7 @@ export const TournamentAdminResponse = z.object({
   id: z.string(),
   name: z.string(),
   location: z.string().nullable().optional(),
+  facility: FacilitySchema,
   slug: z.string().nullable().optional(),
   fee: z.number(),
   startDate: z.coerce.date(),

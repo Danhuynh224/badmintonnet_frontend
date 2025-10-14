@@ -277,7 +277,7 @@ export default function ClubsTable({
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{club.reputation.toFixed(2)}</TableCell>
+                    <TableCell>{club.reputation?.toFixed(2)}</TableCell>
                     <TableCell>{getStatusBadge(club.status)}</TableCell>
                     <TableCell>
                       {new Date(club.createdAt).toLocaleDateString("vi-VN")}

@@ -17,21 +17,21 @@ import {
 const ClubList = async ({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     search?: string;
     province?: string;
     ward?: string;
     levels?: string; // comma-separated
     reputationSort?: string;
-    clubs?: string; // comma-separated
-  };
+    facilityNames?: string; // comma-separated
+  }>;
 }) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
   // const clubOwner = isClubOwner(accessToken?.value || "");
   // Extract page number from query params, default to 0
-  const params = searchParams || {};
+  const params = await searchParams || {};
   const page = parseInt(params.page || "0", 10);
   const size = 20; // Match the API's default page size
 
@@ -43,7 +43,9 @@ const ClubList = async ({
     ? params.levels.split(",").filter(Boolean)
     : [];
   const reputationSort = params.reputationSort || "";
-  const clubNames = params.clubs ? params.clubs.split(",").filter(Boolean) : [];
+  const facilityNames = params.facilityNames
+    ? params.facilityNames.split(",").filter(Boolean)
+    : [];
 
   // Fetch clubs dynamically from the API
   const response = await clubServiceApi.getAllPublicClubs({
@@ -54,7 +56,7 @@ const ClubList = async ({
     ward,
     selectedLevels,
     reputationSort,
-    clubNames,
+    facilityNames,
     token: accessToken?.value,
   });
   const clubs = response.payload.data.content;
@@ -113,10 +115,6 @@ const ClubList = async ({
                     </p>
 
                     {/* Location */}
-                    {/* <div className="flex items-center text-gray-500 dark:text-gray-400  text-sm mb-2">
-                      <MapPin className="w-4 h-4 mr-2 text-green-600 dark:text-green-400" />
-                      <span className="line-clamp-1">{club.location}</span>
-                    </div> */}
                     <TooltipProvider delayDuration={150}>
                       <Tooltip>
                         <TooltipTrigger asChild>

@@ -53,7 +53,10 @@ export default async function TournamentDetailPage({
               {tournament.name}
             </h1>
             <p className="flex items-center gap-2 text-sm sm:text-base">
-              <MapPin className="w-4 h-4" /> {tournament.location}
+              <MapPin className="w-4 h-4" />{" "}
+              {tournament.facility
+                ? tournament.facility.name
+                : tournament.location ?? "Chưa cập nhật"}
             </p>
           </div>
         </div>

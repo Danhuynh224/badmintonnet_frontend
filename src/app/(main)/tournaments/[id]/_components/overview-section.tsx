@@ -39,57 +39,115 @@ export default function OverviewSection({
           {tournament.description || "Chưa có mô tả cho giải đấu này."}
         </p>
 
-        {/* --- Thông tin chi tiết --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700 dark:text-gray-200">
-          <InfoItem
-            icon={
-              <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
-            }
-            label="Lệ phí"
-            value={
-              tournament.fee
-                ? tournament.fee.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })
-                : "Miễn phí"
-            }
-          />
+        {/* --- Layout 2 cột: Địa điểm (trái) & Thông tin khác (phải) --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* --- CỘT TRÁI: Địa điểm --- */}
+          <div className="lg:col-span-1">
+            <div className="flex flex-col gap-3 p-5 rounded-lg bg-gradient-to-br from-blue-50 to-blue-50/50 dark:from-blue-950/20 dark:to-blue-900/10 border border-blue-200 dark:border-blue-800 h-full">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  Địa điểm
+                </p>
+              </div>
 
-          <InfoItem
-            icon={
-              <MapPin className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            }
-            label="Địa điểm"
-            value={tournament.location || "Chưa cập nhật"}
-          />
+              {tournament.facility ? (
+                <div className="space-y-3 pl-8">
+                  {/* Tên cơ sở */}
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1">
+                      Cơ sở thi đấu
+                    </p>
+                    <p className="font-semibold text-gray-900 dark:text-white text-lg break-words">
+                      {tournament.facility.name}
+                    </p>
+                  </div>
 
-          <InfoItem
-            icon={
-              <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
-            }
-            label="Đăng ký"
-            value={`${format(tournament.registrationStartDate, "dd/MM/yyyy", {
-              locale: vi,
-            })} - ${format(tournament.registrationEndDate, "dd/MM/yyyy", {
-              locale: vi,
-            })}`}
-          />
+                  {/* Địa chỉ đầy đủ */}
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1">
+                      Địa chỉ
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">
+                      {tournament.facility.address}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {tournament.facility.district}, {tournament.facility.city}
+                    </p>
+                  </div>
 
-          <InfoItem
-            icon={
-              <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            }
-            label="Thi đấu"
-            value={`${format(tournament.startDate, "dd/MM/yyyy", {
-              locale: vi,
-            })} - ${format(tournament.endDate, "dd/MM/yyyy", { locale: vi })}`}
-          />
+                  {/* Google Maps Link */}
+                  {tournament.facility.latitude &&
+                    tournament.facility.longitude && (
+                      <div className="pt-2">
+                        <a
+                          href={`https://www.google.com/maps?q=${tournament.facility.latitude},${tournament.facility.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-sm font-medium transition-colors"
+                        >
+                          <MapPin className="h-4 w-4" />
+                          Xem trên Google Maps
+                        </a>
+                      </div>
+                    )}
+                </div>
+              ) : (
+                <div className="pl-8">
+                  <p className="text-sm text-gray-500 dark:text-gray-500 italic">
+                    Thông tin địa điểm chưa được cập nhật
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* --- CỘT PHẢI: Thông tin khác (chiều dọc) --- */}
+          <div className="lg:col-span-1 flex flex-col gap-4">
+            <InfoItem
+              icon={
+                <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+              }
+              label="Lệ phí"
+              value={
+                tournament.fee
+                  ? tournament.fee.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })
+                  : "Miễn phí"
+              }
+            />
+
+            <InfoItem
+              icon={
+                <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
+              }
+              label="Đăng ký"
+              value={`${format(tournament.registrationStartDate, "dd/MM/yyyy", {
+                locale: vi,
+              })} - ${format(tournament.registrationEndDate, "dd/MM/yyyy", {
+                locale: vi,
+              })}`}
+            />
+
+            <InfoItem
+              icon={
+                <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              }
+              label="Thi đấu"
+              value={`${format(tournament.startDate, "dd/MM/yyyy", {
+                locale: vi,
+              })} - ${format(tournament.endDate, "dd/MM/yyyy", {
+                locale: vi,
+              })}`}
+            />
+          </div>
         </div>
 
         {/* --- Hạng mục thi đấu --- */}
         {tournament.categories && tournament.categories.length > 0 && (
-          <div className="mt-4">
+          <div className="pt-2">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <Tag className="h-5 w-5 text-green-600 dark:text-green-400" />
               Các hạng mục thi đấu
@@ -104,8 +162,8 @@ export default function OverviewSection({
                   <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
                     <Users className="h-5 w-5 text-white" />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 dark:text-white truncate">
                       {getCategoryLabel(category.category)}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -118,15 +176,15 @@ export default function OverviewSection({
           </div>
         )}
 
-        {/* --- Rules (đặt cuối) --- */}
+        {/* --- Rules --- */}
         {tournament.rules && (
-          <div className="mt-6">
+          <div className="pt-2">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               Điều lệ giải đấu
             </h3>
-            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700">
-              <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 text-sm leading-relaxed">
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 overflow-x-auto">
+              <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 text-sm leading-relaxed break-words">
                 {tournament.rules}
               </pre>
             </div>
@@ -137,7 +195,7 @@ export default function OverviewSection({
   );
 }
 
-/* --- Component phụ gọn hơn cho phần thông tin --- */
+/* --- Component phụ cho phần thông tin --- */
 function InfoItem({
   icon,
   label,
@@ -145,18 +203,18 @@ function InfoItem({
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: React.ReactNode;
 }) {
   return (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-700">
-      {/* Cố định icon, không bị co */}
-      <div className="flex-shrink-0 flex items-center justify-center w-5 h-5 mt-0.5">
-        {icon}
-      </div>
-
-      {/* Text linh hoạt, có thể xuống dòng */}
-      <div className="flex-1 text-sm text-gray-700 dark:text-gray-300">
-        <strong>{label}:</strong> <span className="break-words">{value}</span>
+      <div className="flex-shrink-0 mt-0.5">{icon}</div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+          {label}
+        </p>
+        <div className="text-sm text-gray-700 dark:text-gray-300 break-words">
+          {value}
+        </div>
       </div>
     </div>
   );

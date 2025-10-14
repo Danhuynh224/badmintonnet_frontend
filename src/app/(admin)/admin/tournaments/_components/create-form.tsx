@@ -21,12 +21,21 @@ import {
   FormMessage,
   FormField,
 } from "@/components/ui/form";
+import facilityApiRequest from "@/apiRequest/facility";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import tournamentApiRequest from "@/apiRequest/tournament";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
+import { FacilityType } from "@/schemaValidations/event.schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Interfaces for address data
 interface Province {
@@ -76,6 +85,11 @@ export default function TournamentCreateForm({
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
   const [isLoadingWards, setIsLoadingWards] = useState(false);
   const [additionalAddress, setAdditionalAddress] = useState("");
+
+  const [facilities, setFacilities] = useState<FacilityType[]>([]);
+  const [selectedFacility, setSelectedFacility] = useState<string | null>(null);
+  const [loadingFacilities, setLoadingFacilities] = useState(true);
+
   const router = useRouter();
   const form = useForm<TournamentCreateRequest>({
     resolver: zodResolver(TournamentCreateRequest),
@@ -110,27 +124,50 @@ export default function TournamentCreateForm({
   });
   const { setValue } = form;
 
-  // Load provinces when component mounts
   useEffect(() => {
-    const loadProvinces = async () => {
+    const loadFacilities = async () => {
       try {
-        const response = await addressApiRequest.getProvinces();
-        setProvinces(response.payload.data.data || []);
+        const response = await facilityApiRequest.getAllFacilitiesFilter();
+        setFacilities(response.payload.data || []);
       } catch (error) {
-        console.error("Error loading provinces:", error);
+        console.error("Error loading facilities:", error);
         toast.error("Lỗi", {
-          description: "Không thể tải danh sách tỉnh thành.",
+          description: "Không thể tải danh sách sân.",
         });
       } finally {
-        setIsLoadingProvinces(false);
+        setLoadingFacilities(false);
       }
     };
-    loadProvinces();
+
+    loadFacilities();
   }, []);
+
+  // Load provinces when component mounts
+  useEffect(() => {
+    if (!selectedFacility) {
+      const loadProvinces = async () => {
+        try {
+          const response = await addressApiRequest.getProvinces();
+          setProvinces(response.payload.data.data || []);
+        } catch (error) {
+          console.error("Error loading provinces:", error);
+          toast.error("Lỗi", {
+            description: "Không thể tải danh sách tỉnh thành.",
+          });
+        } finally {
+          setIsLoadingProvinces(false);
+        }
+      };
+      loadProvinces();
+    } else {
+      setProvinces([]);
+      setIsLoadingProvinces(false);
+    }
+  }, [selectedFacility]);
 
   // Load wards when province changes
   useEffect(() => {
-    if (!selectedProvinceId) {
+    if (!selectedProvinceId || selectedFacility) {
       setWards([]);
       setSelectedWardId("");
       return;
@@ -151,11 +188,14 @@ export default function TournamentCreateForm({
       }
     };
     loadWards();
-  }, [selectedProvinceId]);
+  }, [selectedProvinceId, selectedFacility]);
 
   // Update location field when address parts change
   useEffect(() => {
     const updateLocation = () => {
+      // Nếu có facility được chọn, không cập nhật location từ province/ward
+      if (selectedFacility) return;
+
       const selectedProvince = provinces.find(
         (p) => p.id === selectedProvinceId
       );
@@ -177,7 +217,24 @@ export default function TournamentCreateForm({
     provinces,
     wards,
     setValue,
+    selectedFacility,
   ]);
+
+  useEffect(() => {
+    if (selectedFacility) {
+      const facility = facilities.find((f) => f.id === selectedFacility);
+      if (facility) {
+        const location = facility.location || facility.address;
+        setValue("location", location, {
+          shouldValidate: true,
+        });
+        // Reset province/ward khi có facility
+        setSelectedProvinceId("");
+        setSelectedWardId("");
+        setAdditionalAddress("");
+      }
+    }
+  }, [selectedFacility, facilities, setValue]);
 
   const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedProvinceId(e.target.value);
@@ -236,6 +293,7 @@ export default function TournamentCreateForm({
         registrationStartDate:
           toLocalDateTime(data.registrationStartDate) || "",
         registrationEndDate: toLocalDateTime(data.registrationEndDate) || "",
+        ...(selectedFacility && { facilityId: selectedFacility }),
       });
 
       toast.success("Tạo giải đấu thành công!");
@@ -246,6 +304,7 @@ export default function TournamentCreateForm({
       setLogoImage(null);
       setSelectedProvinceId("");
       setAdditionalAddress("");
+      setSelectedFacility(null);
       router.refresh();
       onCreated?.();
     } catch (error) {
@@ -324,68 +383,122 @@ export default function TournamentCreateForm({
                   Địa điểm <span className="text-red-500">*</span>
                 </FormLabel>
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="relative">
-                  <label className="block text-sm font-medium mb-2">
-                    Tỉnh thành <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={selectedProvinceId}
-                    onChange={handleProvinceChange}
-                    disabled={isLoadingProvinces}
-                    className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all disabled:opacity-50"
-                  >
-                    <option value="">
-                      {isLoadingProvinces ? "Đang tải..." : "Chọn tỉnh thành"}
-                    </option>
-                    {provinces.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.full_name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-                {selectedProvinceId && (
-                  <div className="relative animate-in slide-in-from-top-2 duration-300">
-                    <label className="block text-sm font-medium mb-2">
-                      Phường/Xã
-                    </label>
-                    <select
-                      value={selectedWardId}
-                      onChange={handleWardChange}
-                      disabled={isLoadingWards}
-                      className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all disabled:opacity-50"
-                    >
-                      <option value="">
-                        {isLoadingWards
-                          ? "Đang tải..."
-                          : "Chọn phường xã (tùy chọn)"}
-                      </option>
-                      {wards.map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.full_name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
-                      <ChevronDown className="h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-                )}
-              </div>
+
+              {/* Facility Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Địa chỉ chi tiết (tùy chọn)
+                  Chọn sân <span className="text-gray-500">(Ưu tiên)</span>
                 </label>
-                <Input
-                  placeholder="Ví dụ: Sân cầu lông ABC, Số 123, đường DEF..."
-                  value={additionalAddress}
-                  onChange={(e) => setAdditionalAddress(e.target.value)}
-                />
+                <div className="flex gap-2">
+                  <Select
+                    value={selectedFacility || ""}
+                    onValueChange={setSelectedFacility}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Tìm và chọn sân" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[10000]">
+                      {loadingFacilities ? (
+                        <div className="p-2 text-center text-sm text-gray-500">
+                          Đang tải...
+                        </div>
+                      ) : facilities.length === 0 ? (
+                        <div className="p-2 text-center text-sm text-gray-500">
+                          Không có sân nào
+                        </div>
+                      ) : (
+                        facilities.map((facility) => (
+                          <SelectItem key={facility.id} value={facility.id}>
+                            <span>{facility.name}</span>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {selectedFacility && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedFacility(null)}
+                      className="px-3"
+                    >
+                      Xóa
+                    </Button>
+                  )}
+                </div>
               </div>
+
+              {/* Location Input - Show only if no facility selected */}
+              {!selectedFacility && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <label className="block text-sm font-medium mb-2">
+                        Tỉnh thành <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={selectedProvinceId}
+                        onChange={handleProvinceChange}
+                        disabled={isLoadingProvinces}
+                        className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all disabled:opacity-50"
+                      >
+                        <option value="">
+                          {isLoadingProvinces
+                            ? "Đang tải..."
+                            : "Chọn tỉnh thành"}
+                        </option>
+                        {provinces.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.full_name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+                        <ChevronDown className="h-4 w-4 text-gray-400" />
+                      </div>
+                    </div>
+                    {selectedProvinceId && (
+                      <div className="relative animate-in slide-in-from-top-2 duration-300">
+                        <label className="block text-sm font-medium mb-2">
+                          Phường/Xã
+                        </label>
+                        <select
+                          value={selectedWardId}
+                          onChange={handleWardChange}
+                          disabled={isLoadingWards}
+                          className="appearance-none block w-full px-3 py-3 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all disabled:opacity-50"
+                        >
+                          <option value="">
+                            {isLoadingWards
+                              ? "Đang tải..."
+                              : "Chọn phường xã (tùy chọn)"}
+                          </option>
+                          {wards.map((w) => (
+                            <option key={w.id} value={w.id}>
+                              {w.full_name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 top-7 pr-3 flex items-center pointer-events-none">
+                          <ChevronDown className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Địa chỉ chi tiết (tùy chọn)
+                    </label>
+                    <Input
+                      placeholder="Ví dụ: Sân cầu lông ABC, Số 123, đường DEF..."
+                      value={additionalAddress}
+                      onChange={(e) => setAdditionalAddress(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
               <FormField
                 control={form.control}
                 name="location"

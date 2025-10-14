@@ -278,7 +278,9 @@ export default function TournamentsTable({
                     <TableCell className="dark:text-gray-200">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                        {tournament.location ?? "Chưa cập nhật"}
+                        {tournament.facility
+                          ? tournament.facility.location
+                          : tournament.location ?? "Chưa cập nhật"}
                       </div>
                     </TableCell>
 

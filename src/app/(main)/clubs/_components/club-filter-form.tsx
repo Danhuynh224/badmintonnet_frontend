@@ -24,8 +24,8 @@ import { Select } from "antd";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { set } from "zod";
 import facilityApiRequest from "@/apiRequest/facility";
+import { FacilityType } from "@/schemaValidations/event.schema";
 
 interface Province {
   id: string;
@@ -49,7 +49,7 @@ interface ClubFilterProps {
   ward?: string;
   selectedLevels?: string[];
   reputationSort?: string;
-  facilityIds?: string[];
+  facilityNames?: string[];
 }
 
 export default function ClubFilterForm({
@@ -58,7 +58,7 @@ export default function ClubFilterForm({
   ward = "",
   selectedLevels = [],
   reputationSort = "",
-  facilityIds = [],
+  facilityNames = [],
 }: ClubFilterProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState(searchQuery);
@@ -68,7 +68,7 @@ export default function ClubFilterForm({
   const [levels, setLevels] = useState<string[]>(selectedLevels);
   const [sortReputation, setSortReputation] = useState(reputationSort);
   const [selectedFacilities, setSelectedFacilities] =
-    useState<string[]>(facilityIds);
+    useState<string[]>(facilityNames);
 
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
@@ -76,7 +76,7 @@ export default function ClubFilterForm({
   const [loadingWards, setLoadingWards] = useState(false);
 
   // Facilities
-  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [facilities, setFacilities] = useState<FacilityType[]>([]);
   const [loadingFacilities, setLoadingFacilities] = useState(false);
 
   const levelOptions = [
@@ -209,7 +209,7 @@ export default function ClubFilterForm({
     if (levels.length > 0) params.append("levels", levels.join(","));
     if (sortReputation) params.append("reputationSort", sortReputation);
     if (selectedFacilities.length > 0)
-      params.append("facilities", selectedFacilities.join(","));
+      params.append("facilityNames", selectedFacilities.join(","));
 
     router.push(`/clubs?${params.toString()}`);
     setIsFilterOpen(false);
@@ -362,12 +362,12 @@ export default function ClubFilterForm({
                       .includes(input.toLowerCase())
                   }
                   options={facilities.map((facility) => ({
-                    value: facility.id,
+                    value: facility.name,
                     label: facility.name,
                   }))}
                   optionRender={(option) => {
                     const facility = facilities.find(
-                      (f) => f.id === option.value
+                      (f) => f.name === option.value
                     );
                     return (
                       <div className="flex items-center gap-2">

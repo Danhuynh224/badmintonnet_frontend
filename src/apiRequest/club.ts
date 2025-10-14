@@ -30,7 +30,7 @@ const clubServiceApi = {
     ward = "",
     selectedLevels = [],
     reputationSort = "",
-    clubNames = [],
+    facilityNames = [],
     token = "",
   }: {
     page?: number;
@@ -40,7 +40,7 @@ const clubServiceApi = {
     ward?: string;
     selectedLevels?: string[];
     reputationSort?: string;
-    clubNames?: string[];
+    facilityNames?: string[];
     token?: string;
   }) => {
     const params = new URLSearchParams();
@@ -54,7 +54,7 @@ const clubServiceApi = {
     if (reputationSort) params.append("reputationSort", reputationSort);
 
     selectedLevels.forEach((level) => params.append("selectedLevels", level));
-    clubNames.forEach((name) => params.append("clubNames", name));
+    facilityNames.forEach((name) => params.append("facilityNames", name));
 
     return http.get<ClubPageResType>(`/clubs/all_public?${params.toString()}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
