@@ -4,6 +4,7 @@ import {
   ClubPageResType,
   ClubResType,
   CreateClubBodyType,
+  GuestResponseType,
   MemberPageResType,
   MyClubPageResType,
   MyClubResType,
@@ -90,7 +91,11 @@ const clubServiceApi = {
         cache: "no-store",
       }
     ),
-
+  getGuests: (id: string, token = "") =>
+    http.get<GuestResponseType>(`/clubs/my_clubs/${id}/guest`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      cache: "no-store",
+    }),
   postApproveMember: (
     clubId: string,
     memberId: string,

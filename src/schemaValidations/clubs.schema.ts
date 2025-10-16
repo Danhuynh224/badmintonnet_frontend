@@ -182,7 +182,23 @@ export const MemberPageRes = z.object({
   data: PagedMemberResponse,
 });
 export type MemberPageResType = z.infer<typeof MemberPageRes>;
+export const GuestSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  avatar: z.string(),
+  joinedCount: z.number().int(),
+  slug: z.string(),
+});
 
+export type GuestType = z.infer<typeof GuestSchema>;
+
+export const GuestResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(GuestSchema),
+});
+
+export type GuestResponseType = z.infer<typeof GuestResponse>;
 export const ClubMemberDetail = z.object({
   id: z.string(),
   email: z.string(),

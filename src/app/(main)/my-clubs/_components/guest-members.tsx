@@ -2,32 +2,27 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
-import { MemberType } from "@/schemaValidations/clubs.schema";
+import { GuestType } from "@/schemaValidations/clubs.schema";
 import MembersList from "@/app/(main)/my-clubs/_components/members-list";
+import GuestList from "@/app/(main)/my-clubs/_components/guests-list";
 // component client hiển thị thành viên
 
-async function getApprovedMembers(
+async function getGuestMembers(
   id: string,
   accessToken: string
-): Promise<MemberType[]> {
-  const res = await clubServiceApi.getClubMembers(
-    id,
-    0,
-    100,
-    accessToken,
-    "APPROVED"
-  );
-  return res.payload.data.content;
+): Promise<GuestType[]> {
+  const res = await clubServiceApi.getGuests(id, accessToken);
+  return res.payload.data;
 }
 
-export default async function ApprovedMembers({
+export default async function GuestMembers({
   id,
   accessToken,
 }: {
   id: string;
   accessToken: string;
 }) {
-  const members = await getApprovedMembers(id, accessToken);
+  const members = await getGuestMembers(id, accessToken);
 
   return (
     <Card className="h-full flex flex-col shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
@@ -38,7 +33,7 @@ export default async function ApprovedMembers({
               <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              Danh sách thành viên
+              Danh sách các vãng lai
             </h3>
           </div>
           <Badge
@@ -51,7 +46,7 @@ export default async function ApprovedMembers({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col overflow-hidden px-6">
-        <MembersList members={members} />
+        <GuestList members={members} />
       </CardContent>
     </Card>
   );

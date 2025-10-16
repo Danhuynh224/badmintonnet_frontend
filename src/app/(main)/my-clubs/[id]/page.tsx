@@ -36,6 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -288,8 +289,6 @@ export default async function MyClubDetail({
                   accessToken={accessToken?.value || ""}
                 />
               </div>
-
-              {/* Sidebar - Pending Requests & Member Actions */}
               <div className="lg:col-span-1 space-y-4">
                 {clubDetail.owner && (
                   <>
@@ -324,6 +323,13 @@ export default async function MyClubDetail({
                   </CardContent>
                 </Card>
               </div>
+              <div className="lg:col-span-3">
+                <GuestMembers
+                  id={clubDetail.id}
+                  accessToken={accessToken?.value || ""}
+                />
+              </div>
+              {/* Sidebar - Pending Requests & Member Actions */}
             </div>
           </TabsContent>
 
