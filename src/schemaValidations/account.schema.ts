@@ -37,6 +37,7 @@ export const AccountRes = z
       reputationScore: z.int(),
       totalParticipatedEvents: z.int(),
       ownerClubs: array(OwnerClub),
+      myClubs: array(OwnerClub),
     }),
     message: z.string(),
   })

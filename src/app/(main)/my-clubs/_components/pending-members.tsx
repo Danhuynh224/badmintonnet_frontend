@@ -54,6 +54,7 @@ export default function PendingMembers({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
+  const [rejectReason, setRejectReason] = useState("");
 
   const [pendingMembers, setPendingMembers] = useState<MemberType[]>([]);
   const [pagePending, setPagePending] = useState(0);
@@ -105,7 +106,8 @@ export default function PendingMembers({
   if (!isOwner) return null;
   const handleUpdateStatus = async (
     memberId: string,
-    status: "APPROVED" | "REJECTED"
+    status: "APPROVED" | "REJECTED",
+    rejectReason = ""
   ) => {
     try {
       if (status === "APPROVED") {
@@ -133,6 +135,7 @@ export default function PendingMembers({
             id,
             memberId,
             false,
+            rejectReason,
             accessToken
           );
           toast.success("Đã từ chối thành viên.");
@@ -553,16 +556,52 @@ export default function PendingMembers({
                           >
                             Chấp nhận
                           </Button>
-                          <Button
-                            variant="outline"
-                            className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
-                            size="sm"
-                            onClick={() =>
-                              handleUpdateStatus(detailData.id, "REJECTED")
-                            }
-                          >
-                            Từ chối
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                                size="sm"
+                              >
+                                Từ chối
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                              <DialogHeader>
+                                <DialogTitle>Lý do từ chối</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-3">
+                                <textarea
+                                  placeholder="Nhập lý do từ chối..."
+                                  value={rejectReason}
+                                  onChange={(e) =>
+                                    setRejectReason(e.target.value)
+                                  }
+                                  className="w-full border rounded-md p-2 text-sm dark:bg-gray-800 dark:text-gray-100"
+                                  rows={4}
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <DialogClose asChild>
+                                    <Button variant="outline">Hủy</Button>
+                                  </DialogClose>
+                                  <DialogClose asChild>
+                                    <Button
+                                      className="bg-red-600 text-white hover:bg-red-700"
+                                      onClick={() =>
+                                        handleUpdateStatus(
+                                          detailData.id,
+                                          "REJECTED",
+                                          rejectReason
+                                        )
+                                      }
+                                    >
+                                      Gửi
+                                    </Button>
+                                  </DialogClose>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
                     ) : (

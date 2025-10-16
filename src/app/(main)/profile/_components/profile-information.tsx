@@ -208,6 +208,36 @@ export default function ProfileInformation({ profile }: { profile: Profile }) {
             </div>
           </section>
         )}
+        {profile.myClubs && profile.myClubs.length > 0 && (
+          <section className="space-y-4 mt-8">
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              CLB đã tham gia
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {profile.myClubs.map((club) => (
+                <Link
+                  key={club.slug}
+                  href={`/clubs/${club.slug}`}
+                  className="flex flex-col items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow hover:shadow-md transition"
+                >
+                  <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white dark:border-gray-900 shadow-lg mb-3">
+                    <Image
+                      src={club.urlLogo || "/user.png"}
+                      alt={club.clubName}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                  <p className="text-center font-medium text-gray-900 dark:text-white">
+                    {club.clubName}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

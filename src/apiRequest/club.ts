@@ -95,15 +95,19 @@ const clubServiceApi = {
     clubId: string,
     memberId: string,
     approve = true,
+    reason = "",
     token = ""
   ) =>
     http.post(
-      `/clubs/my_clubs/${clubId}/member/${memberId}/approve?approve=${approve}`,
+      `/clubs/my_clubs/${clubId}/member/${memberId}/approve?approve=${approve}&reason=${encodeURIComponent(
+        reason
+      )}`,
       null,
       {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }
     ),
+
   getClubMemberDetail: (id: string) =>
     http.get<ClubMemberDetailResType>(`/clubs/my_clubs/detail_member/${id}`),
 };

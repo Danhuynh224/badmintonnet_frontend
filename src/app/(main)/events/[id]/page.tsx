@@ -570,6 +570,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
             <ParticipantsSection
               participants={participants}
               eventId={eventDetail.id}
+              status={eventDetail.status}
             />
           </>
         )}

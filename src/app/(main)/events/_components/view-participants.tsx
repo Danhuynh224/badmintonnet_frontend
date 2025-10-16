@@ -48,11 +48,13 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 interface ParticipantsSectionProps {
   participants: ParticipantType[];
   eventId: string;
+  status: string; // trạng thái của sự kiện
 }
 
 export default function ParticipantsSection({
   participants,
   eventId,
+  status,
 }: ParticipantsSectionProps) {
   const pending = participants.filter((p) => p.status === "PENDING");
   const others = participants.filter(
@@ -93,7 +95,12 @@ export default function ParticipantsSection({
           count={counts.pending}
         >
           {pending.map((p) => (
-            <ParticipantCard key={p.id} participant={p} eventId={eventId} />
+            <ParticipantCard
+              key={p.id}
+              participant={p}
+              eventId={eventId}
+              status={status}
+            />
           ))}
         </Section>
 
@@ -105,7 +112,12 @@ export default function ParticipantsSection({
           count={others.length}
         >
           {others.map((p) => (
-            <ParticipantCard key={p.id} participant={p} eventId={eventId} />
+            <ParticipantCard
+              key={p.id}
+              participant={p}
+              eventId={eventId}
+              status={status}
+            />
           ))}
         </Section>
       </div>
@@ -159,9 +171,11 @@ function Section({
 function ParticipantCard({
   participant,
   eventId,
+  status,
 }: {
   participant: ParticipantType;
   eventId: string;
+  status: string;
 }) {
   return (
     <div className="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 ">
@@ -253,17 +267,19 @@ function ParticipantCard({
                   eventId={eventId}
                 />
               ) : (
-                <div className="pl-2 flex items-center gap-2">
-                  {participant.status === "ABSENT" &&
-                    participant.sendReason && (
-                      <ReasonDialog idPart={participant.id} />
-                    )}
-                  <Attendance
-                    eventId={eventId}
-                    participantId={participant.id}
-                    value={participant.status}
-                  />
-                </div>
+                status == "FINISHED" && (
+                  <div className="pl-2 flex items-center gap-2">
+                    {participant.status === "ABSENT" &&
+                      participant.sendReason && (
+                        <ReasonDialog idPart={participant.id} />
+                      )}
+                    <Attendance
+                      eventId={eventId}
+                      participantId={participant.id}
+                      value={participant.status}
+                    />
+                  </div>
+                )
               )}
             </div>
           </div>
