@@ -143,8 +143,12 @@ const eventClubApiRequest = {
   approvedParticipant: (id: string, eventId: string) =>
     http.put(`/club-event/${eventId}/participant/${id}/approve`),
 
-  rejectParticipant: (id: string, eventId: string) =>
-    http.put(`/club-event/${eventId}/participant/${id}/reject`),
+  rejectParticipant: (id: string, eventId: string, reason: string) =>
+    http.put(
+      `/club-event/${eventId}/participant/${id}/reject?reason=${encodeURIComponent(
+        reason
+      )}`
+    ),
   updateStatusParticipant: (
     id: string,
     eventId: string,
