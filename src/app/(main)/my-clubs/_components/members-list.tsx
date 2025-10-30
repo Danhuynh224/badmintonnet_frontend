@@ -2,13 +2,20 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Users, Crown } from "lucide-react";
+import { Users, Crown, CalendarDays } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { MemberType } from "@/schemaValidations/clubs.schema";
 import { Button } from "@/components/ui/button";
+import MemberScheduleDialog from "@/app/(main)/my-clubs/_components/member-schedule";
 
-export default function MembersList({ members }: { members: MemberType[] }) {
+export default function MembersList({
+  members,
+  id,
+}: {
+  members: MemberType[];
+  id: string;
+}) {
   const [visibleCount, setVisibleCount] = useState(10);
   const MAX_MEMBERS = 100;
 
@@ -42,43 +49,66 @@ export default function MembersList({ members }: { members: MemberType[] }) {
         {members.slice(0, visibleCount).map((member, index) => (
           <div key={member.id} className="space-y-3">
             <div className="group relative p-4 dark:bg-gray-800 rounded-lg">
-              <div className="flex items-center gap-4">
-                <Image
-                  src={member.avatar || "/user.png"}
-                  alt={member.name}
-                  width={56}
-                  height={56}
-                  className="h-14 w-14 rounded-full object-cover border-3 border-white dark:border-gray-700 shadow-md"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Link href={`/profile/${member.slug}`}>
-                      <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
-                        {member.name}
-                      </h4>
-                    </Link>
-                    {member.role === "OWNER" && (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">
-                        <Crown className="h-3 w-3 text-white" />
-                        <span className="text-xs font-medium text-white">
-                          Quản trị viên
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                      Tham gia:{" "}
-                      {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
-                    </span>
-                    {member.role !== "OWNER" && (
-                      <Badge variant="outline" className="text-xs">
-                        Thành viên
-                      </Badge>
-                    )}
+              {/* Row: left = avatar + info, right = activity count */}
+              <div className="flex items-center gap-4 justify-between">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <Image
+                    src={member.avatar || "/user.png"}
+                    alt={member.name}
+                    width={56}
+                    height={56}
+                    className="h-14 w-14 rounded-full object-cover border-3 border-white dark:border-gray-700 shadow-md"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Link href={`/profile/${member.slug}`}>
+                        <h4 className="font-semibold text-gray-900 dark:text-white text-lg truncate">
+                          {member.name}
+                        </h4>
+                      </Link>
+                      {member.role === "OWNER" && (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-blue-500 rounded-full">
+                          <Crown className="h-3 w-3 text-white" />
+                          <span className="text-xs font-medium text-white">
+                            Quản trị viên
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                        Tham gia:{" "}
+                        {new Date(member.joinedAt).toLocaleDateString("vi-VN")}
+                      </span>
+                      {member.role !== "OWNER" && (
+                        <Badge variant="outline" className="text-xs">
+                          Thành viên
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* activity count + schedule button (right-aligned) */}
+                {member.role !== "OWNER" && (
+                  <div className="ml-4 text-sm text-gray-600 dark:text-gray-300 text-right min-w-[130px] flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {member.joinedCount && member.joinedCount > 0
+                          ? "Đã tham gia"
+                          : "Chưa tham gia"}
+                      </span>
+
+                      {/* inline small trigger for schedule dialog */}
+                      <MemberScheduleDialog id={id} memberId={member.id} />
+                    </div>
+
+                    <div className="mt-0 font-semibold text-gray-900 dark:text-white text-base">
+                      {member.joinedCount ?? 0} hoạt động
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             {index < visibleCount - 1 && (

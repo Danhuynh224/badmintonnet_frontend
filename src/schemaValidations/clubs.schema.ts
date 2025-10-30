@@ -173,6 +173,7 @@ export const MemberSchema = z.object({
   status: MemberStatusEnum,
   joinedAt: z.coerce.date(),
   slug: z.string(),
+  joinedCount: z.number(),
 });
 
 export type MemberType = z.infer<typeof MemberSchema>;

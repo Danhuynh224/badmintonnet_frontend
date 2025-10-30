@@ -1,4 +1,5 @@
 import http from "@/lib/http";
+import { MemberScheduleResponse } from "@/schemaValidations/account.schema";
 import {
   ClubMemberDetailResType,
   ClubPageResType,
@@ -118,5 +119,14 @@ const clubServiceApi = {
 
   getClubMemberDetail: (id: string) =>
     http.get<ClubMemberDetailResType>(`/clubs/my_clubs/detail_member/${id}`),
+
+  getClubMemberSchedule: (id: string, memberId: string, token = "") =>
+    http.get<MemberScheduleResponse>(
+      `/clubs/my_clubs/${id}/member/${memberId}/schedule`,
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        cache: "no-store",
+      }
+    ),
 };
 export default clubServiceApi;

@@ -210,3 +210,9 @@ export type AccountScheduleType = z.infer<typeof AccountScheduleSchema>;
 export type PagedAccountScheduleResponseType = z.infer<
   typeof PagedAccountScheduleResponse
 >;
+export const MemberScheduleResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(AccountScheduleSchema),
+});
+export type MemberScheduleResponse = z.infer<typeof MemberScheduleResponse>;
