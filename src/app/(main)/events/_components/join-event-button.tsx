@@ -83,14 +83,13 @@ export const JoinEventButton = ({
           <AlertDialogTitle>Xác nhận tham gia</AlertDialogTitle>
           {isMember ? (
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
-              gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng.
+              Bạn có chắc chắn muốn tham gia hoạt động này không?
             </AlertDialogDescription>
           ) : (
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
-              gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng. Vui
-              lòng chờ sự phê duyệt của Chủ CLB.
+              Bạn có chắc chắn muốn tham gia hoạt động này không? Khi đã tham
+              gia nếu hủy sát giờ (&lt; 24h trước khi bắt đầu) bạn có thể sẽ bị
+              trừ 10 điểm uy tín. Vui lòng chờ sự phê duyệt của Chủ CLB.
             </AlertDialogDescription>
           )}
         </AlertDialogHeader>

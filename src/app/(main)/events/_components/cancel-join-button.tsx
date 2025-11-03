@@ -22,7 +22,7 @@ const CANCEL_REASONS = [
   "Vấn đề sức khỏe",
   "Trùng lịch với hoạt động khác",
   "Lý do cá nhân",
-  "Khác (tự điền)",
+  "Khác",
 ];
 
 export function CancelJoinEventButton({
@@ -61,7 +61,7 @@ export function CancelJoinEventButton({
     }
   };
 
-  const isCustomReason = selectedReason === "Khác (tự điền)";
+  const isCustomReason = selectedReason === "Khác";
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -105,7 +105,7 @@ export function CancelJoinEventButton({
                   checked={selectedReason === reason}
                   onChange={(e) => {
                     setSelectedReason(e.target.value);
-                    if (e.target.value !== "Khác (tự điền)") {
+                    if (e.target.value !== "Khác") {
                       setCustomReason("");
                     }
                   }}

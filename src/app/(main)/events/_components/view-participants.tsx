@@ -63,7 +63,7 @@ export default function ParticipantsSection({
   const [activeTab, setActiveTab] = useState<string>("active");
 
   const activeParticipants = participants.filter(
-    (p) => p.status !== "CANCELLED"
+    (p) => p.status === "APPROVED" || p.status === "ATTENDED"
   );
   const pendingParticipants = participants.filter(
     (p) => p.status === "PENDING"
@@ -91,7 +91,7 @@ export default function ParticipantsSection({
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v)}>
             <TabsList className="bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
               <TabsTrigger value="active" className="rounded-md px-4 py-2">
-                Đang tham gia
+                Đã tham gia
                 <Badge
                   variant="outline"
                   className="ml-2 bg-white dark:bg-gray-800"
@@ -99,17 +99,17 @@ export default function ParticipantsSection({
                   {counts.active}
                 </Badge>
               </TabsTrigger>
-              {counts.pending > 0 && (
-                <TabsTrigger value="pending" className="rounded-md px-4 py-2">
-                  Chờ duyệt
-                  <Badge
-                    variant="outline"
-                    className="ml-2 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
-                  >
-                    {counts.pending}
-                  </Badge>
-                </TabsTrigger>
-              )}
+
+              <TabsTrigger value="pending" className="rounded-md px-4 py-2">
+                Chờ duyệt
+                <Badge
+                  variant="outline"
+                  className="ml-2 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
+                >
+                  {counts.pending}
+                </Badge>
+              </TabsTrigger>
+
               <TabsTrigger value="cancelled" className="rounded-md px-4 py-2">
                 Đã hủy
                 <Badge
