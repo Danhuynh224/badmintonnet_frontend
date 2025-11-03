@@ -38,17 +38,17 @@ export const JoinEventButton = ({
 
     try {
       // 🟢 Bước 1: Kiểm tra có thể tham gia hay không
-      const checkRes = await eventClubApiRequest.checkCanJoinEvent(
-        eventId,
-        accessToken
-      );
-      if (checkRes.payload.data && checkRes.payload.data.canJoin === false) {
-        toast.warning(
-          checkRes.payload.data.message ||
-            "Thời gian hoạt động bị trùng với lịch khác."
-        );
-        return; //
-      }
+      // const checkRes = await eventClubApiRequest.checkCanJoinEvent(
+      //   eventId,
+      //   accessToken
+      // );
+      // if (checkRes.payload.data && checkRes.payload.data.canJoin === false) {
+      //   toast.warning(
+      //     checkRes.payload.data.message ||
+      //       "Thời gian hoạt động bị trùng với lịch khác."
+      //   );
+      //   return; //
+      // }
 
       //  Gửi request tham gia
       const joinRes = await eventClubApiRequest.joinEvent(eventId, accessToken);
@@ -83,14 +83,13 @@ export const JoinEventButton = ({
           <AlertDialogTitle>Xác nhận tham gia</AlertDialogTitle>
           {isMember ? (
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
-              gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng.
+              Bạn có chắc chắn muốn tham gia hoạt động này không?
             </AlertDialogDescription>
           ) : (
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn tham gia hoạt động này không? Sau khi tham
-              gia bạn sẽ không được hủy trước khi hoạt động diễn ra 2 tiếng. Vui
-              lòng chờ sự phê duyệt của Chủ CLB.
+              Bạn có chắc chắn muốn tham gia hoạt động này không? Khi đã tham
+              gia nếu hủy sát giờ (&lt; 24h trước khi bắt đầu) bạn có thể sẽ bị
+              trừ 10 điểm uy tín. Vui lòng chờ sự phê duyệt của Chủ CLB.
             </AlertDialogDescription>
           )}
         </AlertDialogHeader>

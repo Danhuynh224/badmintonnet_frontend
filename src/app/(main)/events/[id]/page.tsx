@@ -578,6 +578,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               participants={participants}
               eventId={eventDetail.id}
               status={eventDetail.status}
+              token={accessToken?.value || ""}
             />
           </>
         )}

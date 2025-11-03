@@ -25,11 +25,13 @@ export function CancelEventDialog({ eventId, token }: CancelEventDialogProps) {
   const handleCancelEvent = async () => {
     try {
       setIsLoading(true);
-      await eventClubApiRequest.cancelEventClub(eventId, token);
+      const res = await eventClubApiRequest.cancelEventClub(eventId, token);
       toast.success("Hủy hoạt động thành công!");
       router.refresh();
       setIsOpen(false);
+      console.log(res);
     } catch (error) {
+      console.error(error);
       toast.error("Có lỗi xảy ra khi hủy sự kiện");
     } finally {
       setIsLoading(false);
