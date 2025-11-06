@@ -24,14 +24,13 @@ import PlaceholderSection from "@/app/(main)/tournaments/[id]/_components/placeh
 export default async function TournamentDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
-  const response = await tournamentApiRequest.getDetailBySlug(
-    params.id,
-    accessToken
-  );
+  const { id } = await params;
+
+  const response = await tournamentApiRequest.getDetailBySlug(id, accessToken);
   const tournament = response.payload.data;
   const statusInfo = getTournamentStatusInfo(tournament.status);
 

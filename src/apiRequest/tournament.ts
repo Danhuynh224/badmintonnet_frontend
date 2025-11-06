@@ -29,5 +29,10 @@ const tournamentApiRequest = {
     http.get<TournamentDetailResponse>(`/tournaments/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     }),
+
+  joinSingleTournament: (categoryId: string, token: string) =>
+    http.post(`/tournaments/${categoryId}/register/single`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };
 export default tournamentApiRequest;
