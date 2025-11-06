@@ -161,7 +161,8 @@ const RegisterForm = () => {
       toast.success("Đăng ký thành công", {
         description: "Tài khoản của bạn đã được tạo thành công!",
       });
-      router.push("/profile/player-rating");
+      // router.push("/profile/player-rating");
+      router.push("/verify?email=" + encodeURIComponent(values.email));
     } catch (error: unknown) {
       toast.error("Đăng ký thất bại", {
         description: "Vui lòng kiểm tra lại thông tin đăng ký.",

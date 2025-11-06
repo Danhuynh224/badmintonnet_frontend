@@ -68,6 +68,7 @@ export const LoginBody = z
 
 export type LoginBodyType = z.TypeOf<typeof LoginBody>;
 
+
 export const LoginRes = z.object({
   status: z.number(),
   message: z.string(),
@@ -85,3 +86,9 @@ export type SlideSessionBodyType = z.TypeOf<typeof SlideSessionBody>;
 export const SlideSessionRes = RegisterRes;
 
 export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>;
+
+export const VerifyBody = z.object({
+  email: z.string(),
+  otp: z.string().length(6),
+}).strict();
+export type VerifyBodyType = z.TypeOf<typeof VerifyBody>;

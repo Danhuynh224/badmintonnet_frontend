@@ -54,10 +54,14 @@ const LoginForm = () => {
         router.push("/");
       }
     } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Vui lòng thử lại";
       toast.error("Đăng nhập thất bại", {
-        description:
-          error instanceof Error ? error.message : "Vui lòng thử lại",
+        description: message,
       });
+      if (message === "Tài khoản chưa được kích hoạt") {
+        router.push("/verify?email=" + encodeURIComponent(values.email));
+      }
       // handleErrorApi({
       //   error,
       //   setError: form.setError,
