@@ -9,6 +9,15 @@ export const BadmintonCategoryEnum = z.enum([
   "MIXED_DOUBLE",
 ]);
 export type BadmintonCategory = z.infer<typeof BadmintonCategoryEnum>;
+
+export const CategoryFormatEnum = z.enum([
+  "LOAI_TRUC_TIEP",
+  "VONG_TRON",
+  "VONG_BANG",
+  "KET_HOP",
+]);
+export type CategoryFormatEnum = z.infer<typeof CategoryFormatEnum>;
+
 // Enum trạng thái giải đấu (giống backend TournamentStatus)
 export const TournamentStatusEnum = z.enum([
   "UPCOMING",
@@ -279,3 +288,36 @@ export const PagedTournamentAdminResponse = z.object({
 export type PagedTournamentAdminResponse = z.infer<
   typeof PagedTournamentAdminResponse
 >;
+
+export const CategoryDetail = z.object({
+  id: z.string(),
+  tournamentName: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  category: BadmintonCategoryEnum,
+  minLevel: z.number(),
+  maxLevel: z.number(),
+  maxParticipants: z.number(),
+  currentParticipantCount: z.number(),
+
+  registrationFee: z.number(),
+  description: z.string(),
+
+  rules: z.array(z.string()),
+
+  firstPrize: z.string(),
+  secondPrize: z.string(),
+  thirdPrize: z.string(),
+
+  format: CategoryFormatEnum,
+  registrationDeadline: z.string(), // nhận ISO string từ BE
+});
+
+export type CategoryDetail = z.infer<typeof CategoryDetail>;
+
+export const CategoryDetailResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: CategoryDetail,
+});
+export type CategoryDetailResponse = z.infer<typeof CategoryDetailResponse>;
