@@ -95,7 +95,7 @@ export default function OverviewSection({
               ) : (
                 <div className="pl-8">
                   <p className="text-sm text-gray-500 dark:text-gray-500 italic">
-                    Thông tin địa điểm chưa được cập nhật
+                    tournament.loca
                   </p>
                 </div>
               )}

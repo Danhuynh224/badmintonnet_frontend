@@ -9,6 +9,15 @@ export const BadmintonCategoryEnum = z.enum([
   "MIXED_DOUBLE",
 ]);
 export type BadmintonCategory = z.infer<typeof BadmintonCategoryEnum>;
+
+export const CategoryFormatEnum = z.enum([
+  "LOAI_TRUC_TIEP",
+  "VONG_TRON",
+  "VONG_BANG",
+  "KET_HOP",
+]);
+export type CategoryFormatEnum = z.infer<typeof CategoryFormatEnum>;
+
 // Enum trạng thái giải đấu (giống backend TournamentStatus)
 export const TournamentStatusEnum = z.enum([
   "UPCOMING",
@@ -98,6 +107,28 @@ export const TournamentCategoryRequest = z.object({
     .number()
     .int()
     .positive("Số lượng người tham gia phải là số dương"),
+
+  registrationFee: z.number().nonnegative("Lệ phí phải >= 0").optional(),
+
+  description: z
+    .string()
+    .max(2000, "Mô tả không được quá 2000 ký tự")
+    .optional(),
+
+  rules: z.array(z.string()).optional(),
+
+  firstPrize: z.string().optional(),
+  secondPrize: z.string().optional(),
+  thirdPrize: z.string().optional(),
+
+  format: CategoryFormatEnum.optional(),
+
+  registrationDeadline: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Hạn đăng ký không hợp lệ",
+    })
+    .optional(),
 });
 export type TournamentCategoryRequest = z.infer<
   typeof TournamentCategoryRequest
@@ -279,3 +310,37 @@ export const PagedTournamentAdminResponse = z.object({
 export type PagedTournamentAdminResponse = z.infer<
   typeof PagedTournamentAdminResponse
 >;
+
+export const CategoryDetail = z.object({
+  id: z.string(),
+  tournamentName: z.string(),
+  facility: FacilitySchema,
+  startDate: z.string(),
+  endDate: z.string(),
+  category: BadmintonCategoryEnum,
+  minLevel: z.number(),
+  maxLevel: z.number(),
+  maxParticipants: z.number(),
+  currentParticipantCount: z.number(),
+
+  registrationFee: z.number(),
+  description: z.string(),
+
+  rules: z.array(z.string()),
+
+  firstPrize: z.string(),
+  secondPrize: z.string(),
+  thirdPrize: z.string(),
+
+  format: CategoryFormatEnum,
+  registrationDeadline: z.string(), // nhận ISO string từ BE
+});
+
+export type CategoryDetail = z.infer<typeof CategoryDetail>;
+
+export const CategoryDetailResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: CategoryDetail,
+});
+export type CategoryDetailResponse = z.infer<typeof CategoryDetailResponse>;

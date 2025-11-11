@@ -1,6 +1,7 @@
 import http from "@/lib/http";
 import { FileResType } from "@/schemaValidations/common.schema";
 import {
+  CategoryDetailResponse,
   PagedTournamentResponse,
   TournamentCreateRequest,
   TournamentDetailResponse,
@@ -29,5 +30,13 @@ const tournamentApiRequest = {
     http.get<TournamentDetailResponse>(`/tournaments/${slug}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     }),
+
+  joinSingleTournament: (categoryId: string, token: string) =>
+    http.post(`/tournaments/${categoryId}/register/single`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  getCategoryDetail: (categoryId: string) =>
+    http.get<CategoryDetailResponse>(`/tournaments/categories/${categoryId}`),
 };
 export default tournamentApiRequest;

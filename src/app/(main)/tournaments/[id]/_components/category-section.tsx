@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import Link from "next/link";
 import {
   getCategoryLabel,
   TournamentCategoryDetailResponse,
@@ -9,6 +8,8 @@ import {
 } from "@/schemaValidations/tournament.schema";
 import { Users, Info, ChevronRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
+import JoinCategoryButton from "./join-category-button";
 
 export default function CategorySection({
   categories,
@@ -29,6 +30,7 @@ export default function CategorySection({
       {categories.map((cat) => {
         const filledPercent =
           (cat.currentParticipantCount / cat.maxParticipants) * 100;
+        const isFull = cat.currentParticipantCount >= cat.maxParticipants;
 
         return (
           <Card
@@ -81,11 +83,17 @@ export default function CategorySection({
                     <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
+
+                {/* Nút tham gia */}
+                <div className="mt-4">
+                  <JoinCategoryButton
+                    categoryId={cat.id}
+                    isDisabled={isFull}
+                    className="w-full"
+                  />
+                </div>
               </div>
             </CardContent>
-
-            {/* Hiệu ứng nền hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-teal-100/0 to-teal-100/20 dark:from-teal-900/0 dark:to-teal-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Card>
         );
       })}
