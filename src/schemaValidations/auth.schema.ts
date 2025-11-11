@@ -1,3 +1,4 @@
+import Password from "antd/es/input/Password";
 import { z } from "zod";
 
 export const RegisterBody = z
@@ -68,7 +69,6 @@ export const LoginBody = z
 
 export type LoginBodyType = z.TypeOf<typeof LoginBody>;
 
-
 export const LoginRes = z.object({
   status: z.number(),
   message: z.string(),
@@ -87,8 +87,26 @@ export const SlideSessionRes = RegisterRes;
 
 export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>;
 
-export const VerifyBody = z.object({
-  email: z.string(),
-  otp: z.string().length(6),
-}).strict();
+export const VerifyBody = z
+  .object({
+    email: z.string(),
+    otp: z.string().length(6),
+  })
+  .strict();
 export type VerifyBodyType = z.TypeOf<typeof VerifyBody>;
+
+export const UpdatePasswordBody = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
+    password: z
+      .string()
+      .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "Xác nhận mật khẩu phải có ít nhất 6 ký tự" }),
+  })
+  .strict();
+
+export type UpdatePasswordBodyType = z.TypeOf<typeof UpdatePasswordBody>;

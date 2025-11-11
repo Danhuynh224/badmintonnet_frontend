@@ -5,6 +5,7 @@ import {
   RegisterBodyType,
   RegisterResType,
   SlideSessionResType,
+  UpdatePasswordBodyType,
   VerifyBodyType,
 } from "@/schemaValidations/auth.schema";
 import { verify } from "crypto";
@@ -19,5 +20,8 @@ const authApiRequest = {
   sendOtp: (email: string) => http.get(`auth/send-otp/${email}`),
   loginWithFirebase: (idToken: string) =>
     http.post<LoginResType>("auth/login/firebase", { idToken }),
+  forgetPassword: (email: string) => http.post(`auth/forget/${email}`),
+  updatePassword: (body: UpdatePasswordBodyType) =>
+    http.put("auth/update-password", body),
 };
 export default authApiRequest;

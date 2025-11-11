@@ -23,6 +23,7 @@ import { isAborted } from "zod/v3";
 import { prepareFlightRouterStateForRequest } from "next/dist/client/flight-data-helpers";
 import { isAdmin } from "@/lib/utils";
 import GoogleLoginButton from "@/app/(auth)/login/gg-login-button";
+import ForgotPasswordDialog from "./forgot-password-dialog";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -121,12 +122,8 @@ const LoginForm = () => {
           )}
         />
         <div className="flex flex-col sm:flex-row sm:justify-between gap-4 text-sm">
-          <Link
-            href="/forgot-password"
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 font-medium hover:underline transition-colors duration-300"
-          >
-            Quên mật khẩu?
-          </Link>
+          {/* mở dialog quên mật khẩu */}
+          <ForgotPasswordDialog />
           <Link
             href="/signup"
             className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 font-medium hover:underline transition-colors duration-300"
