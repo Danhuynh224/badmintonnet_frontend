@@ -198,10 +198,11 @@ const request = async <Response>(
   // 👉 Lưu token sau login/register
   if (typeof window !== "undefined") {
     if (
-      ["auth/login", "auth/register"].some(
+      ["auth/login", "auth/login/firebase"].some(
         (item) => item === normalizePath(url)
       )
     ) {
+      console.log("Login response payload:", payload);
       clientSessionToken.value = (payload as LoginResType).data.accessToken;
       clientSessionToken.refreshValue = (
         payload as LoginResType

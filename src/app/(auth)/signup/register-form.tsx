@@ -30,6 +30,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Loader2, MapPin } from "lucide-react";
 import authApiRequest from "@/apiRequest/auth";
 import addressApiRequest from "@/apiRequest/address";
+import GoogleSignUpButton from "@/app/(auth)/signup/gg-signup-button";
 
 interface Province {
   id: string;
@@ -443,6 +444,7 @@ const RegisterForm = () => {
               "Đăng ký"
             )}
           </Button>
+          <GoogleSignUpButton />
         </div>
       </form>
     </Form>

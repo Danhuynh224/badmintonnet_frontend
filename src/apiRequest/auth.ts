@@ -17,5 +17,7 @@ const authApiRequest = {
   verify: (body: VerifyBodyType) =>
     http.post<LoginResType>("auth/verify", body),
   sendOtp: (email: string) => http.get(`auth/send-otp/${email}`),
+  loginWithFirebase: (idToken: string) =>
+    http.post<LoginResType>("auth/login/firebase", { idToken }),
 };
 export default authApiRequest;

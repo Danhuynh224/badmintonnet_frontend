@@ -22,6 +22,7 @@ import authApiRequest from "@/apiRequest/auth";
 import { isAborted } from "zod/v3";
 import { prepareFlightRouterStateForRequest } from "next/dist/client/flight-data-helpers";
 import { isAdmin } from "@/lib/utils";
+import GoogleLoginButton from "@/app/(auth)/login/gg-login-button";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -147,6 +148,7 @@ const LoginForm = () => {
             "Đăng nhập"
           )}
         </Button>
+        <GoogleLoginButton />
       </form>
     </Form>
   );
