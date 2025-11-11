@@ -244,7 +244,7 @@ const http = {
   },
   delete<Response>(
     url: string,
-    body: any,
+    body?: any,
     options?: Omit<CustomOptions, "body"> | undefined
   ) {
     return request<Response>("DELETE", url, { ...options, body });

@@ -4,11 +4,9 @@ import {
   LoginResType,
   RegisterBodyType,
   RegisterResType,
-  SlideSessionResType,
   UpdatePasswordBodyType,
   VerifyBodyType,
 } from "@/schemaValidations/auth.schema";
-import { verify } from "crypto";
 const authApiRequest = {
   login: (body: LoginBodyType) => http.post<LoginResType>("auth/login", body),
   register: (body: RegisterBodyType) =>
