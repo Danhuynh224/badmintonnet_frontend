@@ -20,7 +20,6 @@ export default function TournamentCategoryDetail({
 }: CategoryDetailProps) {
   const [category, setCategory] = useState<CategoryDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchCategoryDetail = async () => {
@@ -29,7 +28,6 @@ export default function TournamentCategoryDetail({
           categoryId
         );
         setCategory(response.payload.data);
-        console.log("Fetched category detail:", response.payload.data);
       } catch (error) {
         toast.error("Không thể tải thông tin hạng mục");
       } finally {

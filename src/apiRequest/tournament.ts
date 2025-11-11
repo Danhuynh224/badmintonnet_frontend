@@ -2,9 +2,11 @@ import http from "@/lib/http";
 import { FileResType } from "@/schemaValidations/common.schema";
 import {
   CategoryDetailResponse,
+  PagedTournamentCategoryParticipantsResponse,
   PagedTournamentResponse,
   TournamentCreateRequest,
   TournamentDetailResponse,
+  TournamentParticipantEnum,
 } from "@/schemaValidations/tournament.schema";
 const tournamentApiRequest = {
   uploadImageTournament: (body: FormData) =>
@@ -38,5 +40,25 @@ const tournamentApiRequest = {
 
   getCategoryDetail: (categoryId: string) =>
     http.get<CategoryDetailResponse>(`/tournaments/categories/${categoryId}`),
+
+  getAllParticipants: (
+    categoryId: string,
+    status?: TournamentParticipantEnum[],
+    page: number = 0,
+    size: number = 10
+  ) => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("size", size.toString());
+
+    // Add status params if provided
+    if (status && status.length > 0) {
+      status.forEach((s) => params.append("status", s));
+    }
+
+    return http.get<PagedTournamentCategoryParticipantsResponse>(
+      `/tournament-participants/${categoryId}?${params.toString()}`
+    );
+  },
 };
 export default tournamentApiRequest;

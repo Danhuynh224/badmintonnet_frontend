@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -11,13 +10,15 @@ import { clientSessionToken } from "@/lib/http";
 interface JoinCategoryButtonProps {
   categoryId: string;
   isDisabled?: boolean;
+  buttonText?: string;
   className?: string;
 }
 
 export default function JoinCategoryButton({
   categoryId,
   isDisabled = false,
-  className = "",
+  buttonText = "Tham gia",
+  className = "bg-white text-teal-600 hover:bg-teal-50 font-semibold shadow-md",
 }: JoinCategoryButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const accessToken = clientSessionToken.value;
@@ -45,11 +46,9 @@ export default function JoinCategoryButton({
     <Button
       onClick={handleJoin}
       disabled={isDisabled || isLoading}
-      className={`flex items-center gap-2 ${className}`}
-      variant="default"
+      className={className}
     >
-      <UserPlus className="h-4 w-4" />
-      {isLoading ? "Đang xử lý..." : "Tham gia"}
+      {isLoading ? "Đang xử lý..." : buttonText}
     </Button>
   );
 }

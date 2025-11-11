@@ -37,7 +37,10 @@ export default function CategoryTabs({ category }: CategoryTabsProps) {
       </TabsContent>
 
       <TabsContent value="participants" className="mt-6">
-        <CategoryParticipants category={category} />
+        <CategoryParticipants
+          categoryId={category.id}
+          isAdmin={category.admin}
+        />
       </TabsContent>
 
       <TabsContent value="schedule" className="mt-6">

@@ -1,4 +1,6 @@
-import { z } from "zod";
+import { isAdmin } from "@/lib/utils";
+import { Tour } from "antd";
+import { email, z } from "zod";
 
 // Enum giống backend (nên đồng bộ với BadmintonCategoryEnum)
 export const BadmintonCategoryEnum = z.enum([
@@ -17,6 +19,18 @@ export const CategoryFormatEnum = z.enum([
   "KET_HOP",
 ]);
 export type CategoryFormatEnum = z.infer<typeof CategoryFormatEnum>;
+
+export const TournamentParticipantEnum = z.enum([
+  "PENDING",
+  "PAYMENT_REQUIRED",
+  "APPROVED",
+  "REJECTED",
+  "CANCELLED",
+  "ELIMINATED",
+]);
+export type TournamentParticipantEnum = z.infer<
+  typeof TournamentParticipantEnum
+>;
 
 // Enum trạng thái giải đấu (giống backend TournamentStatus)
 export const TournamentStatusEnum = z.enum([
@@ -201,6 +215,7 @@ export const TournamentCategoryDetailResponse = z.object({
   currentParticipantCount: z.number(),
   minLevel: z.number(),
   maxLevel: z.number(),
+  participantStatus: TournamentParticipantEnum.nullable().optional(),
 });
 
 export type TournamentCategoryDetailResponse = z.infer<
@@ -334,6 +349,8 @@ export const CategoryDetail = z.object({
 
   format: CategoryFormatEnum,
   registrationDeadline: z.string(), // nhận ISO string từ BE
+  admin: z.boolean(),
+  participantStatus: TournamentParticipantEnum.nullable().optional(),
 });
 
 export type CategoryDetail = z.infer<typeof CategoryDetail>;
@@ -344,3 +361,35 @@ export const CategoryDetailResponse = z.object({
   data: CategoryDetail,
 });
 export type CategoryDetailResponse = z.infer<typeof CategoryDetailResponse>;
+
+export const TournamentCategoryParticipantSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  slug: z.string(),
+  avatarUrl: z.string().nullable().optional(),
+  email: z.string(),
+  gender: z.string(),
+  status: TournamentParticipantEnum,
+  createdAt: z.coerce.date(),
+});
+
+export type TournamentCategoryParticipant = z.infer<
+  typeof TournamentCategoryParticipantSchema
+>;
+
+export const PagedTournamentCategoryParticipantsResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.object({
+    content: z.array(TournamentCategoryParticipantSchema),
+    page: z.number(),
+    size: z.number(),
+    totalElements: z.number(),
+    totalPages: z.number(),
+    last: z.boolean(),
+  }),
+});
+
+export type PagedTournamentCategoryParticipantsResponse = z.infer<
+  typeof PagedTournamentCategoryParticipantsResponse
+>;

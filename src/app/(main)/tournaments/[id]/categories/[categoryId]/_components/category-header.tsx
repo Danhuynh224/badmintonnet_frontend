@@ -30,6 +30,74 @@ export default function CategoryHeader({
   const spotsLeft = category.maxParticipants - category.currentParticipantCount;
   const isFull = category.currentParticipantCount >= category.maxParticipants;
 
+  // Determine button text and state based on participant status
+  const getButtonConfig = () => {
+    const status = category.participantStatus;
+
+    if (!status) {
+      return {
+        text: isFull ? "Đã đầy" : "Tham gia",
+        disabled: isFull,
+        className:
+          "bg-white text-teal-600 hover:bg-teal-50 font-semibold shadow-md",
+      };
+    }
+
+    switch (status) {
+      case "PENDING":
+        return {
+          text: "Chờ duyệt",
+          disabled: true,
+          className:
+            "bg-amber-100 text-amber-700 cursor-not-allowed font-semibold shadow-md",
+        };
+      case "PAYMENT_REQUIRED":
+        return {
+          text: "Chờ thanh toán",
+          disabled: true,
+          className:
+            "bg-orange-100 text-orange-700 cursor-not-allowed font-semibold shadow-md",
+        };
+      case "APPROVED":
+        return {
+          text: "Đã tham gia",
+          disabled: true,
+          className:
+            "bg-green-100 text-green-700 cursor-not-allowed font-semibold shadow-md",
+        };
+      case "REJECTED":
+        return {
+          text: "Đã từ chối",
+          disabled: true,
+          className:
+            "bg-red-100 text-red-700 cursor-not-allowed font-semibold shadow-md",
+        };
+      case "CANCELLED":
+        return {
+          text: "Đã hủy",
+          disabled: true,
+          className:
+            "bg-gray-100 text-gray-700 cursor-not-allowed font-semibold shadow-md",
+        };
+      case "ELIMINATED":
+        return {
+          text: "Đã loại",
+          disabled: true,
+          className:
+            "bg-purple-100 text-purple-700 cursor-not-allowed font-semibold shadow-md",
+        };
+      default:
+        return {
+          text: isFull ? "Đã đầy" : "Tham gia",
+          disabled: isFull,
+          className:
+            "bg-white text-teal-600 hover:bg-teal-50 font-semibold shadow-md",
+        };
+    }
+  };
+
+  const buttonConfig = getButtonConfig();
+
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
       {/* Header Banner with Subtle Gradient */}
@@ -54,8 +122,9 @@ export default function CategoryHeader({
           <div className="flex flex-col gap-2 w-full sm:w-auto">
             <JoinCategoryButton
               categoryId={categoryId}
-              isDisabled={isFull}
-              className="bg-white text-teal-600 hover:bg-teal-50 font-semibold shadow-md"
+              isDisabled={buttonConfig.disabled}
+              buttonText={buttonConfig.text}
+              className={buttonConfig.className}
             />
           </div>
         </div>
