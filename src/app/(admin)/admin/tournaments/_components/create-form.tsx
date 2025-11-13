@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TextEditor from "@/components/text-editor";
 
 // Interfaces for address data
 interface Province {
@@ -372,6 +373,11 @@ export default function TournamentCreateForm({
                       {...field}
                       rows={4}
                     />
+                    {/* <TextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      height={200}
+                    /> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
