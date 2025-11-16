@@ -367,7 +367,7 @@ export default function TournamentCreateForm({
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-12">
                   <FormLabel>Mô tả</FormLabel>
                   <FormControl>
                     <RichTextEditor
@@ -383,7 +383,7 @@ export default function TournamentCreateForm({
               control={form.control}
               name="rules"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-12">
                   <FormLabel>Điều lệ giải đấu</FormLabel>
                   <FormControl>
                     <RichTextEditor
@@ -397,7 +397,7 @@ export default function TournamentCreateForm({
             />
 
             {/* Address Selection */}
-            <div className="space-y-4 rounded-lg border p-4">
+            <div className="space-y-4 rounded-lg border p-4 ">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-gray-500" />
                 <FormLabel className="text-base font-semibold">
