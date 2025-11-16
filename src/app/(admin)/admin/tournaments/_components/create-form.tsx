@@ -37,6 +37,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import TextEditor from "@/components/text-editor";
+import RichTextEditor from "@/components/text-editor";
+import Tiptap from "@/components/text-editor";
 
 // Interfaces for address data
 interface Province {
@@ -338,7 +340,7 @@ export default function TournamentCreateForm({
 
   return (
     <Card className="border border-gray-200 dark:border-gray-700 shadow-lg dark:bg-gray-800 max-w-4xl mx-auto">
-      <CardContent>
+      <CardContent className="overflow-visible">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* General Information */}
@@ -368,16 +370,10 @@ export default function TournamentCreateForm({
                 <FormItem>
                   <FormLabel>Mô tả</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Nhập mô tả chi tiết về giải đấu..."
-                      {...field}
-                      rows={4}
-                    />
-                    {/* <TextEditor
+                    <RichTextEditor
                       value={field.value}
                       onChange={field.onChange}
-                      height={200}
-                    /> */}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -390,11 +386,9 @@ export default function TournamentCreateForm({
                 <FormItem>
                   <FormLabel>Điều lệ giải đấu</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Nhập điều lệ giải đấu..."
-                      {...field}
-                      rows={6}
-                      className="whitespace-pre-line"
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

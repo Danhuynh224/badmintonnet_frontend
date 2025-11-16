@@ -35,9 +35,12 @@ export default function OverviewSection({
 
       <CardContent className="space-y-6">
         {/* --- Description --- */}
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-          {tournament.description || "Chưa có mô tả cho giải đấu này."}
-        </p>
+        <div
+          className="text-gray-700 dark:text-gray-300 leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: tournament.description || "Chưa có mô tả cho giải đấu này.",
+          }}
+        />
 
         {/* --- Layout 2 cột: Địa điểm (trái) & Thông tin khác (phải) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -184,9 +187,12 @@ export default function OverviewSection({
               Điều lệ giải đấu
             </h3>
             <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700 overflow-x-auto">
-              <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-200 text-sm leading-relaxed break-words">
-                {tournament.rules}
-              </pre>
+              <div
+                className="text-gray-700 dark:text-gray-300 leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: tournament.rules || "Chưa có mô tả cho giải đấu này.",
+                }}
+              />
             </div>
           </div>
         )}
