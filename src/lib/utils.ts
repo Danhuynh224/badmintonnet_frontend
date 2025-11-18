@@ -43,6 +43,22 @@ export function isAdmin(token: string): boolean {
   }
 }
 export function isHTML(str: string): boolean {
-  const htmlPattern = /^\s*<([a-z]+)([^>]*)>.*<\/\1>\s*$/i;
-  return htmlPattern.test(str);
+  if (typeof str !== "string") return false;
+  const trimmed = str.trim();
+  if (!trimmed) return false;
+
+  // Prefer DOMParser in browser for robust detection (handles multiple top-level nodes)
+  if (typeof window !== "undefined" && "DOMParser" in window) {
+    try {
+      const doc = new DOMParser().parseFromString(trimmed, "text/html");
+      return Array.from(doc.body.childNodes).some(
+        (n) => n.nodeType === Node.ELEMENT_NODE
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  // Fallback: check if string contains any HTML-like tag
+  return /<\/?[a-z][\s\S]*>/i.test(trimmed);
 }

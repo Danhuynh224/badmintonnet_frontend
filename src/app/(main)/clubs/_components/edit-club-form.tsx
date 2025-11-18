@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FacilityType } from "@/schemaValidations/event.schema";
+import RichTextEditor from "@/components/text-editor";
 
 interface EditClubFormProps {
   clubDetail: ClubResType["data"];
@@ -300,19 +301,12 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
           <Label htmlFor="description" className="text-sm font-medium">
             Mô tả câu lạc bộ
           </Label>
-          <Textarea
-            id="description"
-            name="description"
+          <RichTextEditor
             value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Giới thiệu về câu lạc bộ của bạn..."
-            rows={4}
-            maxLength={500}
-            className="resize-none"
+            onChange={(html: string) =>
+              setFormData((prev) => ({ ...prev, description: html }))
+            }
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-right">
-            {formData.description.length}/500
-          </p>
         </div>
       </div>
 

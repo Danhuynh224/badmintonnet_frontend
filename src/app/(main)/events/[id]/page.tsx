@@ -35,6 +35,7 @@ import accountApiRequest from "@/apiRequest/account";
 import { CancelEventDialog } from "@/app/(main)/events/_components/cancel-event-button";
 import { CancelJoinEventButton } from "@/app/(main)/events/_components/cancel-join-button";
 import Link from "next/link";
+import { isHTML } from "@/lib/utils";
 
 interface EventDetailPageProps {
   params: Promise<{ id: string }>;
@@ -290,11 +291,18 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                 <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full mr-4"></div>
                 Mô tả sự kiện
               </h2>
-              <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300">
-                <p className="whitespace-pre-line leading-relaxed text-base">
-                  {eventDetail.description}
-                </p>
-              </div>
+              {isHTML(eventDetail.description) ? (
+                <div
+                  className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300"
+                  dangerouslySetInnerHTML={{ __html: eventDetail.description }}
+                />
+              ) : (
+                <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300">
+                  <p className="whitespace-pre-line leading-relaxed text-base">
+                    {eventDetail.description}
+                  </p>
+                </div>
+              )}
             </div>
 
             {eventDetail.requirements && (
@@ -303,11 +311,20 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   <div className="w-2 h-8 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full mr-4"></div>
                   Yêu cầu tham gia
                 </h2>
-                <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300">
-                  <p className="whitespace-pre-line leading-relaxed text-base">
-                    {eventDetail.requirements}
-                  </p>
-                </div>
+                {isHTML(eventDetail.requirements) ? (
+                  <div
+                    className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300"
+                    dangerouslySetInnerHTML={{
+                      __html: eventDetail.requirements,
+                    }}
+                  />
+                ) : (
+                  <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300">
+                    <p className="whitespace-pre-line leading-relaxed text-base">
+                      {eventDetail.requirements}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

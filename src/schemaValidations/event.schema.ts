@@ -93,14 +93,8 @@ export const CreateEventClubBody = z.object({
     .string()
     .min(1, "Tiêu đề là bắt buộc")
     .max(256, "Tiêu đề không được quá 256 ký tự"),
-  description: z
-    .string()
-    .min(1, "Mô tả là bắt buộc")
-    .max(10000, "Mô tả không được quá 10000 ký tự"),
-  requirements: z
-    .string()
-    .max(1000, "Yêu cầu không được quá 1000 ký tự")
-    .optional(),
+  description: z.string().min(1, "Mô tả là bắt buộc"),
+  requirements: z.string().optional(),
   coverImage: z.string().optional(),
   image: z.string().optional(),
   location: z

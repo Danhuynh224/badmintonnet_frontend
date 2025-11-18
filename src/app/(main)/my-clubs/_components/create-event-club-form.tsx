@@ -30,6 +30,7 @@ import addressApiRequest from "@/apiRequest/address";
 import { MapPin, ChevronDown } from "lucide-react";
 import facilityApiRequest from "@/apiRequest/facility";
 import { Select } from "antd";
+import RichTextEditor from "@/components/text-editor";
 
 // Interfaces for address data
 interface Province {
@@ -318,17 +319,18 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           control={form.control}
           name="description"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mb-12">
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
                 Mô tả <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Textarea
+                {/* <Textarea
                   placeholder="Mô tả chi tiết về hoạt động..."
                   rows={4}
                   className="text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   {...field}
-                />
+                /> */}
+                <RichTextEditor value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -615,17 +617,18 @@ const CreateEventClubForm = ({ clubSlug }: { clubSlug: string }) => {
           control={form.control}
           name="requirements"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mb-12">
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
                 Yêu cầu tham gia <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Textarea
+                {/* <Textarea
                   placeholder="Ví dụ: Người tham gia cần mang vợt riêng, có kinh nghiệm thi đấu..."
                   rows={4}
                   className="text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   {...field}
-                />
+                /> */}
+                <RichTextEditor value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>

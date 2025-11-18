@@ -46,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import RichTextEditor from "@/components/text-editor";
 
 // Interfaces for address data
 interface Province {
@@ -545,23 +546,18 @@ export default function EditEventModal({
                 </div>
 
                 {/* Description */}
-                <div className="space-y-2">
+                <div className="space-y-2 mb-20">
                   <Label
                     htmlFor="description"
                     className="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Mô tả sự kiện <span className="text-red-500">*</span>
                   </Label>
-                  <Textarea
-                    id="description"
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
+                    onChange={(value) =>
+                      handleInputChange("description", value)
                     }
-                    className={`${
-                      errors.description ? "border-red-500" : ""
-                    } min-h-28 sm:min-h-32 rounded-md resize-none`}
-                    placeholder="Mô tả chi tiết về sự kiện..."
                   />
                   {errors.description && (
                     <p className="text-red-500 text-xs sm:text-sm flex items-center">
@@ -572,21 +568,18 @@ export default function EditEventModal({
                 </div>
 
                 {/* Requirements */}
-                <div className="space-y-2">
+                <div className="space-y-2 mb-20">
                   <Label
                     htmlFor="requirements"
                     className="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Yêu cầu tham gia
                   </Label>
-                  <Textarea
-                    id="requirements"
-                    value={formData.requirements}
-                    onChange={(e) =>
-                      handleInputChange("requirements", e.target.value)
+                  <RichTextEditor
+                    value={formData.requirements || ""}
+                    onChange={(value) =>
+                      handleInputChange("requirements", value)
                     }
-                    className="min-h-20 sm:min-h-24 rounded-md resize-none"
-                    placeholder="Các yêu cầu đối với người tham gia..."
                   />
                 </div>
 

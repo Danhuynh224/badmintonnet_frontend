@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MapPin, Users, User, Calendar, ArrowRight } from "lucide-react";
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
+import { isHTML } from "@/lib/utils";
 
 export default async function MyClubs({
   searchParams,
@@ -92,10 +93,16 @@ export default async function MyClubs({
                       </span>
                     )}
                   </div>
-
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
-                    {club.description}
-                  </p>
+                  {!isHTML(club.description) ? (
+                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                      {club.description}
+                    </p>
+                  ) : (
+                    <div
+                      className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: club.description }}
+                    />
+                  )}
 
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                     <span className="flex items-center gap-2">

@@ -42,6 +42,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import UpdateInvitationStatusDialog from "@/app/(main)/clubs/_components/update-invitation-status-dialog";
 import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
+import { isHTML } from "@/lib/utils";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -297,7 +298,7 @@ export default async function ClubDetailPage({
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               {/* Club Description */}
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all rounded-2xl">
                 <CardHeader>
@@ -318,9 +319,18 @@ export default async function ClubDetailPage({
                   </div>
 
                   {/* Nội dung mô tả */}
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3 italic">
-                    {clubDetail.description}
-                  </p>
+                  {isHTML(clubDetail.description) ? (
+                    <div
+                      className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3"
+                      dangerouslySetInnerHTML={{
+                        __html: clubDetail.description,
+                      }}
+                    />
+                  ) : (
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3 italic">
+                      {clubDetail.description}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 

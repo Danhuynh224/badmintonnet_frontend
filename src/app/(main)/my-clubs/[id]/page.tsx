@@ -39,6 +39,7 @@ import {
 import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
 import EditClubButton from "@/app/(main)/clubs/_components/edit-club-button";
 import ClubWarningDialog from "@/app/(main)/my-clubs/_components/warning-list";
+import { isHTML } from "@/lib/utils";
 
 interface ClubDetailPageProps {
   params: { id: string };
@@ -215,7 +216,7 @@ export default async function MyClubDetail({
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
               {/* Club Description */}
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all rounded-2xl">
                 <CardHeader>
@@ -228,17 +229,26 @@ export default async function MyClubDetail({
                   {/* Trình độ yêu cầu */}
                   <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200">
                     <Users className="w-4 h-4 text-blue-500" />
-                    <span className="font-medium">Trình độ yêu cầu:</span>
+                    <span className="font-medium">Trình độ yêu cầu :</span>
                     <span className="ml-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                       {clubDetail.minLevel.toFixed(1)} -{" "}
                       {clubDetail.maxLevel.toFixed(1)}
                     </span>
                   </div>
-
-                  {/* Nội dung mô tả */}
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3 italic">
-                    {clubDetail.description}
-                  </p>
+                  {isHTML(clubDetail.description) ? (
+                    <>
+                      <div
+                        className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3"
+                        dangerouslySetInnerHTML={{
+                          __html: clubDetail.description,
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm border-l-4 border-emerald-400 pl-3 italic">
+                      {clubDetail.description}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 

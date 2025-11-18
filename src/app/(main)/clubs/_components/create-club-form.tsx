@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FacilityType } from "@/schemaValidations/event.schema";
+import RichTextEditor from "@/components/text-editor";
 
 // Interfaces for address data
 interface Province {
@@ -304,17 +305,12 @@ const CreateClubForm = () => {
           control={form.control}
           name="description"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mb-12">
               <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300">
                 Mô tả <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Mô tả ngắn về CLB..."
-                  rows={4}
-                  className="text-base border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  {...field}
-                />
+                <RichTextEditor value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
