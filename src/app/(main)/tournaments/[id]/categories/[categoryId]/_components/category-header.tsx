@@ -15,6 +15,8 @@ import {
 } from "@/schemaValidations/tournament.schema";
 import JoinCategoryButton from "../../../_components/join-category-button";
 import { toast } from "sonner";
+import PartnerListPlaceholder from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-list";
+import SelectPartnerModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-list";
 
 interface CategoryHeaderProps {
   category: CategoryDetail;
@@ -126,6 +128,14 @@ export default function CategoryHeader({
               buttonText={buttonConfig.text}
               className={buttonConfig.className}
             />
+            {category.double && (
+              <SelectPartnerModal
+                onSelected={(p) => {
+                  console.log("Đã chọn đồng đội:", p);
+                  toast.success(`Đã chọn ${p.fullName} làm đồng đội`);
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

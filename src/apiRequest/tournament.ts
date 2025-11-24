@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import { FileResType } from "@/schemaValidations/common.schema";
+import { FriendListResponseType } from "@/schemaValidations/friend.schema";
 import {
   CategoryDetailResponse,
   PagedTournamentCategoryParticipantsResponse,
@@ -65,6 +66,7 @@ const tournamentApiRequest = {
     http.put(`/tournament-participants/${participantId}/approve`),
   rejectParticipant: (participantId: string) =>
     http.put(`/tournament-participants/${participantId}/reject`),
-  getPartnerList: () => http.get<string[]>("/admin/partners"),
+  getPartnerList: () =>
+    http.get<FriendListResponseType>("/tournaments/get-all-partner"),
 };
 export default tournamentApiRequest;
