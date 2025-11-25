@@ -1,6 +1,7 @@
 import { isAdmin } from "@/lib/utils";
 import { Tour } from "antd";
 import { email, z } from "zod";
+import { InvitationStatusEnum } from "./club-invitation";
 
 // Enum giống backend (nên đồng bộ với BadmintonCategoryEnum)
 export const BadmintonCategoryEnum = z.enum([
@@ -393,4 +394,23 @@ export const PagedTournamentCategoryParticipantsResponse = z.object({
 
 export type PagedTournamentCategoryParticipantsResponse = z.infer<
   typeof PagedTournamentCategoryParticipantsResponse
+>;
+
+export const TournamentPartnerInvitationRequest = z.object({
+  categoryId: z.string().min(1, { message: "categoryId is required" }),
+  inviteeId: z.string().min(1, { message: "inviteeId is required" }),
+  message: z.string().optional(),
+});
+
+export type TournamentPartnerInvitationRequestType = z.TypeOf<
+  typeof TournamentPartnerInvitationRequest
+>;
+
+export const TournamentPartnerInvitationUpdate = z.object({
+  id: z.string().min(1, { message: "invitationId is required" }),
+  status: InvitationStatusEnum,
+});
+
+export type TournamentPartnerInvitationUpdateType = z.TypeOf<
+  typeof TournamentPartnerInvitationUpdate
 >;

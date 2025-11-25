@@ -8,6 +8,8 @@ import {
   TournamentCreateRequest,
   TournamentDetailResponse,
   TournamentParticipantEnum,
+  TournamentPartnerInvitationRequestType,
+  TournamentPartnerInvitationUpdateType,
 } from "@/schemaValidations/tournament.schema";
 const tournamentApiRequest = {
   uploadImageTournament: (body: FormData) =>
@@ -68,5 +70,9 @@ const tournamentApiRequest = {
     http.put(`/tournament-participants/${participantId}/reject`),
   getPartnerList: () =>
     http.get<FriendListResponseType>("/tournaments/get-all-partner"),
+  invitePartner: (body: TournamentPartnerInvitationRequestType) =>
+    http.post("/tournament-participants/invite-partner", body),
+  updateInvitationStatus: (body: TournamentPartnerInvitationUpdateType) =>
+    http.put("/tournament-participants/partner/update-status", body),
 };
 export default tournamentApiRequest;
