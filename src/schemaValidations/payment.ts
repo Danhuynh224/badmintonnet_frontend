@@ -6,6 +6,8 @@ export type PaymentStatus = z.infer<typeof PaymentStatus>;
 
 export const VNPayReturnSchema = z.object({
   status: PaymentStatus,
+  tournamentId: z.string(),
+  categoryId: z.string(),
 });
 
 export type VNPayReturnSchemaType = z.infer<typeof VNPayReturnSchema>;

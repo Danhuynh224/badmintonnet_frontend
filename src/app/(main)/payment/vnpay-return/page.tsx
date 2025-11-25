@@ -15,13 +15,18 @@ export default function VNPayReturnPage() {
   );
   const [message, setMessage] = useState("");
 
+  const [tournamentId, setTournamentId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+
   useEffect(() => {
     const handlePaymentReturn = async () => {
       try {
         const response = await paymentApiRequest.handleVNPayReturn(
           searchParams
         );
-        // console.log("VNPay return response:", response);
+
+        setTournamentId(response.payload.data.tournamentId);
+        setCategoryId(response.payload.data.categoryId);
 
         const paymentStatus: PaymentStatus = response.payload.data.status;
 
@@ -45,47 +50,56 @@ export default function VNPayReturnPage() {
   }, [searchParams]);
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="max-w-md mx-auto text-center">
-        {status === "loading" && (
-          <>
-            <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
-            <h2 className="text-2xl font-bold mt-4">Đang xử lý...</h2>
-            <p className="text-muted-foreground mt-2">
-              Vui lòng đợi trong giây lát
-            </p>
-          </>
-        )}
+    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-16">
+      <div className="container mx-auto px-4">
+        <div className="max-w-md mx-auto text-center">
+          {status === "loading" && (
+            <>
+              <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto" />
+              <h2 className="text-2xl font-bold mt-4">Đang xử lý...</h2>
+              <p className="text-muted-foreground mt-2">
+                Vui lòng đợi trong giây lát
+              </p>
+            </>
+          )}
 
-        {status === "success" && (
-          <>
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-            <h2 className="text-2xl font-bold mt-4 text-green-500">
-              Thanh toán thành công!
-            </h2>
-            <p className="text-muted-foreground mt-2">{message}</p>
-            <Button className="mt-6" onClick={() => router.back()}>
-              Quay về trang giải đấu
-            </Button>
-          </>
-        )}
+          {status === "success" && (
+            <>
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+              <h2 className="text-2xl font-bold mt-4 text-green-500">
+                Thanh toán thành công!
+              </h2>
+              <p className="text-muted-foreground mt-2">{message}</p>
+              <Button
+                className="mt-6"
+                onClick={() =>
+                  router.push(
+                    `/tournaments/${tournamentId}/categories/${categoryId}`
+                  )
+                }
+              >
+                Quay về trang giải đấu
+              </Button>
+            </>
+          )}
 
-        {status === "error" && (
-          <>
-            <XCircle className="h-16 w-16 text-red-500 mx-auto" />
-            <h2 className="text-2xl font-bold mt-4 text-red-500">
-              Thanh toán thất bại
-            </h2>
-            <p className="text-muted-foreground mt-2">{message}</p>
-            <Button
-              className="mt-6"
-              variant="outline"
-              onClick={() => router.back()}
-            >
-              Thử lại
-            </Button>
-          </>
-        )}
+          {status === "error" && (
+            <>
+              <XCircle className="h-16 w-16 text-red-500 mx-auto" />
+              <h2 className="text-2xl font-bold mt-4 text-red-500">
+                Thanh toán thất bại
+              </h2>
+              <p className="text-muted-foreground mt-2">{message}</p>
+              <Button
+                className="mt-6"
+                variant="outline"
+                onClick={() => router.back()}
+              >
+                Thử lại
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
