@@ -1,50 +1,35 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import tournamentApiRequest from "@/apiRequest/tournament";
-import { useRouter } from "next/navigation";
 import CategoryBreadcrumb from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-breadcrumb";
 import CategoryHeader from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-header";
 import CategoryStats from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-stats";
 import CategoryTabs from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-tabs";
+import tournamentApiRequest from "@/apiRequest/tournament";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
+import { cookies } from "next/headers";
+
 interface CategoryDetailProps {
   tournamentId: string;
   categoryId: string;
 }
 
-export default function TournamentCategoryDetail({
+export default async function TournamentCategoryDetail({
   tournamentId,
   categoryId,
 }: CategoryDetailProps) {
-  const [category, setCategory] = useState<CategoryDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCategoryDetail = async () => {
-      try {
-        const response = await tournamentApiRequest.getCategoryDetail(
-          categoryId
-        );
-        setCategory(response.payload.data);
-      } catch (error) {
-        toast.error("Không thể tải thông tin hạng mục");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategoryDetail();
-  }, [tournamentId, categoryId]);
-
-  if (loading) {
+  let category: CategoryDetail | null = null;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken");
+  try {
+    const response = await tournamentApiRequest.getCategoryDetail(
+      categoryId,
+      accessToken?.value
+    );
+    category = response.payload.data;
+  } catch (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Đang tải...</p>
-        </div>
+        <p className="text-gray-600 dark:text-gray-400">
+          Không thể tải thông tin hạng mục
+        </p>
       </div>
     );
   }
@@ -52,11 +37,9 @@ export default function TournamentCategoryDetail({
   if (!category) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-400">
-            Không tìm thấy hạng mục
-          </p>
-        </div>
+        <p className="text-gray-600 dark:text-gray-400">
+          Không tìm thấy hạng mục
+        </p>
       </div>
     );
   }
@@ -68,8 +51,12 @@ export default function TournamentCategoryDetail({
         tournamentName={category.tournamentName}
         categoryLabel={category.category}
       />
+
       <CategoryHeader category={category} categoryId={categoryId} />
+
       <CategoryStats category={category} />
+
+      {/* ⚠ Nếu CategoryTabs dùng hook → phải "use client" */}
       <CategoryTabs category={category} />
     </div>
   );

@@ -1,22 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Trophy,
-  Calendar,
-  Users,
-  Share2,
-  Download,
-  MapPin,
-} from "lucide-react";
+import { Trophy, Calendar, Users, MapPin } from "lucide-react";
 import {
   CategoryDetail,
   getCategoryLabel,
 } from "@/schemaValidations/tournament.schema";
 import JoinCategoryButton from "../../../_components/join-category-button";
-import { toast } from "sonner";
-import PartnerListPlaceholder from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-list";
 import SelectPartnerModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-list";
+import SentPartnerInvitationModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/sent-partner-invitation-modal";
+import InviterList from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/inviter-list";
 
 interface CategoryHeaderProps {
   category: CategoryDetail;
@@ -122,18 +114,21 @@ export default function CategoryHeader({
           </div>
 
           <div className="flex flex-col gap-2 w-full sm:w-auto">
-            <JoinCategoryButton
-              categoryId={categoryId}
-              isDisabled={buttonConfig.disabled}
-              buttonText={buttonConfig.text}
-              className={buttonConfig.className}
-            />
+            {!category.double && (
+              <JoinCategoryButton
+                categoryId={categoryId}
+                isDisabled={buttonConfig.disabled}
+                buttonText={buttonConfig.text}
+                className={buttonConfig.className}
+              />
+            )}
             {category.double && category.response == null && (
               <SelectPartnerModal categoryId={categoryId} />
             )}
             {category.double && category.response != null && (
-              
+              <SentPartnerInvitationModal invitation={category.response} />
             )}
+            {category.double && <InviterList inviterList={category.requests} />}
           </div>
         </div>
       </div>

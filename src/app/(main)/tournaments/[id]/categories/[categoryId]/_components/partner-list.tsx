@@ -16,12 +16,14 @@ import { toast } from "sonner";
 import { AccountFriendSchemaType } from "@/schemaValidations/friend.schema";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
 
 export default function SelectPartnerModal({
   categoryId,
 }: {
   categoryId: string;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [partners, setPartners] = useState<AccountFriendSchemaType[]>([]);
@@ -63,6 +65,7 @@ export default function SelectPartnerModal({
     setMessage("");
     setOpenMessageBox(false);
     setOpen(false);
+    router.refresh();
   };
 
   return (

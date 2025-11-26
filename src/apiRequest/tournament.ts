@@ -41,8 +41,11 @@ const tournamentApiRequest = {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
-  getCategoryDetail: (categoryId: string) =>
-    http.get<CategoryDetailResponse>(`/tournaments/categories/${categoryId}`),
+  getCategoryDetail: (categoryId: string, token = "") =>
+    http.get<CategoryDetailResponse>(`/tournaments/categories/${categoryId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      cache: "no-store",
+    }),
 
   getAllParticipants: (
     categoryId: string,
