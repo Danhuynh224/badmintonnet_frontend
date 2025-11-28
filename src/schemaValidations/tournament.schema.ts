@@ -367,6 +367,7 @@ export const CategoryDetail = z.object({
   registrationDeadline: z.string(), // nhận ISO string từ BE
   admin: z.boolean(),
   double: z.boolean(),
+  paid: z.boolean(),
   participantStatus: TournamentParticipantEnum.nullable().optional(),
   requests: z.array(TournamentPartnerInvitationResponse),
   response: TournamentPartnerInvitationResponse.nullable().optional(),

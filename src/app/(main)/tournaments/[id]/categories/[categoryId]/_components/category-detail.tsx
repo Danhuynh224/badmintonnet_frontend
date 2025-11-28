@@ -4,8 +4,8 @@ import CategoryStats from "@/app/(main)/tournaments/[id]/categories/[categoryId]
 import CategoryTabs from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/category-tabs";
 import tournamentApiRequest from "@/apiRequest/tournament";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
-import { cookies } from "next/headers";
-
+import PaymentSection from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/payment-section";
+import { CheckCircle2 } from "lucide-react";
 interface CategoryDetailProps {
   tournamentId: string;
   categoryId: string;
@@ -45,6 +45,9 @@ export default async function TournamentCategoryDetail({
     );
   }
 
+  const isApproved = category.participantStatus === "APPROVED";
+  const hasPaid = category.paid;
+
   return (
     <div className="space-y-6">
       <CategoryBreadcrumb
@@ -54,6 +57,40 @@ export default async function TournamentCategoryDetail({
       />
 
       <CategoryHeader category={category} categoryId={categoryId} />
+
+      {/* Thông báo đã thanh toán - Phiên bản đơn giản */}
+      {isApproved && hasPaid && (
+        <div className="rounded-lg border border-green-200 bg-green-50 dark:bg-green-950/20 p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-green-800 dark:text-green-400">
+                ✓ Đã thanh toán lệ phí tham gia
+              </h3>
+              <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                Số tiền:{" "}
+                <span className="font-semibold">
+                  {category.registrationFee.toLocaleString("vi-VN")} VNĐ
+                </span>
+              </p>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                Đăng ký của bạn đã được xác nhận. Chúc bạn thi đấu thành công!
+                🎉
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PaymentSection
+        categoryId={categoryId}
+        tournamentId={tournamentId}
+        registrationFee={category.registrationFee}
+        isApproved={isApproved}
+        hasPaid={hasPaid}
+      />
 
       <CategoryStats category={category} />
 
