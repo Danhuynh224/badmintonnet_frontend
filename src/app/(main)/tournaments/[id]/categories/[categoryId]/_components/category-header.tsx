@@ -9,6 +9,7 @@ import JoinCategoryButton from "../../../_components/join-category-button";
 import SelectPartnerModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-list";
 import SentPartnerInvitationModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/sent-partner-invitation-modal";
 import InviterList from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/inviter-list";
+import PartnerMatchedModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/partner-matched-modal";
 
 interface CategoryHeaderProps {
   category: CategoryDetail;
@@ -122,13 +123,22 @@ export default function CategoryHeader({
                 className={buttonConfig.className}
               />
             )}
-            {category.double && category.response == null && (
-              <SelectPartnerModal categoryId={categoryId} />
+            {category.double &&
+              category.response == null &&
+              category.partner == null && (
+                <SelectPartnerModal categoryId={categoryId} />
+              )}
+            {category.double &&
+              category.response != null &&
+              category.partner == null && (
+                <SentPartnerInvitationModal invitation={category.response} />
+              )}
+            {category.double && category.partner == null && (
+              <InviterList inviterList={category.requests} />
             )}
-            {category.double && category.response != null && (
-              <SentPartnerInvitationModal invitation={category.response} />
+            {category.double && category.partner != null && (
+              <PartnerMatchedModal partner={category.partner} />
             )}
-            {category.double && <InviterList inviterList={category.requests} />}
           </div>
         </div>
       </div>

@@ -370,6 +370,7 @@ export const CategoryDetail = z.object({
   participantStatus: TournamentParticipantEnum.nullable().optional(),
   requests: z.array(TournamentPartnerInvitationResponse),
   response: TournamentPartnerInvitationResponse.nullable().optional(),
+  partner: AccountFriendSchema.nullable().optional(),
 });
 
 export type CategoryDetail = z.infer<typeof CategoryDetail>;

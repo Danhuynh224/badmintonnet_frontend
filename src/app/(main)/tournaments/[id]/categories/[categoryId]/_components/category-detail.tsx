@@ -25,6 +25,7 @@ export default async function TournamentCategoryDetail({
     );
     category = response.payload.data;
   } catch (error) {
+    console.error("Lỗi khi lấy chi tiết hạng mục:", error);
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-gray-600 dark:text-gray-400">

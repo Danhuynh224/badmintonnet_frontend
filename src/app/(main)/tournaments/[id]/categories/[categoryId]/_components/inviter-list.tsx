@@ -32,6 +32,7 @@ export default function InviterListModal({
       status: "ACCEPTED",
     });
     router.refresh();
+    setOpen(false);
     toast.success("Đã chấp nhận lời mời ghép đôi");
   };
   const onReject = (invitationId: string) => {
@@ -40,6 +41,7 @@ export default function InviterListModal({
       status: "REJECTED",
     });
     router.refresh();
+    setOpen(false);
     toast.success("Đã từ chối lời mời ghép đôi");
   };
   const getStatusConfig = (status: string) => {
