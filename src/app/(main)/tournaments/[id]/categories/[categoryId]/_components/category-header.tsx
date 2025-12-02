@@ -29,14 +29,14 @@ export default function CategoryHeader({
   const getButtonConfig = () => {
     const status = category.participantStatus;
 
-    if (!status) {
-      return {
-        text: isFull ? "Đã đầy" : "Tham gia",
-        disabled: isFull,
-        className:
-          "bg-white text-teal-600 hover:bg-teal-50 font-semibold shadow-md",
-      };
-    }
+    const defaultBtn = {
+      text: isFull ? "Đã đầy" : "Tham gia",
+      disabled: isFull,
+      className:
+        "bg-white text-teal-600 hover:bg-teal-50 dark:bg-teal-800 dark:text-white dark:hover:bg-teal-700 font-semibold shadow-md",
+    };
+
+    if (!status) return defaultBtn;
 
     switch (status) {
       case "PENDING":
@@ -44,50 +44,51 @@ export default function CategoryHeader({
           text: "Chờ duyệt",
           disabled: true,
           className:
-            "bg-amber-100 text-amber-700 cursor-not-allowed font-semibold shadow-md",
+            "bg-amber-100 text-amber-700 dark:bg-amber-600 dark:text-white cursor-not-allowed font-semibold shadow-md",
         };
+
       case "PAYMENT_REQUIRED":
         return {
           text: "Chờ thanh toán",
           disabled: true,
           className:
-            "bg-orange-100 text-orange-700 cursor-not-allowed font-semibold shadow-md",
+            "bg-orange-100 text-orange-700 dark:bg-orange-600 dark:text-white cursor-not-allowed font-semibold shadow-md",
         };
+
       case "APPROVED":
         return {
           text: "Đã tham gia",
           disabled: true,
           className:
-            "bg-green-100 text-green-700 cursor-not-allowed font-semibold shadow-md",
+            "bg-teal-100 text-teal-700 dark:bg-teal-600 dark:text-white cursor-not-allowed font-semibold shadow-md",
         };
+
       case "REJECTED":
         return {
           text: "Đã từ chối",
           disabled: true,
           className:
-            "bg-red-100 text-red-700 cursor-not-allowed font-semibold shadow-md",
+            "bg-red-100 text-red-700 dark:bg-red-600 dark:text-white cursor-not-allowed font-semibold shadow-md",
         };
+
       case "CANCELLED":
         return {
           text: "Đã hủy",
           disabled: true,
           className:
-            "bg-gray-100 text-gray-700 cursor-not-allowed font-semibold shadow-md",
+            "bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-white cursor-not-allowed font-semibold shadow-md",
         };
+
       case "ELIMINATED":
         return {
           text: "Đã loại",
           disabled: true,
           className:
-            "bg-purple-100 text-purple-700 cursor-not-allowed font-semibold shadow-md",
+            "bg-purple-100 text-purple-700 dark:bg-purple-600 dark:text-white cursor-not-allowed font-semibold shadow-md",
         };
+
       default:
-        return {
-          text: isFull ? "Đã đầy" : "Tham gia",
-          disabled: isFull,
-          className:
-            "bg-white text-teal-600 hover:bg-teal-50 font-semibold shadow-md",
-        };
+        return defaultBtn;
     }
   };
 
@@ -115,7 +116,9 @@ export default function CategoryHeader({
           </div>
 
           <div className="flex flex-col gap-2 w-full sm:w-auto">
-            {!category.double && (
+            {(!category.double ||
+              (category.participantStatus &&
+                category.participantStatus != "DRAFT")) && (
               <JoinCategoryButton
                 categoryId={categoryId}
                 isDisabled={buttonConfig.disabled}
@@ -136,12 +139,14 @@ export default function CategoryHeader({
             {category.double && category.partner == null && (
               <InviterList inviterList={category.requests} />
             )}
-            {category.double && category.partner != null && (
-              <PartnerMatchedModal
-                partner={category.partner}
-                categoryId={category.id}
-              />
-            )}
+            {category.double &&
+              category.partner != null &&
+              category.participantStatus == "DRAFT" && (
+                <PartnerMatchedModal
+                  partner={category.partner}
+                  categoryId={category.id}
+                />
+              )}
           </div>
         </div>
       </div>

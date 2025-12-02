@@ -23,6 +23,7 @@ export const CategoryFormatEnum = z.enum([
 export type CategoryFormatEnum = z.infer<typeof CategoryFormatEnum>;
 
 export const TournamentParticipantEnum = z.enum([
+  "DRAFT",
   "PENDING",
   "PAYMENT_REQUIRED",
   "APPROVED",

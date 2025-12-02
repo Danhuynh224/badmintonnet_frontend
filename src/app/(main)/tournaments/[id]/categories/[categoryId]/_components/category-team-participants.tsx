@@ -91,7 +91,7 @@ export default function CategoryTeamParticipants({
   const handleApprove = async (id: string) => {
     setProcessingId(id);
     try {
-      //   await tournamentApiRequest.approveTeamParticipant(id);
+      await tournamentApiRequest.approveTeamParticipant(id);
       toast.success("Đã duyệt team thành công!");
       fetchPendingTeams();
       fetchApprovedTeams();
@@ -105,7 +105,7 @@ export default function CategoryTeamParticipants({
   const handleReject = async (id: string) => {
     setProcessingId(id);
     try {
-      //   await tournamentApiRequest.rejectTeamParticipant(id);
+      await tournamentApiRequest.rejectTeamParticipant(id);
       toast.success("Đã từ chối!");
       fetchPendingTeams();
     } catch {
@@ -279,7 +279,7 @@ export default function CategoryTeamParticipants({
           <CardHeader>
             <div className="flex items-center gap-3">
               <Users className="w-5 h-5 text-teal-600" />
-              <h3 className="text-xl font-semibold">Team tham gia</h3>
+              <h3 className="text-xl font-semibold">Đội tham gia</h3>
               <Badge>{approvedTeams.length}</Badge>
             </div>
           </CardHeader>

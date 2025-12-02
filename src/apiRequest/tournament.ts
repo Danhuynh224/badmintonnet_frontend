@@ -90,8 +90,12 @@ const tournamentApiRequest = {
   },
   approveParticipant: (participantId: string) =>
     http.put(`/tournament-participants/${participantId}/approve`),
+  approveTeamParticipant: (teamId: string) =>
+    http.put(`/tournament-participants/double/${teamId}/approve`),
   rejectParticipant: (participantId: string) =>
     http.put(`/tournament-participants/${participantId}/reject`),
+  rejectTeamParticipant: (teamId: string) =>
+    http.put(`/tournament-participants/double/${teamId}/reject`),
   getPartnerList: () =>
     http.get<FriendListResponseType>("/tournaments/get-all-partner"),
   invitePartner: (body: TournamentPartnerInvitationRequestType) =>
