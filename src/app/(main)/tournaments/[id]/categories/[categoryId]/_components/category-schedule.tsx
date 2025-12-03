@@ -59,8 +59,14 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
   const [hasBracket, setHasBracket] = useState<boolean | null>(null); // null = chưa check, true = có, false = không có
 
   useEffect(() => {
-    fetchBracketTree();
-  }, [category.id]);
+    if (category.scheduled) {
+      fetchBracketTree();
+    } else {
+      setHasBracket(false);
+      setBracketData(null);
+      setIsLoading(false);
+    }
+  }, [category.id, category.scheduled]);
 
   const fetchBracketTree = async () => {
     try {
@@ -112,7 +118,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
               </p>
             </div>
           </div>
-          {category.admin && hasBracket === false && (
+          {category.admin && !category.scheduled && (
             <Button
               onClick={handleGenerateBracket}
               disabled={isGenerating}

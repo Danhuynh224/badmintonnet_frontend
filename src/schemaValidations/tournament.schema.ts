@@ -369,6 +369,7 @@ export const CategoryDetail = z.object({
   admin: z.boolean(),
   double: z.boolean(),
   paid: z.boolean(),
+  scheduled: z.boolean(),
   participantStatus: TournamentParticipantEnum.nullable().optional(),
   requests: z.array(TournamentPartnerInvitationResponse),
   response: TournamentPartnerInvitationResponse.nullable().optional(),
