@@ -17,7 +17,8 @@ export const TournamentMatchSchema = z.object({
   player2Id: z.string().nullable(),
   player1Name: z.string().nullable(),
   player2Name: z.string().nullable(),
-  scoreP1: z.number().nullable(),
+  setScoreP1: z.array(z.number()).nullable(),
+  setScoreP2: z.array(z.number()).nullable(),
   scoreP2: z.number().nullable(),
   winnerId: z.string().nullable(),
   winnerName: z.string().nullable(),
@@ -36,13 +37,16 @@ export type GenerateBracketResponseType = z.infer<
   typeof GenerateBracketResponse
 >;
 
-export const UpdateMatchStatusBody = z.object({
-  scoreP1: z.number().nullable(),
-  scoreP2: z.number().nullable(),
-  winnerId: z.string().nullable(),
+export const SetScoreSchema = z.object({
+  p1: z.number().nullable(),
+  p2: z.number().nullable(),
 });
 
-export type UpdateMatchStatusBodyType = z.infer<typeof UpdateMatchStatusBody>;
+export const UpdateMatchResultBody = z.object({
+  sets: z.array(SetScoreSchema),
+});
+
+export type UpdateMatchResultBodyType = z.infer<typeof UpdateMatchResultBody>;
 
 export const BracketRoundSchema = z.object({
   round: z.number(),

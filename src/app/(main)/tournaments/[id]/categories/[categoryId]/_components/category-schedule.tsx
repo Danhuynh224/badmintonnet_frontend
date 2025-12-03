@@ -1,12 +1,18 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Trophy, Sparkles } from "lucide-react";
+import { Calendar, Trophy, Sparkles, Edit, X, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import matchApiRequest from "@/apiRequest/match";
-import { BracketTreeSchemaType, MatchStatus } from "@/schemaValidations/match";
+import {
+  BracketTreeSchemaType,
+  MatchStatus,
+  TournamentMatchSchemaType,
+  UpdateMatchResultBodyType,
+} from "@/schemaValidations/match";
 import { toast } from "sonner";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
+import { Input } from "@/components/ui/input";
 
 interface CategoryScheduleProps {
   category: CategoryDetail;
@@ -56,7 +62,12 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [hasBracket, setHasBracket] = useState<boolean | null>(null); // null = chưa check, true = có, false = không có
+  const [hasBracket, setHasBracket] = useState<boolean | null>(null);
+  const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
+  const [editingSets, setEditingSets] = useState<
+    Array<{ p1: number | null; p2: number | null }>
+  >([]);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (category.scheduled) {
@@ -74,13 +85,8 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       const response = await matchApiRequest.getBracketTree(category.id);
       setBracketData(response.payload.data);
       setHasBracket(true);
-    } catch (error: any) {
-      if (error?.status === 404) {
-        setHasBracket(false);
-        setBracketData(null);
-      } else {
-        console.error("Error fetching bracket tree:", error);
-      }
+    } catch (error: unknown) {
+      console.error("Error fetching bracket tree:", error);
     } finally {
       setIsLoading(false);
     }
@@ -92,12 +98,83 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       await matchApiRequest.generateBracket(category.id);
       toast.success("Tạo cặp thi đấu thành công!");
       await fetchBracketTree();
-    } catch (error: any) {
-      toast.error(
-        error?.payload?.message || "Có lỗi xảy ra khi tạo cặp thi đấu"
-      );
+    } catch (error: unknown) {
+      toast.error("Có lỗi xảy ra khi tạo cặp thi đấu");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleEditMatch = (match: TournamentMatchSchemaType) => {
+    setEditingMatchId(match.matchId);
+
+    // Initialize sets with existing scores or default values
+    const maxSets = Math.max(
+      match.setScoreP1?.length || 0,
+      match.setScoreP2?.length || 0,
+      3 // Default to 3 sets minimum
+    );
+
+    const initialSets = Array.from({ length: maxSets }, (_, index) => ({
+      p1: match.setScoreP1?.[index] ?? null,
+      p2: match.setScoreP2?.[index] ?? null,
+    }));
+
+    setEditingSets(initialSets);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMatchId(null);
+    setEditingSets([]);
+  };
+
+  const handleSetScoreChange = (
+    setIndex: number,
+    player: "p1" | "p2",
+    value: string
+  ) => {
+    const numValue = value === "" ? null : parseInt(value);
+    setEditingSets((prev) => {
+      const newSets = [...prev];
+      newSets[setIndex] = {
+        ...newSets[setIndex],
+        [player]: numValue,
+      };
+      return newSets;
+    });
+  };
+
+  const handleAddSet = () => {
+    setEditingSets((prev) => [...prev, { p1: null, p2: null }]);
+  };
+
+  const handleRemoveSet = (setIndex: number) => {
+    if (editingSets.length > 1) {
+      setEditingSets((prev) => prev.filter((_, index) => index !== setIndex));
+    }
+  };
+
+  const handleUpdateResult = async (matchId: string) => {
+    try {
+      setIsUpdating(true);
+
+      const body: UpdateMatchResultBodyType = {
+        sets: editingSets,
+      };
+
+      await matchApiRequest.updateMatchResult(matchId, body);
+      toast.success("Cập nhật kết quả thành công!");
+
+      // Reset editing state
+      setEditingMatchId(null);
+      setEditingSets([]);
+
+      // Refresh bracket data
+      await fetchBracketTree();
+    } catch (error: unknown) {
+      toast.error("Có lỗi xảy ra khi cập nhật kết quả");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -170,113 +247,332 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
 
                 {/* Matches Grid */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {round.matches.map((match) => (
-                    <div
-                      key={match.matchId}
-                      className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
-                    >
-                      {/* Match Header */}
-                      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between rounded-t-lg">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Trận {match.matchIndex}
-                        </span>
-                        <Badge className={getMatchStatusColor(match.status)}>
-                          {getMatchStatusText(match.status)}
-                        </Badge>
-                      </div>
+                  {round.matches.map((match) => {
+                    const isEditing = editingMatchId === match.matchId;
+                    const hasScores =
+                      match.setScoreP1 && match.setScoreP1.length > 0;
 
-                      <div className="p-4 space-y-3">
-                        {/* Player 1 */}
-                        <div
-                          className={`p-3 rounded-lg border-2 transition-colors ${
-                            match.winnerId === match.player1Id
-                              ? "bg-green-50 border-green-500 dark:bg-green-950 dark:border-green-600"
-                              : "bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-700"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
-                                1
-                              </span>
-                              <span
-                                className={`font-medium truncate ${
-                                  match.winnerId === match.player1Id
-                                    ? "text-green-900 dark:text-green-100"
-                                    : "text-gray-900 dark:text-white"
-                                }`}
-                              >
-                                {match.player1Name || "TBD"}
-                              </span>
-                            </div>
-                            {match.scoreP1 !== null && (
-                              <span className="text-xl font-semibold text-gray-900 dark:text-white ml-2">
-                                {match.scoreP1}
-                              </span>
-                            )}
-                            {match.winnerId === match.player1Id && (
-                              <Trophy className="w-4 h-4 text-amber-500 ml-2 flex-shrink-0" />
-                            )}
-                          </div>
-                        </div>
-
-                        {/* VS */}
-                        <div className="text-center">
-                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-                            VS
+                    return (
+                      <div
+                        key={match.matchId}
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors overflow-hidden"
+                      >
+                        {/* Match Header */}
+                        <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                          <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                            Trận {match.matchIndex}
                           </span>
-                        </div>
-
-                        {/* Player 2 */}
-                        <div
-                          className={`p-3 rounded-lg border-2 transition-colors ${
-                            match.winnerId === match.player2Id
-                              ? "bg-green-50 border-green-500 dark:bg-green-950 dark:border-green-600"
-                              : "bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-700"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
-                                2
-                              </span>
-                              <span
-                                className={`font-medium truncate ${
-                                  match.winnerId === match.player2Id
-                                    ? "text-green-900 dark:text-green-100"
-                                    : "text-gray-900 dark:text-white"
-                                }`}
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              className={getMatchStatusColor(match.status)}
+                            >
+                              {getMatchStatusText(match.status)}
+                            </Badge>
+                            {category.admin && !isEditing && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEditMatch(match)}
+                                className="h-7 w-7 p-0 hover:bg-blue-200 dark:hover:bg-blue-800"
                               >
-                                {match.player2Name || "TBD"}
-                              </span>
-                            </div>
-                            {match.scoreP2 !== null && (
-                              <span className="text-xl font-semibold text-gray-900 dark:text-white ml-2">
-                                {match.scoreP2}
-                              </span>
-                            )}
-                            {match.winnerId === match.player2Id && (
-                              <Trophy className="w-4 h-4 text-amber-500 ml-2 flex-shrink-0" />
+                                <Edit className="w-3.5 h-3.5" />
+                              </Button>
                             )}
                           </div>
                         </div>
 
-                        {/* Winner Info */}
-                        {match.winnerName && (
-                          <div className="pt-3 mt-3 border-t border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Người chiến thắng:
-                              </span>
-                              <span className="font-semibold text-green-700 dark:text-green-400">
-                                {match.winnerName}
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                        <div className="p-4">
+                          {isEditing ? (
+                            <>
+                              {/* Editing Mode */}
+                              <div className="space-y-4">
+                                <div className="flex items-center justify-between pb-2 border-b">
+                                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                    Nhập kết quả
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleAddSet}
+                                    className="h-7 text-xs"
+                                  >
+                                    + Thêm set
+                                  </Button>
+                                </div>
+
+                                {/* Score Table */}
+                                <div className="space-y-3">
+                                  {editingSets.map((set, setIndex) => (
+                                    <div key={setIndex} className="space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">
+                                          Set {setIndex + 1}
+                                        </span>
+                                        {editingSets.length > 1 && (
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() =>
+                                              handleRemoveSet(setIndex)
+                                            }
+                                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                          >
+                                            <X className="w-3.5 h-3.5" />
+                                          </Button>
+                                        )}
+                                      </div>
+
+                                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 space-y-2">
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex-1">
+                                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">
+                                              {match.player1Name || "Player 1"}
+                                            </label>
+                                            <Input
+                                              type="number"
+                                              min="0"
+                                              max="30"
+                                              value={set.p1 ?? ""}
+                                              onChange={(e) =>
+                                                handleSetScoreChange(
+                                                  setIndex,
+                                                  "p1",
+                                                  e.target.value
+                                                )
+                                              }
+                                              className="h-10 text-center text-lg font-bold"
+                                              placeholder="0"
+                                            />
+                                          </div>
+                                          <div className="text-gray-400 font-bold">
+                                            :
+                                          </div>
+                                          <div className="flex-1">
+                                            <label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">
+                                              {match.player2Name || "Player 2"}
+                                            </label>
+                                            <Input
+                                              type="number"
+                                              min="0"
+                                              max="30"
+                                              value={set.p2 ?? ""}
+                                              onChange={(e) =>
+                                                handleSetScoreChange(
+                                                  setIndex,
+                                                  "p2",
+                                                  e.target.value
+                                                )
+                                              }
+                                              className="h-10 text-center text-lg font-bold"
+                                              placeholder="0"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="flex gap-2 pt-3 border-t">
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      handleUpdateResult(match.matchId)
+                                    }
+                                    disabled={isUpdating}
+                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white h-10"
+                                  >
+                                    {isUpdating ? (
+                                      <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        Đang lưu...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="w-4 h-4 mr-2" />
+                                        Lưu kết quả
+                                      </>
+                                    )}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleCancelEdit}
+                                    disabled={isUpdating}
+                                    className="flex-1 h-10"
+                                  >
+                                    <X className="w-4 h-4 mr-2" />
+                                    Hủy
+                                  </Button>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              {/* Display Mode - BWF Style */}
+                              <div className="space-y-0">
+                                {/* Player 1 Row */}
+                                <div
+                                  className={`flex items-center p-3 ${
+                                    match.winnerId === match.player1Id
+                                      ? "bg-green-50 dark:bg-green-950/30"
+                                      : "bg-white dark:bg-gray-800"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <div
+                                      className={`w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold ${
+                                        match.winnerId === match.player1Id
+                                          ? "bg-green-600 text-white"
+                                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                      }`}
+                                    >
+                                      1
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div
+                                        className={`font-semibold truncate ${
+                                          match.winnerId === match.player1Id
+                                            ? "text-green-900 dark:text-green-100"
+                                            : "text-gray-900 dark:text-white"
+                                        }`}
+                                      >
+                                        {match.player1Name || "TBD"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Set Scores with fixed width container */}
+                                  <div className="flex items-center gap-1.5 ml-3 min-w-[160px] justify-end">
+                                    {hasScores ? (
+                                      <div className="flex items-center gap-1.5">
+                                        {match.setScoreP1!.map(
+                                          (score, index) => {
+                                            const p2Score =
+                                              match.setScoreP2![index];
+                                            const wonSet = score > p2Score;
+                                            return (
+                                              <div
+                                                key={index}
+                                                className={`w-10 h-10 flex items-center justify-center rounded text-lg font-bold ${
+                                                  wonSet
+                                                    ? "bg-green-600 text-white"
+                                                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                                }`}
+                                              >
+                                                {score}
+                                              </div>
+                                            );
+                                          }
+                                        )}
+                                        <div className="w-6 h-10 flex items-center justify-center">
+                                          {match.winnerId ===
+                                            match.player1Id && (
+                                            <Trophy className="w-5 h-5 text-amber-500" />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-sm">
+                                        -
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
+
+                                {/* Player 2 Row */}
+                                <div
+                                  className={`flex items-center p-3 ${
+                                    match.winnerId === match.player2Id
+                                      ? "bg-green-50 dark:bg-green-950/30"
+                                      : "bg-white dark:bg-gray-800"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <div
+                                      className={`w-8 h-8 rounded-md flex items-center justify-center text-sm font-bold ${
+                                        match.winnerId === match.player2Id
+                                          ? "bg-green-600 text-white"
+                                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                      }`}
+                                    >
+                                      2
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div
+                                        className={`font-semibold truncate ${
+                                          match.winnerId === match.player2Id
+                                            ? "text-green-900 dark:text-green-100"
+                                            : "text-gray-900 dark:text-white"
+                                        }`}
+                                      >
+                                        {match.player2Name || "TBD"}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Set Scores with fixed width container */}
+                                  <div className="flex items-center gap-1.5 ml-3 min-w-[160px] justify-end">
+                                    {hasScores ? (
+                                      <div className="flex items-center gap-1.5">
+                                        {match.setScoreP2!.map(
+                                          (score, index) => {
+                                            const p1Score =
+                                              match.setScoreP1![index];
+                                            const wonSet = score > p1Score;
+                                            return (
+                                              <div
+                                                key={index}
+                                                className={`w-10 h-10 flex items-center justify-center rounded text-lg font-bold ${
+                                                  wonSet
+                                                    ? "bg-green-600 text-white"
+                                                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                                }`}
+                                              >
+                                                {score}
+                                              </div>
+                                            );
+                                          }
+                                        )}
+                                        <div className="w-6 h-10 flex items-center justify-center">
+                                          {match.winnerId ===
+                                            match.player2Id && (
+                                            <Trophy className="w-5 h-5 text-amber-500" />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-sm">
+                                        -
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Winner Badge */}
+                              {match.winnerName && (
+                                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                                  <div className="flex items-center justify-center gap-2 text-sm">
+                                    <Trophy className="w-4 h-4 text-amber-500" />
+                                    <span className="font-semibold text-green-700 dark:text-green-400">
+                                      {match.winnerName}
+                                    </span>
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      chiến thắng
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -294,7 +590,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
                 ? "Nhấn nút 'Tạo cặp thi đấu' để bắt đầu tạo lịch thi đấu."
                 : "Lịch thi đấu sẽ được cập nhật sớm."}
             </p>
-            {category.admin && hasBracket === false && (
+            {category.admin && !category.scheduled && (
               <Button
                 onClick={handleGenerateBracket}
                 disabled={isGenerating}
