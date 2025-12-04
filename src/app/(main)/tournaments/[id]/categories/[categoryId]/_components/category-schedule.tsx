@@ -2,7 +2,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Trophy, Sparkles, Edit, X, Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import matchApiRequest from "@/apiRequest/match";
 import {
   BracketTreeSchemaType,
@@ -13,6 +13,8 @@ import {
 import { toast } from "sonner";
 import { CategoryDetail } from "@/schemaValidations/tournament.schema";
 import { Input } from "@/components/ui/input";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
 interface CategoryScheduleProps {
   category: CategoryDetail;
@@ -68,6 +70,7 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
     Array<{ p1: number | null; p2: number | null }>
   >([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const matchUpdateSubRef = useRef<any>(null);
 
   useEffect(() => {
     if (category.scheduled) {
@@ -78,6 +81,74 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       setIsLoading(false);
     }
   }, [category.id, category.scheduled]);
+
+  // WebSocket for match updates
+  useEffect(() => {
+    if (!category.scheduled || !bracketData) return;
+
+    if (matchUpdateSubRef.current) {
+      matchUpdateSubRef.current.unsubscribe();
+    }
+
+    const socket = new SockJS(`${process.env.NEXT_PUBLIC_WS_ENDPOINT}/ws`);
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      debug: (str) => console.log("STOMP MATCH UPDATE DEBUG:", str),
+    });
+
+    stompClient.onConnect = () => {
+      matchUpdateSubRef.current = stompClient.subscribe(
+        `/topic/match-updates/${category.id}`,
+        (message) => {
+          if (message.body) {
+            const updatedMatch: TournamentMatchSchemaType = JSON.parse(
+              message.body
+            );
+
+            // Update the match in bracketData
+            setBracketData((prev) => {
+              if (!prev) return prev;
+
+              const newRounds = prev.rounds.map((round) => ({
+                ...round,
+                matches: round.matches.map((match) =>
+                  match.matchId === updatedMatch.matchId ? updatedMatch : match
+                ),
+              }));
+
+              return {
+                ...prev,
+                rounds: newRounds,
+              };
+            });
+
+            // Show toast notification if not the current editor
+            if (editingMatchId !== updatedMatch.matchId) {
+              toast.info(
+                `Trận ${updatedMatch.matchIndex} đã được cập nhật kết quả`,
+                {
+                  description: updatedMatch.winnerName
+                    ? `${updatedMatch.winnerName} chiến thắng`
+                    : undefined,
+                }
+              );
+            }
+          }
+        }
+      );
+    };
+
+    stompClient.activate();
+
+    return () => {
+      if (matchUpdateSubRef.current) {
+        matchUpdateSubRef.current.unsubscribe();
+        matchUpdateSubRef.current = null;
+      }
+      stompClient.deactivate();
+    };
+  }, [category.id, category.scheduled, bracketData, editingMatchId]);
 
   const fetchBracketTree = async () => {
     try {
@@ -169,10 +240,11 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       setEditingMatchId(null);
       setEditingSets([]);
 
-      // Refresh bracket data
-      await fetchBracketTree();
-    } catch (error: unknown) {
-      toast.error("Có lỗi xảy ra khi cập nhật kết quả");
+      // No need to manually refresh - WebSocket will handle it
+    } catch (error: any) {
+      toast.error(
+        error?.payload?.message || "Có lỗi xảy ra khi cập nhật kết quả"
+      );
     } finally {
       setIsUpdating(false);
     }
