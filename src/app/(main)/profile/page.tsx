@@ -4,6 +4,7 @@ import FriendList from "@/app/(main)/profile/_components/profile-friend-list";
 import ProfileHeaderSection from "@/app/(main)/profile/_components/profile-header-section";
 import ProfileInformation from "@/app/(main)/profile/_components/profile-information";
 import ProfileStats from "@/app/(main)/profile/_components/profile-stats";
+import ProfileTournamentHistory from "@/app/(main)/profile/_components/profile-tournament-history";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cookies } from "next/headers";
 
@@ -35,11 +36,12 @@ export default async function ProfilePage() {
 
         <div className="mt-8">
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <TabsList className="grid w-full grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
               <TabsTrigger value="info">Thông tin</TabsTrigger>
               <TabsTrigger value="friend">Bạn bè</TabsTrigger>
               <TabsTrigger value="activity">Hoạt động</TabsTrigger>
               <TabsTrigger value="stats">Kỹ năng</TabsTrigger>
+              <TabsTrigger value="history">Thành tích</TabsTrigger>
             </TabsList>
 
             <TabsContent value="info" className="mt-6">
@@ -58,7 +60,11 @@ export default async function ProfilePage() {
             </TabsContent>
 
             <TabsContent value="stats" className="mt-6">
-              <ProfileStats />
+              <ProfileStats canEdit={true} id={profile.id} />
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-6">
+              <ProfileTournamentHistory userId={profile.id} />
             </TabsContent>
           </Tabs>
         </div>

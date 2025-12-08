@@ -1,3 +1,4 @@
+import R from "@/components/refresh-token";
 import z, { array } from "zod";
 
 const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER"]);
@@ -216,3 +217,68 @@ export const MemberScheduleResponse = z.object({
   data: z.array(AccountScheduleSchema),
 });
 export type MemberScheduleResponse = z.infer<typeof MemberScheduleResponse>;
+
+export const CategoryInfoSchema = z.object({
+  categoryId: z.string(),
+  categoryName: z.string(),
+  type: z.string(),
+  format: z.string(),
+  minLevel: z.number().nullable(),
+  maxLevel: z.number().nullable(),
+});
+
+export type CategoryInfoSchemaType = z.infer<typeof CategoryInfoSchema>;
+
+export const TournamentInfoSchema = z.object({
+  tournamentId: z.string(),
+  name: z.string(),
+  location: z.string(),
+  logoUrl: z.string(),
+  bannerUrl: z.string(),
+  slug: z.string(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+});
+
+export type TournamentInfoSchemaType = z.infer<typeof TournamentInfoSchema>;
+
+export const RoundHistorySchema = z.object({
+  id: z.string(),
+  round: z.number(),
+  opponentId: z.string(),
+  opponentName: z.string(),
+  won: z.boolean(),
+
+  scoreP1: z.array(z.number()),
+  scoreP2: z.array(z.number()),
+});
+
+export const PlayerTournamentHistorySchema = z.object({
+  historyId: z.string(),
+
+  tournament: TournamentInfoSchema,
+  category: CategoryInfoSchema,
+
+  isDouble: z.boolean(),
+  teamId: z.string(),
+
+  finalRanking: z.number(),
+  prize: z.string(),
+
+  rounds: z.array(RoundHistorySchema),
+
+  createdAt: z.coerce.date(),
+});
+
+export type PlayerTournamentHistorySchemaType = z.infer<
+  typeof PlayerTournamentHistorySchema
+>;
+
+export const PlayerTournamentHistoryResponse = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: z.array(PlayerTournamentHistorySchema),
+});
+export type PlayerTournamentHistoryResponseType = z.infer<
+  typeof PlayerTournamentHistoryResponse
+>;
