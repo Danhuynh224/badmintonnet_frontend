@@ -102,16 +102,16 @@ export function FacilitiesTable({
 
   // Hàm xử lý cập nhật facility
   const handleUpdate = () => {
-    toast.success("Đã cập nhật cơ sở vật chất thành công");
+    toast.success("Đã cập nhật sân thành công");
   };
 
   return (
     <div>
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách cơ sở vật chất</CardTitle>
+          <CardTitle>Danh sách sân</CardTitle>
           <CardDescription>
-            Quản lý thông tin các cơ sở vật chất trong hệ thống
+            Quản lý thông tin các sân trong hệ thống
           </CardDescription>
         </CardHeader>
         <CardContent>

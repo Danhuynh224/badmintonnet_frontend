@@ -27,10 +27,10 @@ export default function FacilitiesClient({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Quản lý cơ sở vật chất
+            Quản lý các sân
           </h1>
           <p className="text-muted-foreground text-gray-500 dark:text-gray-400">
-            Quản lý thông tin các cơ sở vật chất trong hệ thống
+            Quản lý thông tin các sân trong hệ thống
           </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
