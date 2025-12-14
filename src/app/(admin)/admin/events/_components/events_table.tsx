@@ -179,7 +179,7 @@ export default function EventsTable({
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Quản lý buổi đánh cầu
+            Quản lý hoạt động của CLB
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
             Quản lý tất cả buổi đánh cầu do các CLB tổ chức
