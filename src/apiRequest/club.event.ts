@@ -109,6 +109,12 @@ const eventClubApiRequest = {
         },
       }
     ),
+  getAllJoinedClubEvents: (accessToken: string) =>
+    http.get<PagedEventResponseType>(`/club-event/all/joined`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
   getEventById: (slug: string, accessToken: string) =>
     http.get<EventDetailResponseType>(`/club-event/${slug}`, {
       headers: accessToken

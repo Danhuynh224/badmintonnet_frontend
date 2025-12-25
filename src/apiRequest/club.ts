@@ -66,6 +66,11 @@ const clubServiceApi = {
     });
   },
 
+  getSuggestedClubs: (token = "") =>
+    http.get<ClubPageResType>("/clubs/all_public", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
+
   getMyClubs: (page = 0, size = 10, token = "") =>
     http.get<MyClubPageResType>(
       `/clubs/my_clubs/all?page=${page}&size=${size}`,

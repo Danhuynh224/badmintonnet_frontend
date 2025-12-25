@@ -4,7 +4,7 @@ import { CreateClubButton } from "@/app/(main)/clubs/_components/create-club-but
 import { JoinClubButton } from "@/app/(main)/clubs/_components/join-club-button";
 import clubServiceApi from "@/apiRequest/club";
 import { cookies } from "next/headers";
-import { isClubOwner } from "@/lib/utils";
+import { isClubOwner, isHTML } from "@/lib/utils";
 import Link from "next/link";
 import ClubFilterForm from "@/app/(main)/clubs/_components/club-filter-form";
 import {
@@ -110,10 +110,16 @@ const ClubList = async ({
                       {club.name}
                     </h3>
 
-                    {/* Description */}
-                    <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2 mb-4">
-                      {club.description}
-                    </p>
+                    {!isHTML(club.description) ? (
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                        {club.description}
+                      </p>
+                    ) : (
+                      <div
+                        className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2"
+                        dangerouslySetInnerHTML={{ __html: club.description }}
+                      />
+                    )}
 
                     {/* Location */}
                     <TooltipProvider delayDuration={150}>

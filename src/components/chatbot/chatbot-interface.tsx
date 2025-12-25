@@ -16,14 +16,48 @@ interface Message {
   sender: "user" | "bot";
 }
 function formatBotMessage(text: string) {
-  return (
-    text
-      // **in đậm**
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      // xuống dòng
-      .replace(/\n/g, "<br />")
-  );
+  let html = text;
+
+  // Escape HTML
+  html = html.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  // In đậm **
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+  // In nghiêng *
+  html = html.replace(/\*(\S.*?)\*/g, "<em>$1</em>");
+
+  // -------- ORDERED LIST (1. 2. 3.) --------
+  html = html.replace(/(?:^|\n)((?:\d+\.\s+.*(?:\n|$))+)/g, (match) => {
+    const items = match
+      .trim()
+      .split("\n")
+      .map((line) => line.replace(/^\d+\.\s+/, "").trim())
+      .map((item) => `<li>${item}</li>`)
+      .join("");
+
+    return `<ol>${items}</ol>`;
+  });
+
+  // -------- UNORDERED LIST (*) --------
+  html = html.replace(/(?:^|\n)((?:\*\s+.*(?:\n|$))+)/g, (match) => {
+    const items = match
+      .trim()
+      .split("\n")
+      .map((line) => line.replace(/^\*\s+/, "").trim())
+      .map((item) => `<li>${item}</li>`)
+      .join("");
+
+    return `<ul>${items}</ul>`;
+  });
+
+  // Xuống dòng
+  html = html.replace(/\n{2,}/g, "<br /><br />");
+  html = html.replace(/\n/g, "<br />");
+
+  return html;
 }
+
 const SUGGESTED_QUESTIONS = [
   "Làm thế nào để tạo giải đấu?",
   "Cách tham gia câu lạc bộ?",
@@ -143,12 +177,9 @@ export function ChatbotInterface() {
                 )}
               >
                 {m.sender === "bot" ? (
-                  <p
-                    className="text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{
-                      __html: formatBotMessage(m.text),
-                    }}
-                  />
+                  <div className="prose prose-sm max-w-none chatbot-message">
+                    <ReactMarkdown>{m.text}</ReactMarkdown>
+                  </div>
                 ) : (
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
                     {m.text}
