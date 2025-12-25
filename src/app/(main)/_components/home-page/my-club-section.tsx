@@ -44,7 +44,7 @@ export default async function MyClubSection({
           </div>
 
           <Link
-            href="/clubs/my-clubs"
+            href="/my-clubs"
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium rounded-lg transition-all duration-300 shadow-md hover:shadow-lg group"
           >
             <span>Xem tất cả</span>
