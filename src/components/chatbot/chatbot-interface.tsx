@@ -61,8 +61,8 @@ function formatBotMessage(text: string) {
 const SUGGESTED_QUESTIONS = [
   "Làm thế nào để tạo giải đấu?",
   "Cách tham gia câu lạc bộ?",
-  "Đặt sân cầu lông như thế nào?",
-  "Các loại sự kiện cầu lông?",
+  "Làm thế nào để cập nhật hồ sơ cá nhân?",
+  "Làm thế nào để tạo và cập nhật trình độ cá nhân?",
 ];
 
 export function ChatbotInterface() {
