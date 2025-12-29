@@ -130,7 +130,7 @@ export function ChatbotInterface() {
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       {/* ================= HEADER ================= */}
-      <div className="shrink-0 border-b bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
+      <div className="shrink-0  border-b bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8 border border-white">
             <AvatarFallback className="bg-white text-emerald-600">
