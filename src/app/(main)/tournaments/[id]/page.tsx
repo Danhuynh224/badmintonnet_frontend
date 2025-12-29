@@ -20,6 +20,7 @@ import { getTournamentStatusInfo } from "@/schemaValidations/tournament.schema";
 import OverviewSection from "@/app/(main)/tournaments/[id]/_components/overview-section";
 import CategorySection from "@/app/(main)/tournaments/[id]/_components/category-section";
 import PlaceholderSection from "@/app/(main)/tournaments/[id]/_components/placeholder-section";
+import ResultsSection from "@/app/(main)/tournaments/[id]/_components/results-section";
 import PlayersSection from "@/app/(main)/tournaments/[id]/_components/players-section";
 
 export default async function TournamentDetailPage({
@@ -34,6 +35,19 @@ export default async function TournamentDetailPage({
   const response = await tournamentApiRequest.getDetailBySlug(id, accessToken);
   const tournament = response.payload.data;
   const statusInfo = getTournamentStatusInfo(tournament.status);
+
+  // Fetch tournament results
+  let tournamentResults = null;
+  try {
+    const resultsResponse = await tournamentApiRequest.getTournamentResults(
+      tournament.id,
+      accessToken
+    );
+    tournamentResults = resultsResponse.payload.data;
+  } catch (error) {
+    // Results might not be available yet
+    console.error("Error fetching tournament results:", error);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -96,7 +110,7 @@ export default async function TournamentDetailPage({
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full ">
-          <TabsList className="grid w-full grid-cols-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <TabsTrigger value="overview">
               <Info className="w-4 h-4 mr-1" />
               Tổng quan
@@ -112,10 +126,6 @@ export default async function TournamentDetailPage({
             <TabsTrigger value="results">
               <BarChart3 className="w-4 h-4 mr-1" />
               Kết quả
-            </TabsTrigger>
-            <TabsTrigger value="matches">
-              <Activity className="w-4 h-4 mr-1" />
-              Các trận
             </TabsTrigger>
           </TabsList>
 
@@ -135,11 +145,7 @@ export default async function TournamentDetailPage({
           </TabsContent>
 
           <TabsContent value="results">
-            <PlaceholderSection label="Kết quả" />
-          </TabsContent>
-
-          <TabsContent value="matches">
-            <PlaceholderSection label="Các trận đấu" />
+            <ResultsSection categories={tournamentResults?.categories || []} />
           </TabsContent>
         </Tabs>
       </div>
