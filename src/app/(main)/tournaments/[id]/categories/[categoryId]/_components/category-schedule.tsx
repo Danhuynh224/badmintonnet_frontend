@@ -287,7 +287,12 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       await fetchBracketTree();
       router.refresh();
     } catch (error: unknown) {
-      toast.error("Có lỗi xảy ra khi tạo cặp thi đấu");
+      // Try to read API error message (HttpError.payload.message) or fallback to generic message
+      const apiMessage =
+        (error as any)?.payload?.message ||
+        (error as any)?.message ||
+        "Có lỗi xảy ra khi tạo cặp thi đấu";
+      toast.error(apiMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -395,9 +400,10 @@ export default function CategorySchedule({ category }: CategoryScheduleProps) {
       await fetchCategoryResults();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(
-        error?.payload?.message || "Có lỗi xảy ra khi cập nhật kết quả"
-      );
+      const apiMessage =
+        (error && (error.payload?.message ?? error.message)) ||
+        "Có lỗi xảy ra khi cập nhật kết quả";
+      toast.error(apiMessage);
     } finally {
       setIsUpdating(false);
     }
