@@ -352,10 +352,6 @@ export default function EditEventModal({
       newErrors.description = "Mô tả là bắt buộc";
     }
 
-    if (!formData.location.trim()) {
-      newErrors.location = "Địa điểm là bắt buộc";
-    }
-
     if (!formData.startTime) {
       newErrors.startTime = "Thời gian bắt đầu là bắt buộc";
     }

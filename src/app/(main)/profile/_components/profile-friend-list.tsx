@@ -228,22 +228,6 @@ export default function FriendList({ accountId, accessToken }: FriendTabProps) {
               ? `Không có bạn bè nào có tên "${searchTerm}".`
               : "Bắt đầu kết nối với mọi người xung quanh bạn để xây dựng mạng lưới bạn bè!"}
           </p>
-
-          {!searchTerm && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200">
-                <UserPlusIcon className="h-4 w-4 mr-2" />
-                Tìm kiếm bạn bè
-              </Button>
-              <Button
-                variant="outline"
-                className="border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
-              >
-                <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
-                Khám phá gợi ý
-              </Button>
-            </div>
-          )}
         </div>
       )}
 
