@@ -28,7 +28,7 @@ export default function PlayersSection({ players }: PlayersSectionProps) {
                   className="flex items-center gap-3 border p-2 rounded"
                 >
                   <Image
-                    src={player.avatarUrl ?? "/avatar-default.png"}
+                    src={player.avatarUrl ?? "/user.png"}
                     alt={player.name}
                     width={40}
                     height={40}
@@ -52,7 +52,7 @@ export default function PlayersSection({ players }: PlayersSectionProps) {
                   <div className="flex items-center gap-2">
                     <Link href={`/profile/${team.slug1}`}>
                       <Image
-                        src={team.avatarUrl1 ?? "/avatar-default.png"}
+                        src={team.avatarUrl1 ?? "/user.png"}
                         alt={team.slug1 ?? "Player 1"}
                         width={40}
                         height={40}
@@ -65,7 +65,7 @@ export default function PlayersSection({ players }: PlayersSectionProps) {
                   <div className="flex items-center gap-2">
                     <Link href={`/profile/${team.slug2}`}>
                       <Image
-                        src={team.avatarUrl2 ?? "/avatar-default.png"}
+                        src={team.avatarUrl2 ?? "/user.png"}
                         alt={team.slug2 ?? "Player 2"}
                         width={40}
                         height={40}

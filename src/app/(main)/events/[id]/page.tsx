@@ -352,7 +352,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sticky top-6">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-                Thông tin sự kiện
+                Thông tin hoạt động
               </h2>
 
               <div className="space-y-4">
@@ -525,7 +525,13 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                 {eventDetail.participantRole === "MEMBER" &&
                   eventDetail.status == "OPEN" && (
                     <div className="flex flex-col gap-3">
-                      {!eventDetail.joined ? (
+                      {eventDetail.joinedMember == eventDetail.totalMember ? (
+                        <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                          <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
+                            Đã đầy
+                          </p>
+                        </div>
+                      ) : !eventDetail.joined ? (
                         <JoinEventButton
                           eventId={eventDetail.id}
                           isMember={true}
@@ -544,7 +550,13 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                 {eventDetail.participantRole === "GUEST" &&
                   eventDetail.status == "OPEN" && (
                     <>
-                      {eventDetail.openForOutside ? (
+                      {eventDetail.joinedMember == eventDetail.totalMember ? (
+                        <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                          <p className="text-amber-700 dark:text-amber-300 text-sm font-medium">
+                            Đã đầy
+                          </p>
+                        </div>
+                      ) : eventDetail.openForOutside ? (
                         <div className="flex flex-col gap-3">
                           {!eventDetail.joined ? (
                             <>
