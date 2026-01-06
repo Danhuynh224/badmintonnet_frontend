@@ -423,26 +423,7 @@ export default async function ClubDetailPage({
                       </h4>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                      {isOwner ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Mời thành viên
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            <Settings className="h-4 w-4 mr-2" />
-                            Cài đặt thành viên
-                          </Button>
-                        </>
-                      ) : (
+                      {!isOwner && (
                         <Button
                           variant="outline"
                           size="sm"
