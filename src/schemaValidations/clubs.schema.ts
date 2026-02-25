@@ -81,6 +81,7 @@ export const ClubSchema = z.object({
   createdAt: z.coerce.date(),
   invitationId: z.string().nullable(),
   invitationMessage: z.string().nullable(),
+  totalEvent: z.number(),
 });
 
 export const ClubAdminSchema = z.object({
