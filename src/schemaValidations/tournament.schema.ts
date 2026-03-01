@@ -4,6 +4,44 @@ import { email, z } from "zod";
 import { InvitationStatusEnum } from "./club-invitation";
 import { AccountFriendSchema } from "@/schemaValidations/friend.schema";
 
+// Enum loại hình tham gia tournament
+export const TournamentParticipationTypeEnum = z.enum(["INDIVIDUAL", "CLUB"]);
+export type TournamentParticipationType = z.infer<
+  typeof TournamentParticipationTypeEnum
+>;
+
+export function getParticipationTypeInfo(
+  type?: TournamentParticipationType | null,
+) {
+  if (type === "CLUB") {
+    return {
+      label: "Theo CLB",
+      badgeClass:
+        "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 border border-violet-200 dark:border-violet-700",
+    };
+  }
+  return {
+    label: "Cá nhân",
+    badgeClass:
+      "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 border border-sky-200 dark:border-sky-700",
+  };
+}
+
+// Enum trạng thái participant CLB
+export const ClubTournamentParticipantStatusEnum = z.enum([
+  "DRAFT",
+  "PENDING",
+  "PAYMENT_REQUIRED",
+  "PAID",
+  "APPROVED",
+  "REJECTED",
+  "CANCELLED",
+  "ELIMINATED",
+]);
+export type ClubTournamentParticipantStatus = z.infer<
+  typeof ClubTournamentParticipantStatusEnum
+>;
+
 // Enum giống backend (nên đồng bộ với BadmintonCategoryEnum)
 export const BadmintonCategoryEnum = z.enum([
   "MEN_SINGLE",
@@ -127,6 +165,16 @@ export const TournamentCategoryRequest = z.object({
 
   registrationFee: z.number().nonnegative("Lệ phí phải >= 0").optional(),
 
+  // Fields cho CLB tournament (optional, chỉ gửi khi participationType = CLUB)
+  clubRegistrationFee: z
+    .number()
+    .nonnegative("Phí CLB phải >= 0")
+    .nullable()
+    .optional(),
+  minClubRosterSize: z.number().int().positive().nullable().optional(),
+  maxClubRosterSize: z.number().int().positive().nullable().optional(),
+  teamMatchFormat: z.string().nullable().optional(),
+
   description: z
     .string()
     .max(2000, "Mô tả không được quá 2000 ký tự")
@@ -219,6 +267,9 @@ export const TournamentCreateRequest = z.object({
     message: "Ngày kết thúc đăng ký không hợp lệ",
   }),
 
+  // Loại hình tham gia
+  participationType: TournamentParticipationTypeEnum.optional(),
+
   // Danh sách category (phải có ít nhất 1)
   categories: z
     .array(TournamentCategoryRequest)
@@ -270,6 +321,7 @@ export const TournamentResponse = z.object({
   createdAt: z.coerce.date(),
 
   status: TournamentStatusEnum,
+  participationType: TournamentParticipationTypeEnum.nullable().optional(),
   createdBy: z.string().nullable().optional(),
 
   categories: z.array(TournamentCategoryResponse),
@@ -310,6 +362,7 @@ export const TournamentDetail = z.object({
   createdAt: z.coerce.date(),
 
   status: TournamentStatusEnum,
+  participationType: TournamentParticipationTypeEnum.nullable().optional(),
   createdBy: z.string().nullable().optional(),
 
   categories: z.array(TournamentCategoryDetailResponse),
@@ -384,6 +437,13 @@ export const CategoryDetail = z.object({
   currentParticipantCount: z.number(),
 
   registrationFee: z.number(),
+
+  // Fields cho CLB tournament (nullable)
+  clubRegistrationFee: z.number().nullable().optional(),
+  minClubRosterSize: z.number().nullable().optional(),
+  maxClubRosterSize: z.number().nullable().optional(),
+  teamMatchFormat: z.string().nullable().optional(),
+
   description: z.string(),
 
   rules: z.string(),

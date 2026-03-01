@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Upload, X, Plus, Trash, MapPin, ChevronDown } from "lucide-react";
@@ -71,6 +71,14 @@ function toLocalDateTime(dateString: string) {
   return dateString.includes("T") ? dateString : `${dateString}T00:00:00`;
 }
 
+// Default empty team match format state
+const defaultMatchFormat = () => ({
+  singles: 0,
+  menDoubles: 0,
+  womenDoubles: 0,
+  mixedDoubles: 0,
+});
+
 export default function TournamentCreateForm({
   onCreated,
 }: {
@@ -90,6 +98,20 @@ export default function TournamentCreateForm({
   const [facilities, setFacilities] = useState<FacilityType[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<string | null>(null);
   const [loadingFacilities, setLoadingFacilities] = useState(true);
+  const [teamMatchFormats, setTeamMatchFormats] = useState<
+    Record<
+      number,
+      {
+        singles: number;
+        menDoubles: number;
+        womenDoubles: number;
+        mixedDoubles: number;
+      }
+    >
+  >({});
+
+  const getMatchFormat = (index: number) =>
+    teamMatchFormats[index] ?? defaultMatchFormat();
 
   const router = useRouter();
   const form = useForm<TournamentCreateRequest>({
@@ -106,6 +128,7 @@ export default function TournamentCreateForm({
       registrationStartDate: "",
       registrationEndDate: "",
       fee: 0,
+      participationType: "INDIVIDUAL",
       categories: [
         {
           categoryType: "MEN_SINGLE",
@@ -131,6 +154,9 @@ export default function TournamentCreateForm({
     control,
     name: "categories",
   });
+
+  const participationType = useWatch({ control, name: "participationType" });
+  const isClubType = participationType === "CLUB";
 
   useEffect(() => {
     const loadFacilities = async () => {
@@ -180,9 +206,8 @@ export default function TournamentCreateForm({
     const loadWards = async () => {
       setIsLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         setWards(response.payload.data.data || []);
         setSelectedWardId("");
       } catch (error) {
@@ -199,7 +224,7 @@ export default function TournamentCreateForm({
     const updateLocation = () => {
       if (selectedFacility) return;
       const selectedProvince = provinces.find(
-        (p) => p.id === selectedProvinceId
+        (p) => p.id === selectedProvinceId,
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
       const locationParts: string[] = [];
@@ -245,7 +270,7 @@ export default function TournamentCreateForm({
 
   const handleImageUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "banner" | "logo"
+    type: "banner" | "logo",
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -267,9 +292,8 @@ export default function TournamentCreateForm({
       if (bannerImage) {
         const formData = new FormData();
         formData.append("files", bannerImage);
-        const uploadRes = await tournamentApiRequest.uploadImageTournament(
-          formData
-        );
+        const uploadRes =
+          await tournamentApiRequest.uploadImageTournament(formData);
         uploadedBannerUrl = uploadRes.payload.data.fileName;
       }
 
@@ -277,9 +301,8 @@ export default function TournamentCreateForm({
       if (logoImage) {
         const formData = new FormData();
         formData.append("files", logoImage);
-        const uploadRes = await tournamentApiRequest.uploadImageTournament(
-          formData
-        );
+        const uploadRes =
+          await tournamentApiRequest.uploadImageTournament(formData);
         uploadedLogoUrl = uploadRes.payload.data.fileName;
       }
 
@@ -293,14 +316,33 @@ export default function TournamentCreateForm({
           toLocalDateTime(data.registrationStartDate) || "",
         registrationEndDate: toLocalDateTime(data.registrationEndDate) || "",
         rules: data.rules || undefined,
-        categories: data.categories.map((cat) => {
+        categories: data.categories.map((cat, index) => {
           // Convert category rules from textarea string to array
           const rules = cat.rules || "";
 
+          // Build teamMatchFormat JSON string if CLUB tournament
+          let teamMatchFormat: string | null = null;
+          if (data.participationType === "CLUB") {
+            const fmt = teamMatchFormats[index] ?? defaultMatchFormat();
+            const hasAny =
+              (fmt.singles ?? 0) > 0 ||
+              (fmt.menDoubles ?? 0) > 0 ||
+              (fmt.womenDoubles ?? 0) > 0 ||
+              (fmt.mixedDoubles ?? 0) > 0;
+            if (hasAny) {
+              teamMatchFormat = JSON.stringify({
+                singles: fmt.singles ?? 0,
+                menDoubles: fmt.menDoubles ?? 0,
+                womenDoubles: fmt.womenDoubles ?? 0,
+                mixedDoubles: fmt.mixedDoubles ?? 0,
+              });
+            }
+          }
+
           return {
             ...cat,
-            // Category rules as array
             rules: rules,
+            teamMatchFormat: teamMatchFormat,
             registrationDeadline: cat.registrationDeadline
               ? toLocalDateTime(cat.registrationDeadline) || undefined
               : undefined,
@@ -318,6 +360,7 @@ export default function TournamentCreateForm({
       setSelectedProvinceId("");
       setAdditionalAddress("");
       setSelectedFacility(null);
+      setTeamMatchFormats({});
       router.refresh();
       onCreated?.();
     } catch (error) {
@@ -347,6 +390,51 @@ export default function TournamentCreateForm({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Participation Type */}
+            <FormField
+              control={form.control}
+              name="participationType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Loại tournament <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <div className="flex gap-4 mt-2">
+                    {(["INDIVIDUAL", "CLUB"] as const).map((type) => {
+                      const labels: Record<string, string> = {
+                        INDIVIDUAL: "Cá nhân",
+                        CLUB: "Theo CLB",
+                      };
+                      const isSelected = field.value === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => field.onChange(type)}
+                          className={`flex-1 px-4 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                            isSelected
+                              ? type === "CLUB"
+                                ? "border-violet-500 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                                : "border-sky-500 bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300"
+                              : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400"
+                          }`}
+                        >
+                          {type === "INDIVIDUAL" ? "👤" : "🏆"} {labels[type]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {isClubType && (
+                    <p className="text-xs text-violet-600 dark:text-violet-400 mt-2">
+                      ℹ️ Giải theo CLB: mỗi hạng mục cần cấu hình thêm phí CLB,
+                      roster và format thi đấu.
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -743,7 +831,7 @@ export default function TournamentCreateForm({
                       </label>
                       <select
                         {...register(
-                          `categories.${index}.categoryType` as const
+                          `categories.${index}.categoryType` as const,
                         )}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500"
                       >
@@ -819,6 +907,121 @@ export default function TournamentCreateForm({
                     {/* Registration Deadline */}
                   </div>
 
+                  {/* CLB-specific fields */}
+                  {isClubType && (
+                    <div className="rounded-lg border-2 border-violet-200 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-900/10 p-4 space-y-4">
+                      <h4 className="text-sm font-semibold text-violet-700 dark:text-violet-300 flex items-center gap-2">
+                        🏆 Cấu hình CLB
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Phí đăng ký CLB (VNĐ)
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            {...register(
+                              `categories.${index}.clubRegistrationFee`,
+                              { valueAsNumber: true },
+                            )}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Số TV tối thiểu
+                          </label>
+                          <Input
+                            type="number"
+                            min={1}
+                            placeholder="VD: 5"
+                            {...register(
+                              `categories.${index}.minClubRosterSize`,
+                              { valueAsNumber: true },
+                            )}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Số TV tối đa
+                          </label>
+                          <Input
+                            type="number"
+                            min={1}
+                            placeholder="VD: 10"
+                            {...register(
+                              `categories.${index}.maxClubRosterSize`,
+                              { valueAsNumber: true },
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Team Match Format */}
+                      <div>
+                        <label className="block text-sm font-medium mb-3">
+                          Format thi đấu{" "}
+                          <span className="text-gray-400 font-normal">
+                            (số ván mỗi loại)
+                          </span>
+                        </label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {(
+                            [
+                              { key: "singles", label: "Ván đơn" },
+                              { key: "menDoubles", label: "Đôi nam" },
+                              { key: "womenDoubles", label: "Đôi nữ" },
+                              { key: "mixedDoubles", label: "Đôi hỗn hợp" },
+                            ] as const
+                          ).map(({ key, label }) => (
+                            <div key={key}>
+                              <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">
+                                {label}
+                              </label>
+                              <Input
+                                type="number"
+                                min={0}
+                                placeholder="0"
+                                value={getMatchFormat(index)[key]}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value) || 0;
+                                  setTeamMatchFormats((prev) => ({
+                                    ...prev,
+                                    [index]: {
+                                      ...getMatchFormat(index),
+                                      [key]: val,
+                                    },
+                                  }));
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        {(() => {
+                          const fmt = getMatchFormat(index);
+                          const total =
+                            (fmt.singles ?? 0) +
+                            (fmt.menDoubles ?? 0) +
+                            (fmt.womenDoubles ?? 0) +
+                            (fmt.mixedDoubles ?? 0);
+                          const parts: string[] = [];
+                          if (fmt.singles) parts.push(`${fmt.singles} đơn`);
+                          if (fmt.menDoubles)
+                            parts.push(`${fmt.menDoubles} đôi nam`);
+                          if (fmt.womenDoubles)
+                            parts.push(`${fmt.womenDoubles} đôi nữ`);
+                          if (fmt.mixedDoubles)
+                            parts.push(`${fmt.mixedDoubles} hỗn hợp`);
+                          return total > 0 ? (
+                            <p className="text-xs text-violet-600 dark:text-violet-400 mt-2">
+                              Preview: {parts.join(" + ")} (tổng {total} ván)
+                            </p>
+                          ) : null;
+                        })()}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Description */}
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -875,7 +1078,7 @@ export default function TournamentCreateForm({
                       <Input
                         placeholder="VD: Cúp bạc + 3.000.000 VNĐ"
                         {...register(
-                          `categories.${index}.secondPrize` as const
+                          `categories.${index}.secondPrize` as const,
                         )}
                       />
                     </div>

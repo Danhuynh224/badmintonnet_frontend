@@ -25,6 +25,10 @@ export default function CategoryHeader({
   const spotsLeft = category.maxParticipants - category.currentParticipantCount;
   const isFull = category.currentParticipantCount >= category.maxParticipants;
 
+  // Detect if this is a CLUB tournament (club fields present)
+  const isClubTournament =
+    category.clubRegistrationFee != null || category.minClubRosterSize != null;
+
   // Determine button text and state based on participant status
   const getButtonConfig = () => {
     const status = category.participantStatus;
@@ -116,37 +120,47 @@ export default function CategoryHeader({
           </div>
           {!category.admin && (
             <div className="flex flex-col gap-2 w-full sm:w-auto">
-              {(!category.double ||
-                (category.participantStatus &&
-                  category.participantStatus != "DRAFT")) && (
-                <JoinCategoryButton
-                  categoryId={categoryId}
-                  isDisabled={buttonConfig.disabled}
-                  buttonText={buttonConfig.text}
-                  className={buttonConfig.className}
-                />
+              {isClubTournament ? (
+                <div className="px-4 py-2 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium text-center border border-violet-200 dark:border-violet-700">
+                  🏆 Giải đấu theo CLB
+                </div>
+              ) : (
+                <>
+                  {(!category.double ||
+                    (category.participantStatus &&
+                      category.participantStatus != "DRAFT")) && (
+                    <JoinCategoryButton
+                      categoryId={categoryId}
+                      isDisabled={buttonConfig.disabled}
+                      buttonText={buttonConfig.text}
+                      className={buttonConfig.className}
+                    />
+                  )}
+                  {category.double &&
+                    category.response == null &&
+                    category.partner == null && (
+                      <SelectPartnerModal categoryId={categoryId} />
+                    )}
+                  {category.double &&
+                    category.response != null &&
+                    category.partner == null && (
+                      <SentPartnerInvitationModal
+                        invitation={category.response}
+                      />
+                    )}
+                  {category.double && category.partner == null && (
+                    <InviterList inviterList={category.requests} />
+                  )}
+                  {category.double &&
+                    category.partner != null &&
+                    category.participantStatus == "DRAFT" && (
+                      <PartnerMatchedModal
+                        partner={category.partner}
+                        categoryId={category.id}
+                      />
+                    )}
+                </>
               )}
-              {category.double &&
-                category.response == null &&
-                category.partner == null && (
-                  <SelectPartnerModal categoryId={categoryId} />
-                )}
-              {category.double &&
-                category.response != null &&
-                category.partner == null && (
-                  <SentPartnerInvitationModal invitation={category.response} />
-                )}
-              {category.double && category.partner == null && (
-                <InviterList inviterList={category.requests} />
-              )}
-              {category.double &&
-                category.partner != null &&
-                category.participantStatus == "DRAFT" && (
-                  <PartnerMatchedModal
-                    partner={category.partner}
-                    categoryId={category.id}
-                  />
-                )}
             </div>
           )}
         </div>
