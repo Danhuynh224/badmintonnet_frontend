@@ -207,6 +207,7 @@ export const MemberSchema = z.object({
   joinedAt: z.coerce.date(),
   slug: z.string(),
   joinedCount: z.number(),
+  ratingVerified: z.boolean(),
 });
 
 export type MemberType = z.infer<typeof MemberSchema>;

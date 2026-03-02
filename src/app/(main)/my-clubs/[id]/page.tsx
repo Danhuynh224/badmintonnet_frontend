@@ -151,9 +151,9 @@ export default async function MyClubDetail({
                   </Tooltip>
                 </TooltipProvider>
                 {/* Events Count */}
-                <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-2">
-                  <Calendar className="w-4 h-4 mr-2 text-orange-600 dark:text-orange-400" />
-                  {clubDetail.totalEvent} hoạt động
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" /> {clubDetail.totalEvent} hoạt
+                  động
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" /> {clubDetail.memberCount}/
