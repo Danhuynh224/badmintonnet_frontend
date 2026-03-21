@@ -76,7 +76,7 @@ export default async function ClubDetailPage({
   try {
     const response = await clubServiceApi.getClubById(
       id,
-      accessToken?.value || ""
+      accessToken?.value || "",
     );
     clubDetail = response.payload.data || null;
   } catch (error) {
@@ -203,6 +203,10 @@ export default async function ClubDetailPage({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" /> {clubDetail.totalEvent} hoạt
+                  động
+                </div>
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" /> {clubDetail.memberCount}/
                   {clubDetail.maxMembers} thành viên
@@ -423,26 +427,7 @@ export default async function ClubDetailPage({
                       </h4>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                      {isOwner ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Mời thành viên
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            <Settings className="h-4 w-4 mr-2" />
-                            Cài đặt thành viên
-                          </Button>
-                        </>
-                      ) : (
+                      {!isOwner && (
                         <Button
                           variant="outline"
                           size="sm"

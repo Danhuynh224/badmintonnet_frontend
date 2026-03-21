@@ -117,6 +117,7 @@ export const PlayerRating = z.object({
   overallScore: z.number(),
   skillLevel: z.string(),
   slug: z.string(),
+  verifyCount: z.number().int(),
 });
 
 export type PlayerRatingType = z.TypeOf<typeof PlayerRating>;
