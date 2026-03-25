@@ -176,7 +176,7 @@ export default function ClubCategorySection({
                 <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-violet-100 dark:border-violet-800/50">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Phí đăng ký</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    {tournament.clubRegistrationFee.toLocaleString("vi-VN")} VNĐ
+                    {tournament.clubRegistrationFee?.toLocaleString("vi-VN")} VNĐ
                   </p>
                 </div>
               )}
@@ -184,7 +184,7 @@ export default function ClubCategorySection({
                 <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-violet-100 dark:border-violet-800/50">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Số thành viên</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    {tournament.minClubRosterSize} - {tournament.maxClubRosterSize} người
+                    {tournament.minClubRosterSize ?? 0} - {tournament.maxClubRosterSize ?? 0} người
                   </p>
                 </div>
               )}

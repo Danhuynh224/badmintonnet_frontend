@@ -354,6 +354,10 @@ export const TournamentCategoryDetailResponse = z.object({
   minLevel: z.number(),
   maxLevel: z.number(),
   participantStatus: TournamentParticipantEnum.nullable().optional(),
+  // Thêm mới theo backend update
+  registrationFee: z.number().nullable().optional(),
+  registrationStartDate: z.string().nullable().optional(),
+  registrationEndDate: z.string().nullable().optional(),
 });
 
 export type TournamentCategoryDetailResponse = z.infer<
@@ -507,12 +511,6 @@ export const CategoryDetail = z.object({
   currentParticipantCount: z.number(),
 
   registrationFee: z.number(),
-
-  // Fields cho CLB tournament (nullable)
-  clubRegistrationFee: z.number().nullable().optional(),
-  minClubRosterSize: z.number().nullable().optional(),
-  maxClubRosterSize: z.number().nullable().optional(),
-  teamMatchFormat: z.string().nullable().optional(),
 
   description: z.string(),
 
