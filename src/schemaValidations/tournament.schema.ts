@@ -637,6 +637,7 @@ export type TournamentPartnerInvitationUpdateType = z.TypeOf<
 // ============================================================
 
 export const ClubTournamentStatusEnum = z.enum([
+  "DRAFT",
   "PENDING",
   "PAYMENT_REQUIRED",
   "PAID",
@@ -649,15 +650,21 @@ export type ClubTournamentStatus = z.infer<typeof ClubTournamentStatusEnum>;
 
 export function getClubTournamentStatusInfo(status: ClubTournamentStatus) {
   switch (status) {
+    case "DRAFT":
+      return {
+        label: "Bản nháp",
+        badgeClass:
+          "bg-gray-100 text-gray-600 dark:bg-gray-800/40 dark:text-gray-400 border border-gray-200 dark:border-gray-700",
+      };
     case "PENDING":
       return {
-        label: "Chờ duyệt",
+        label: "Chờ thanh toán",
         badgeClass:
           "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-700",
       };
     case "PAYMENT_REQUIRED":
       return {
-        label: "Chờ thanh toán",
+        label: "Đang xử lý thanh toán",
         badgeClass:
           "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 border border-orange-200 dark:border-orange-700",
       };

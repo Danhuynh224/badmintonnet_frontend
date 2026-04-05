@@ -1,8 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TournamentDetail } from "@/schemaValidations/tournament.schema";
-import { Users, Shield, Building2, Clock, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
+import {
+  TournamentDetail,
+  getClubTournamentStatusInfo,
+  ClubTournamentStatus,
+} from "@/schemaValidations/tournament.schema";
+import {
+  Users,
+  Shield,
+  Building2,
+  Loader2,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
@@ -47,7 +58,7 @@ export default function ClubCategorySection({
         tournament.id,
         undefined, // all statuses
         0,
-        50
+        50,
       );
       setParticipants(res.payload.data.content || []);
     } catch (error) {
@@ -89,55 +100,10 @@ export default function ClubCategorySection({
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
-      PENDING: {
-        label: "Chờ duyệt",
-        className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
-        icon: <Clock className="w-3 h-3 mr-1" />,
-      },
-      PAYMENT_REQUIRED: {
-        label: "Chờ thanh toán",
-        className: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-        icon: <AlertCircle className="w-3 h-3 mr-1" />,
-      },
-      PAID: {
-        label: "Đã thanh toán",
-        className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-        icon: <CheckCircle className="w-3 h-3 mr-1" />,
-      },
-      APPROVED: {
-        label: "Đã duyệt",
-        className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-        icon: <CheckCircle className="w-3 h-3 mr-1" />,
-      },
-      REJECTED: {
-        label: "Từ chối",
-        className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-        icon: <XCircle className="w-3 h-3 mr-1" />,
-      },
-      CANCELLED: {
-        label: "Đã hủy",
-        className: "bg-gray-100 text-gray-700 dark:bg-gray-900/40 dark:text-gray-300",
-        icon: <XCircle className="w-3 h-3 mr-1" />,
-      },
-      ELIMINATED: {
-        label: "Bị loại",
-        className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-        icon: <XCircle className="w-3 h-3 mr-1" />,
-      },
-    };
-
-    const config = statusConfig[status] || { label: status, className: "bg-gray-100", icon: null };
-    return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>
-        {config.icon}
-        {config.label}
-      </span>
-    );
-  };
-
-  if (!tournament.participationType || tournament.participationType !== "CLUB") {
+  if (
+    !tournament.participationType ||
+    tournament.participationType !== "CLUB"
+  ) {
     return (
       <p className="text-center text-gray-500 italic mt-6">
         Giải đấu này không phải loại CLB.
@@ -146,8 +112,12 @@ export default function ClubCategorySection({
   }
 
   // Check if registration is still open
-  const registrationEndDate = tournament.registrationEndDate ? new Date(tournament.registrationEndDate) : null;
-  const isRegistrationOpen = registrationEndDate ? registrationEndDate > new Date() : false;
+  const registrationEndDate = tournament.registrationEndDate
+    ? new Date(tournament.registrationEndDate)
+    : null;
+  const isRegistrationOpen = registrationEndDate
+    ? registrationEndDate > new Date()
+    : false;
 
   return (
     <div className="space-y-6">
@@ -174,23 +144,31 @@ export default function ClubCategorySection({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
               {tournament.clubRegistrationFee !== undefined && (
                 <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-violet-100 dark:border-violet-800/50">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Phí đăng ký</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Phí đăng ký
+                  </p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    {tournament.clubRegistrationFee?.toLocaleString("vi-VN")} VNĐ
+                    {tournament.clubRegistrationFee?.toLocaleString("vi-VN")}{" "}
+                    VNĐ
                   </p>
                 </div>
               )}
               {tournament.minClubRosterSize !== undefined && (
                 <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-violet-100 dark:border-violet-800/50">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Số thành viên</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Số thành viên
+                  </p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    {tournament.minClubRosterSize ?? 0} - {tournament.maxClubRosterSize ?? 0} người
+                    {tournament.minClubRosterSize ?? 0} -{" "}
+                    {tournament.maxClubRosterSize ?? 0} người
                   </p>
                 </div>
               )}
               {tournament.maxClubs !== undefined && (
                 <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-violet-100 dark:border-violet-800/50">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Số CLB tối đa</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Số CLB tối đa
+                  </p>
                   <p className="font-semibold text-gray-900 dark:text-white">
                     {tournament.maxClubs} CLB
                   </p>
@@ -198,9 +176,17 @@ export default function ClubCategorySection({
               )}
               {tournament.registrationEndDate && (
                 <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-violet-100 dark:border-violet-800/50">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Hạn đăng ký</p>
-                  <p className={`font-semibold ${isRegistrationOpen ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                    {format(new Date(tournament.registrationEndDate), "dd/MM/yyyy", { locale: vi })}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Hạn đăng ký
+                  </p>
+                  <p
+                    className={`font-semibold ${isRegistrationOpen ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                  >
+                    {format(
+                      new Date(tournament.registrationEndDate),
+                      "dd/MM/yyyy",
+                      { locale: vi },
+                    )}
                   </p>
                 </div>
               )}
@@ -256,7 +242,10 @@ export default function ClubCategorySection({
       ) : (
         <div className="grid gap-4">
           {participants.map((club: ParticipantData) => (
-            <Card key={club.id} className="p-4 hover:shadow-md transition-shadow">
+            <Card
+              key={club.id}
+              className="p-4 hover:shadow-md transition-shadow"
+            >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {/* Club Avatar */}
@@ -280,7 +269,15 @@ export default function ClubCategorySection({
 
                 {/* Status & Actions */}
                 <div className="flex items-center gap-3">
-                  {getStatusBadge(club.status)}
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${getClubTournamentStatusInfo(club.status as ClubTournamentStatus).badgeClass}`}
+                  >
+                    {
+                      getClubTournamentStatusInfo(
+                        club.status as ClubTournamentStatus,
+                      ).label
+                    }
+                  </span>
 
                   {/* Admin Actions */}
                   {isUserAdmin && club.status === "PENDING" && (

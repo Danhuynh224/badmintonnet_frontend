@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Loader2, XCircle, Users, RefreshCw } from "lucide-react";
+import {
+  Trophy,
+  Loader2,
+  XCircle,
+  Users,
+  RefreshCw,
+  CreditCard,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   ClubTournamentParticipant,
@@ -11,6 +18,7 @@ import {
   getClubTournamentStatusInfo,
 } from "@/schemaValidations/tournament.schema";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import paymentApiRequest from "@/apiRequest/payment";
 import ClubRosterModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/club-roster-modal";
 import {
   Dialog,
@@ -202,6 +210,28 @@ export default function ClubTournamentRegistrations({
     useState<ClubTournamentParticipant | null>(null);
   const [cancelTarget, setCancelTarget] =
     useState<ClubTournamentParticipant | null>(null);
+  const [paymentTarget, setPaymentTarget] =
+    useState<ClubTournamentParticipant | null>(null);
+  const [paying, setPaying] = useState(false);
+
+  // Handle payment via VNPay
+  const handlePayment = async (participant: ClubTournamentParticipant) => {
+    setPaying(true);
+    try {
+      const response = await paymentApiRequest.createClubPayment(
+        participant.id,
+      );
+      const data = response.payload.data;
+      if (data?.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      }
+    } catch {
+      toast.error("Không thể tạo thanh toán. Vui lòng thử lại.");
+    } finally {
+      setPaying(false);
+    }
+  };
+  console.log("participations:", participations);
 
   // Refresh: refetch detail for each participant is complex;
   // The parent server component should revalidate.
@@ -236,6 +266,13 @@ export default function ClubTournamentRegistrations({
           const canCancel = !["CANCELLED", "REJECTED", "APPROVED"].includes(
             p.status,
           );
+          const canPay = true; // Chỉ PENDING mới cần thanh toán
+          console.log(
+            `Participation ${p.id} status:`,
+            p.status,
+            "=>",
+            statusInfo,
+          );
           return (
             <Card
               key={p.id}
@@ -267,6 +304,21 @@ export default function ClubTournamentRegistrations({
 
                   <div className="flex flex-wrap gap-2">
                     <ClubRosterModal participant={p} />
+                    {canPay && (
+                      <Button
+                        size="sm"
+                        className="bg-orange-500 hover:bg-orange-600 text-white text-xs"
+                        onClick={() => handlePayment(p)}
+                        disabled={paying}
+                      >
+                        {paying ? (
+                          <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                        ) : (
+                          <CreditCard className="w-3.5 h-3.5 mr-1" />
+                        )}
+                        Thanh toán
+                      </Button>
+                    )}
                     {canUpdate && (
                       <Button
                         size="sm"
@@ -275,7 +327,7 @@ export default function ClubTournamentRegistrations({
                         onClick={() => setUpdateTarget(p)}
                       >
                         <RefreshCw className="w-3.5 h-3.5 mr-1" />
-                        Cập nhật roster
+                        Cập nhật
                       </Button>
                     )}
                     {canCancel && (
@@ -286,7 +338,7 @@ export default function ClubTournamentRegistrations({
                         onClick={() => setCancelTarget(p)}
                       >
                         <XCircle className="w-3.5 h-3.5 mr-1" />
-                        Hủy đăng ký
+                        Hủy
                       </Button>
                     )}
                   </div>

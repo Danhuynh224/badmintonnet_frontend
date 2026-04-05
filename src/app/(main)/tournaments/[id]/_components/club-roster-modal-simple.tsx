@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Users, Building2 } from "lucide-react";
+import { Loader2, Users, Building2, CreditCard } from "lucide-react";
 import {
   ClubTournamentParticipant,
   ClubRosterMember,
   getClubTournamentStatusInfo,
 } from "@/schemaValidations/tournament.schema";
 import clubTournamentApiRequest from "@/apiRequest/club-tournament";
+import paymentApiRequest from "@/apiRequest/payment";
 import { toast } from "sonner";
 
 interface ClubRosterModalSimpleProps {
@@ -33,6 +35,8 @@ export default function ClubRosterModalSimple({
     participant.roster ?? [],
   );
   const [loading, setLoading] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const router = useRouter();
 
   const handleOpen = async (isOpen: boolean) => {
     setOpen(isOpen);
@@ -50,6 +54,25 @@ export default function ClubRosterModalSimple({
       }
     }
   };
+
+  const handlePayment = async () => {
+    setPaying(true);
+    try {
+      const response = await paymentApiRequest.createClubPayment(
+        participant.id,
+      );
+      const data = response.payload.data;
+      if (data?.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      }
+    } catch {
+      toast.error("Không thể tạo thanh toán. Vui lòng thử lại.");
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const canPay = participant.status === "PENDING";
 
   const statusInfo = getClubTournamentStatusInfo(participant.status);
 
@@ -81,6 +104,22 @@ export default function ClubRosterModalSimple({
               {statusInfo.label}
             </span>
           </div>
+
+          {/* Payment Button */}
+          {canPay && (
+            <Button
+              onClick={handlePayment}
+              disabled={paying}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              {paying ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <CreditCard className="w-4 h-4 mr-2" />
+              )}
+              Thanh toán phí đăng ký
+            </Button>
+          )}
 
           {/* Tournament & Category */}
           <div className="text-sm">
