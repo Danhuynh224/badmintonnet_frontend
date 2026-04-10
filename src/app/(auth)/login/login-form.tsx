@@ -50,7 +50,8 @@ const LoginForm = () => {
         // description: result.payload.message,
       });
 
-      router.push(isAdmin(accessToken) ? "/admin" : "/");
+      const redirectPath = isAdmin(accessToken) ? "/admin" : "/";
+      router.replace(redirectPath);
       router.refresh();
     } catch (error: unknown) {
       const message =
