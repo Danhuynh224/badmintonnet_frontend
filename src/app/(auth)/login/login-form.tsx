@@ -50,11 +50,9 @@ const LoginForm = () => {
         // description: result.payload.message,
       });
 
-      if (isAdmin(accessToken)) {
-        router.push("/admin");
-      } else {
-        router.push("/");
-      }
+      const redirectPath = isAdmin(accessToken) ? "/admin" : "/";
+      router.replace(redirectPath);
+      router.refresh();
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Vui lòng thử lại";
