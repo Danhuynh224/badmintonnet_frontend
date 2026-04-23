@@ -15,12 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import tournamentApiRequest from "@/apiRequest/tournament";
 import { getTournamentStatusInfo } from "@/schemaValidations/tournament.schema";
+import { isAdmin } from "@/lib/utils";
 
 import OverviewSection from "@/app/(main)/tournaments/[id]/_components/overview-section";
 import CategorySection from "@/app/(main)/tournaments/[id]/_components/category-section";
 import ClubCategorySection from "@/app/(main)/tournaments/[id]/_components/club-category-section";
 import ResultsSection from "@/app/(main)/tournaments/[id]/_components/results-section";
 import PlayersSection from "@/app/(main)/tournaments/[id]/_components/players-section";
+import BracketSection from "@/app/(main)/tournaments/[id]/_components/bracket-section";
 
 export default async function TournamentDetailPage({
   params,
@@ -30,6 +32,7 @@ export default async function TournamentDetailPage({
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
   const { id } = await params;
+  const userIsAdmin = accessToken ? isAdmin(accessToken) : false;
 
   const response = await tournamentApiRequest.getDetailBySlug(id, accessToken);
   const tournament = response.payload.data;
@@ -109,7 +112,7 @@ export default async function TournamentDetailPage({
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full ">
-          <TabsList className={`grid w-full ${tournament.participationType === "CLUB" ? "grid-cols-3" : "grid-cols-4"} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg`}>
+          <TabsList className={`grid w-full ${tournament.participationType === "CLUB" ? "grid-cols-4" : "grid-cols-4"} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg`}>
             <TabsTrigger value="overview">
               <Info className="w-4 h-4 mr-1" />
               Tổng quan
@@ -124,6 +127,12 @@ export default async function TournamentDetailPage({
               <TabsTrigger value="clubs">
                 <Users className="w-4 h-4 mr-1" />
                 CLB Tham gia
+              </TabsTrigger>
+            )}
+            {tournament.participationType === "CLUB" && (
+              <TabsTrigger value="bracket">
+                <Trophy className="w-4 h-4 mr-1" />
+                Bảng đấu
               </TabsTrigger>
             )}
             {tournament.participationType !== "CLUB" && (
@@ -157,6 +166,17 @@ export default async function TournamentDetailPage({
             <TabsContent value="clubs">
               <ClubCategorySection
                 tournament={tournament}
+                isAdmin={userIsAdmin}
+              />
+            </TabsContent>
+          )}
+
+          {/* Bảng đấu CLB */}
+          {tournament.participationType === "CLUB" && (
+            <TabsContent value="bracket">
+              <BracketSection
+                tournamentId={tournament.id}
+                participationType={tournament.participationType}
               />
             </TabsContent>
           )}

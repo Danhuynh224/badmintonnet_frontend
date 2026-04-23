@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   TournamentDetail,
   getClubTournamentStatusInfo,
@@ -20,12 +20,11 @@ import clubTournamentApiRequest from "@/apiRequest/club-tournament";
 import ClubRegisterButtonSimple from "./club-register-button-simple";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { clientSessionToken } from "@/lib/http";
-import { isAdmin } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface ClubCategorySectionProps {
   tournament: TournamentDetail;
+  isAdmin?: boolean;
 }
 
 interface ParticipantData {
@@ -33,7 +32,16 @@ interface ParticipantData {
   clubId: string;
   clubName?: string;
   clubSlug?: string;
-  status: string;
+  status:
+    | "DRAFT"
+    | "PENDING"
+    | "PAYMENT_REQUIRED"
+    | "PAID"
+    | "APPROVED"
+    | "REJECTED"
+    | "CANCELLED"
+    | "ELIMINATED";
+  rosterSize?: number;
   rosterAccountIds?: string[];
   club?: {
     name?: string;
@@ -44,14 +52,13 @@ interface ParticipantData {
 
 export default function ClubCategorySection({
   tournament,
+  isAdmin = false,
 }: ClubCategorySectionProps) {
   const [participants, setParticipants] = useState<ParticipantData[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const accessToken = clientSessionToken.value;
-  const isUserAdmin = accessToken ? isAdmin(accessToken) : false;
 
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     setLoading(true);
     try {
       const res = await clubTournamentApiRequest.getParticipantsByTournament(
@@ -61,17 +68,19 @@ export default function ClubCategorySection({
         50,
       );
       setParticipants(res.payload.data.content || []);
-    } catch (error) {
-      console.error("Failed to fetch participants:", error);
+      console.log("Fetched participants:", res.payload.data.content);
+    } catch {
+      console.error("Failed to fetch participants");
     } finally {
       setLoading(false);
     }
-  };
+  }, [tournament.id]);
 
   useEffect(() => {
     if (tournament.participationType === "CLUB") {
       fetchParticipants();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournament.id, tournament.participationType]);
 
   const handleApprove = async (participantId: string) => {
@@ -80,7 +89,7 @@ export default function ClubCategorySection({
       await clubTournamentApiRequest.approveParticipant(participantId);
       toast.success("Đã duyệt đăng ký CLB");
       fetchParticipants();
-    } catch (error) {
+    } catch {
       toast.error("Không thể duyệt đăng ký");
     } finally {
       setActionLoading(null);
@@ -93,7 +102,7 @@ export default function ClubCategorySection({
       await clubTournamentApiRequest.rejectParticipant(participantId);
       toast.success("Đã từ chối đăng ký CLB");
       fetchParticipants();
-    } catch (error) {
+    } catch {
       toast.error("Không thể từ chối đăng ký");
     } finally {
       setActionLoading(null);
@@ -203,6 +212,7 @@ export default function ClubCategorySection({
               registrationFee={tournament.clubRegistrationFee || 0}
               isFull={participants.length >= (tournament.maxClubs || Infinity)}
               registrationDeadline={registrationEndDate || new Date()}
+              isAdmin={isAdmin}
             />
           </div>
         </div>
@@ -256,12 +266,12 @@ export default function ClubCategorySection({
                   {/* Club Info */}
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">
-                      {club.clubName || club.club?.name || "CLB Unknown"}
+                      {club.clubName || "CLB Unknown"}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
                       <Users className="w-3 h-3 text-gray-400" />
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {club.rosterAccountIds?.length || 0} thành viên
+                        {club.rosterSize || 0} thành viên
                       </span>
                     </div>
                   </div>
@@ -280,42 +290,44 @@ export default function ClubCategorySection({
                   </span>
 
                   {/* Admin Actions */}
-                  {isUserAdmin && club.status === "PENDING" && (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-green-600 border-green-300 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900/20"
-                        onClick={() => handleApprove(club.id)}
-                        disabled={actionLoading === club.id}
-                      >
-                        {actionLoading === club.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Duyệt
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
-                        onClick={() => handleReject(club.id)}
-                        disabled={actionLoading === club.id}
-                      >
-                        {actionLoading === club.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <XCircle className="w-4 h-4 mr-1" />
-                            Từ chối
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  )}
+                  {isAdmin &&
+                    club.status !== "APPROVED" &&
+                    club.status !== "REJECTED" && (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-green-600 border-green-300 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900/20"
+                          onClick={() => handleApprove(club.id)}
+                          disabled={actionLoading === club.id}
+                        >
+                          {actionLoading === club.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Duyệt
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+                          onClick={() => handleReject(club.id)}
+                          disabled={actionLoading === club.id}
+                        >
+                          {actionLoading === club.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <XCircle className="w-4 h-4 mr-1" />
+                              Từ chối
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                 </div>
               </div>
             </Card>

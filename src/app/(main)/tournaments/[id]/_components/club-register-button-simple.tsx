@@ -21,6 +21,7 @@ interface ClubRegisterButtonSimpleProps {
   registrationFee: number;
   isFull: boolean;
   registrationDeadline: Date;
+  isAdmin?: boolean;
 }
 
 export default function ClubRegisterButtonSimple({
@@ -31,6 +32,7 @@ export default function ClubRegisterButtonSimple({
   registrationFee,
   isFull,
   registrationDeadline,
+  isAdmin = false,
 }: ClubRegisterButtonSimpleProps) {
   const [loading, setLoading] = useState(true);
   const [myParticipation, setMyParticipation] =
@@ -138,6 +140,11 @@ export default function ClubRegisterButtonSimple({
         Đã đầy
       </Button>
     );
+  }
+
+  // Admin cannot register
+  if (isAdmin) {
+    return null;
   }
 
   // Check deadline
