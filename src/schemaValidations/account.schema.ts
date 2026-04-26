@@ -1,4 +1,3 @@
-import R from "@/components/refresh-token";
 import z, { array } from "zod";
 
 const GenderEnum = z.enum(["MALE", "FEMALE", "OTHER"]);
@@ -25,6 +24,8 @@ export const AccountRes = z
       birthDate: z.string(),
       gender: GenderEnum,
       address: z.string(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
       bio: z.string().nullable(),
       avatarUrl: z.string().nullable(),
       phone: z.string().nullable(),
@@ -60,6 +61,10 @@ export const UpdateProfileBody = z.object({
   gender: GenderEnum,
 
   address: z.string(),
+
+  latitude: z.number(),
+
+  longitude: z.number(),
 
   phone: z
     .string()
