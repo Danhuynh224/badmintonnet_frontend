@@ -9,6 +9,7 @@ import { SessionList } from "@/components/chatbot/session-list";
 
 const STORAGE_SESSION_KEY = "chatbot:activeSessionId";
 const MESSAGE_PAGE_SIZE = 20;
+const SESSION_PAGE_SIZE = 10;
 
 const mergeMessagesUnique = (
   current: ChatMessage[],
@@ -33,28 +34,58 @@ export function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingSessions, setLoadingSessions] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const [sessionPage, setSessionPage] = useState(0);
+  const [sessionTotalPages, setSessionTotalPages] = useState(1);
 
-  const loadSessions = useCallback(async (preferredSessionId?: string) => {
-    const res = await chatbotSessionApi.getSessions();
-    const safeSessions = Array.isArray(res.payload) ? res.payload : [];
-    setSessions(safeSessions);
+  const loadSessions = useCallback(
+    async (
+      targetPage: number,
+      preferredSessionId?: string,
+      shouldSyncActiveSession = false,
+    ) => {
+      const res = await chatbotSessionApi.getSessions({
+        page: targetPage,
+        size: SESSION_PAGE_SIZE,
+      });
+      const safeSessions = Array.isArray(res.payload.sessions)
+        ? res.payload.sessions
+        : [];
 
-    const savedSessionId = localStorage.getItem(STORAGE_SESSION_KEY);
-    const nextSessionId =
-      preferredSessionId ||
-      (savedSessionId &&
-      safeSessions.some((s) => s.sessionId === savedSessionId)
-        ? savedSessionId
-        : safeSessions[0]?.sessionId || null);
+      setSessions(safeSessions);
+      setSessionPage(res.payload.page);
+      setSessionTotalPages(Math.max(res.payload.totalPages || 1, 1));
 
-    if (nextSessionId) {
-      setActiveSessionId(nextSessionId);
-    }
+      const savedSessionId = localStorage.getItem(STORAGE_SESSION_KEY);
 
-    return safeSessions;
-  }, []);
+      setActiveSessionId((currentActiveSessionId) => {
+        const nextSessionId =
+          preferredSessionId ||
+          (!currentActiveSessionId
+            ? savedSessionId &&
+              safeSessions.some((s) => s.sessionId === savedSessionId)
+              ? savedSessionId
+              : safeSessions[0]?.sessionId || null
+            : null);
+
+        if (
+          nextSessionId &&
+          (shouldSyncActiveSession ||
+            !currentActiveSessionId ||
+            nextSessionId !== currentActiveSessionId)
+        ) {
+          return nextSessionId;
+        }
+
+        return currentActiveSessionId;
+      });
+
+      return safeSessions;
+    },
+    [],
+  );
 
   const loadSessionMessages = useCallback(
     async (
@@ -82,16 +113,19 @@ export function ChatPage() {
   // Load sessions on mount
   useEffect(() => {
     const bootstrapSessions = async () => {
+      setLoadingSessions(true);
       try {
-        await loadSessions();
+        await loadSessions(sessionPage, undefined, true);
       } catch (error) {
         console.error("Failed to load sessions:", error);
         toast.error("Không thể tải danh sách chat");
+      } finally {
+        setLoadingSessions(false);
       }
     };
 
     bootstrapSessions();
-  }, [loadSessions]);
+  }, [loadSessions, sessionPage]);
 
   // Load session detail when active session changes
   useEffect(() => {
@@ -135,6 +169,14 @@ export function ChatPage() {
     setActiveSessionId(sessionId);
   }, []);
 
+  const handleSessionPageChange = useCallback(
+    (nextPage: number) => {
+      if (nextPage < 0 || nextPage >= sessionTotalPages || loadingSessions) return;
+      setSessionPage(nextPage);
+    },
+    [loadingSessions, sessionTotalPages],
+  );
+
   const handleSend = useCallback(async () => {
     if (!input.trim() || loading) return;
 
@@ -166,10 +208,11 @@ export function ChatPage() {
       }
 
       setActiveSessionId(targetSessionId);
+      setSessionPage(0);
 
       // Reload both session list and first page of messages after each send.
       await Promise.all([
-        loadSessions(targetSessionId),
+        loadSessions(0, targetSessionId, true),
         loadSessionMessages(targetSessionId, 0, "replace"),
       ]);
     } catch (error) {
@@ -210,12 +253,18 @@ export function ChatPage() {
       <SessionList
         sessions={sessions}
         activeSessionId={activeSessionId}
+        currentPage={sessionPage}
+        totalPages={sessionTotalPages}
+        loading={loadingSessions}
         onSelectSession={handleSelectSession}
+        onPageChange={handleSessionPageChange}
         onCreateSession={handleCreateSession}
       />
 
       <ChatWindow
-        sessionTitle={(activeSession?.lastMessage || "Chat mới").trim()}
+        sessionTitle={
+          (activeSession?.title || activeSession?.lastMessage || "Chat mới").trim()
+        }
         messages={messages}
         input={input}
         loading={loading || loadingHistory}
