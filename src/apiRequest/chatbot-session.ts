@@ -86,19 +86,19 @@ const normalizeSessions = (payload: unknown): ChatSession[] => {
         (typeof item.updatedAt === "string" && item.updatedAt) ||
         (typeof item.createdAt === "string" && item.createdAt) ||
         new Date().toISOString();
-    
+
       const lastRole =
         item.lastRole === "assistant" || item.lastRole === "user"
           ? item.lastRole
           : item.role === "assistant" || item.role === "user"
             ? item.role
             : "assistant";
-        
-    const updatedAt =
-      (typeof item.updatedAt === "string" && item.updatedAt) ||
-      (typeof item.lastMessageTime === "string" && item.lastMessageTime) ||
-      (typeof item.createdAt === "string" && item.createdAt) ||
-      new Date().toISOString();
+
+      const updatedAt =
+        (typeof item.updatedAt === "string" && item.updatedAt) ||
+        (typeof item.lastMessageTime === "string" && item.lastMessageTime) ||
+        (typeof item.createdAt === "string" && item.createdAt) ||
+        new Date().toISOString();
 
       return {
         sessionId,
@@ -109,8 +109,7 @@ const normalizeSessions = (payload: unknown): ChatSession[] => {
         updatedAt,
       } satisfies ChatSession;
     })
-    .filter((item): item is ChatSession => item !== null)
-    
+    .filter((item): item is ChatSession => item !== null);
 
   return sessions;
 };

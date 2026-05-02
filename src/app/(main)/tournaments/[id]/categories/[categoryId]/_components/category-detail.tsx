@@ -23,7 +23,7 @@ export default async function TournamentCategoryDetail({
   try {
     const response = await tournamentApiRequest.getCategoryDetail(
       categoryId,
-      accessToken?.value
+      accessToken?.value,
     );
     category = response.payload.data;
   } catch (error) {

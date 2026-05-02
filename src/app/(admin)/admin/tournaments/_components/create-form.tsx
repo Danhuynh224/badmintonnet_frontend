@@ -1,16 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Upload, X, Plus, Trash, MapPin, ChevronDown } from "lucide-react";
+import {
+  Upload,
+  X,
+  Plus,
+  Trash,
+  MapPin,
+  ChevronDown,
+  User,
+  Building2,
+} from "lucide-react";
 import Image from "next/image";
 
 import {
   TournamentCreateRequest,
   BadmintonCategoryEnum,
-  CategoryFormatEnum,
   getCategoryLabel,
 } from "@/schemaValidations/tournament.schema";
 import { Button } from "@/components/ui/button";
@@ -25,7 +33,6 @@ import {
 import facilityApiRequest from "@/apiRequest/facility";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import tournamentApiRequest from "@/apiRequest/tournament";
 import addressApiRequest from "@/apiRequest/address";
 import { useRouter } from "next/navigation";
@@ -37,9 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import TextEditor from "@/components/text-editor";
 import RichTextEditor from "@/components/text-editor";
-import Tiptap from "@/components/text-editor";
 
 // Interfaces for address data
 interface Province {
@@ -71,6 +76,14 @@ function toLocalDateTime(dateString: string) {
   return dateString.includes("T") ? dateString : `${dateString}T00:00:00`;
 }
 
+// Default empty team match format state
+const defaultMatchFormat = () => ({
+  singles: 0,
+  menDoubles: 0,
+  womenDoubles: 0,
+  mixedDoubles: 0,
+});
+
 export default function TournamentCreateForm({
   onCreated,
 }: {
@@ -90,6 +103,17 @@ export default function TournamentCreateForm({
   const [facilities, setFacilities] = useState<FacilityType[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<string | null>(null);
   const [loadingFacilities, setLoadingFacilities] = useState(true);
+  const [teamMatchFormats, setTeamMatchFormats] = useState<
+    Record<
+      number,
+      {
+        singles: number;
+        menDoubles: number;
+        womenDoubles: number;
+        mixedDoubles: number;
+      }
+    >
+  >({});
 
   const router = useRouter();
   const form = useForm<TournamentCreateRequest>({
@@ -106,6 +130,7 @@ export default function TournamentCreateForm({
       registrationStartDate: "",
       registrationEndDate: "",
       fee: 0,
+      participationType: "INDIVIDUAL",
       categories: [
         {
           categoryType: "MEN_SINGLE",
@@ -119,8 +144,18 @@ export default function TournamentCreateForm({
           firstPrize: "",
           secondPrize: "",
           thirdPrize: "",
+          // CLUB fields
+          clubRegistrationFee: 0,
+          minClubRosterSize: 1,
+          maxClubRosterSize: 20,
         },
       ],
+      // CLUB tournament fields
+      clubRegistrationFee: 0,
+      minClubRosterSize: 1,
+      maxClubRosterSize: 20,
+      maxClubs: 10,
+      teamMatchFormat: undefined,
     },
   });
 
@@ -130,6 +165,9 @@ export default function TournamentCreateForm({
     control,
     name: "categories",
   });
+
+  const participationType = useWatch({ control, name: "participationType" });
+  const isClubType = participationType === "CLUB";
 
   useEffect(() => {
     const loadFacilities = async () => {
@@ -179,9 +217,8 @@ export default function TournamentCreateForm({
     const loadWards = async () => {
       setIsLoadingWards(true);
       try {
-        const response = await addressApiRequest.getWardsByProvinceId(
-          selectedProvinceId
-        );
+        const response =
+          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
         setWards(response.payload.data.data || []);
         setSelectedWardId("");
       } catch (error) {
@@ -198,7 +235,7 @@ export default function TournamentCreateForm({
     const updateLocation = () => {
       if (selectedFacility) return;
       const selectedProvince = provinces.find(
-        (p) => p.id === selectedProvinceId
+        (p) => p.id === selectedProvinceId,
       );
       const selectedWard = wards.find((w) => w.id === selectedWardId);
       const locationParts: string[] = [];
@@ -244,7 +281,7 @@ export default function TournamentCreateForm({
 
   const handleImageUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "banner" | "logo"
+    type: "banner" | "logo",
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -266,9 +303,8 @@ export default function TournamentCreateForm({
       if (bannerImage) {
         const formData = new FormData();
         formData.append("files", bannerImage);
-        const uploadRes = await tournamentApiRequest.uploadImageTournament(
-          formData
-        );
+        const uploadRes =
+          await tournamentApiRequest.uploadImageTournament(formData);
         uploadedBannerUrl = uploadRes.payload.data.fileName;
       }
 
@@ -276,13 +312,15 @@ export default function TournamentCreateForm({
       if (logoImage) {
         const formData = new FormData();
         formData.append("files", logoImage);
-        const uploadRes = await tournamentApiRequest.uploadImageTournament(
-          formData
-        );
+        const uploadRes =
+          await tournamentApiRequest.uploadImageTournament(formData);
         uploadedLogoUrl = uploadRes.payload.data.fileName;
       }
 
-      await tournamentApiRequest.createTournament({
+      // Build request payload based on participation type
+      const isClub = data.participationType === "CLUB";
+
+      const payload: TournamentCreateRequest = {
         ...data,
         logoUrl: uploadedLogoUrl,
         bannerUrl: uploadedBannerUrl,
@@ -292,21 +330,35 @@ export default function TournamentCreateForm({
           toLocalDateTime(data.registrationStartDate) || "",
         registrationEndDate: toLocalDateTime(data.registrationEndDate) || "",
         rules: data.rules || undefined,
-        categories: data.categories.map((cat) => {
-          // Convert category rules from textarea string to array
-          const rules = cat.rules || "";
-
-          return {
-            ...cat,
-            // Category rules as array
-            rules: rules,
-            registrationDeadline: cat.registrationDeadline
-              ? toLocalDateTime(cat.registrationDeadline) || undefined
-              : undefined,
-          };
-        }),
         ...(selectedFacility && { facilityId: selectedFacility }),
-      });
+      };
+
+      // Handle categories for INDIVIDUAL tournament
+      if (!isClub) {
+        payload.categories = (data.categories || []).map((cat) => ({
+          ...cat,
+          rules: cat.rules || "",
+        }));
+        // Remove club fields for INDIVIDUAL
+        payload.teamMatchFormat = undefined;
+        payload.clubRegistrationFee = undefined;
+        payload.minClubRosterSize = undefined;
+        payload.maxClubRosterSize = undefined;
+        payload.maxClubs = undefined;
+      } else {
+        // Handle club fields for CLUB tournament
+        const fmt = teamMatchFormats[0] ?? defaultMatchFormat();
+        payload.teamMatchFormat = JSON.stringify({
+          singles: fmt.singles ?? 0,
+          menDoubles: fmt.menDoubles ?? 0,
+          womenDoubles: fmt.womenDoubles ?? 0,
+          mixedDoubles: fmt.mixedDoubles ?? 0,
+        });
+        // Remove categories for CLUB
+        payload.categories = undefined;
+      }
+
+      await tournamentApiRequest.createTournament(payload);
 
       toast.success("Tạo giải đấu thành công!");
       form.reset();
@@ -317,9 +369,10 @@ export default function TournamentCreateForm({
       setSelectedProvinceId("");
       setAdditionalAddress("");
       setSelectedFacility(null);
+      setTeamMatchFormats({});
       router.refresh();
       onCreated?.();
-    } catch (error) {
+    } catch {
       toast.error("Tạo giải đấu thất bại!", {
         description: "Có lỗi xảy ra, vui lòng kiểm tra lại thông tin.",
       });
@@ -330,7 +383,19 @@ export default function TournamentCreateForm({
     <Card className="border border-gray-200 dark:border-gray-700 shadow-lg dark:bg-gray-800 max-w-4xl mx-auto">
       <CardContent className="overflow-visible">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              const first = Object.values(errors)[0];
+              const msg =
+                (first as { message?: string })?.message ??
+                JSON.stringify(first);
+              toast.error("Vui lòng kiểm tra lại thông tin", {
+                description: msg,
+              });
+              console.error("Form validation errors:", errors);
+            })}
+            className="space-y-8"
+          >
             {/* General Information */}
             <FormField
               control={form.control}
@@ -346,6 +411,48 @@ export default function TournamentCreateForm({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Participation Type */}
+            <FormField
+              control={form.control}
+              name="participationType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Loại tournament <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <div className="flex gap-4 mt-2">
+                    {(["INDIVIDUAL", "CLUB"] as const).map((type) => {
+                      const labels: Record<string, string> = {
+                        INDIVIDUAL: "Cá nhân",
+                        CLUB: "Theo CLB",
+                      };
+                      const isSelected = field.value === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => field.onChange(type)}
+                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                            isSelected
+                              ? "border-gray-500 bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300"
+                              : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          {type === "INDIVIDUAL" ? (
+                            <User className="w-4 h-4" />
+                          ) : (
+                            <Building2 className="w-4 h-4" />
+                          )}
+                          <span>{labels[type]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -688,209 +795,395 @@ export default function TournamentCreateForm({
               />
             </div>
 
-            {/* Dynamic Categories */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <FormLabel className="text-base font-medium">
-                  Hạng mục thi đấu
-                </FormLabel>
-                <Button
-                  type="button"
-                  onClick={() =>
-                    append({
-                      categoryType: "MEN_SINGLE",
-                      minLevel: 1,
-                      maxLevel: 5,
-                      maxParticipants: 16,
-                      format: "LOAI_TRUC_TIEP",
-                      registrationFee: 0,
-                      description: "",
-                      rules: "",
-                      firstPrize: "",
-                      secondPrize: "",
-                      thirdPrize: "",
-                      registrationDeadline: "",
-                    })
-                  }
-                >
-                  <Plus size={16} className="mr-1" /> Thêm hạng mục
-                </Button>
-              </div>
+            {/* Dynamic Categories - INDIVIDUAL */}
+            {!isClubType && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-base font-medium">
+                    Hạng mục thi đấu
+                  </FormLabel>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      append({
+                        categoryType: "MEN_SINGLE",
+                        minLevel: 1,
+                        maxLevel: 5,
+                        maxParticipants: 16,
+                        format: "LOAI_TRUC_TIEP",
+                        registrationFee: 0,
+                        description: "",
+                        rules: "",
+                        firstPrize: "",
+                        secondPrize: "",
+                        thirdPrize: "",
+                      })
+                    }
+                  >
+                    <Plus size={16} className="mr-1" /> Thêm hạng mục
+                  </Button>
+                </div>
 
-              {fields.map((field, index) => (
-                <Card key={field.id} className="border-2 p-6 space-y-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">
-                      Hạng mục {index + 1}
-                    </h3>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash size={16} className="mr-1" /> Xóa
-                    </Button>
-                  </div>
-
-                  {/* Basic Info Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Category Type */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Loại hạng mục <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        {...register(
-                          `categories.${index}.categoryType` as const
-                        )}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500"
+                {fields.map((field, index) => (
+                  <Card key={field.id} className="border-2 p-6 space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">
+                        Hạng mục {index + 1}
+                      </h3>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(index)}
                       >
-                        {BadmintonCategoryEnum.options.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {getCategoryLabel(opt)}
-                          </option>
-                        ))}
-                      </select>
+                        <Trash size={16} className="mr-1" /> Xóa
+                      </Button>
                     </div>
 
-                    {/* Min Level */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Trình độ tối thiểu{" "}
-                        <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        max={5}
-                        {...register(`categories.${index}.minLevel`, {
-                          valueAsNumber: true,
-                        })}
-                      />
+                    {/* Basic Info Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Category Type */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Loại hạng mục <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          {...register(
+                            `categories.${index}.categoryType` as const,
+                          )}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500"
+                        >
+                          {BadmintonCategoryEnum.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {getCategoryLabel(opt)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Min Level */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Trình độ tối thiểu{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min={0}
+                          max={5}
+                          {...register(`categories.${index}.minLevel`, {
+                            valueAsNumber: true,
+                          })}
+                        />
+                      </div>
+
+                      {/* Max Level */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Trình độ tối đa{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.5"
+                          min={0}
+                          max={5}
+                          {...register(`categories.${index}.maxLevel`, {
+                            valueAsNumber: true,
+                          })}
+                        />
+                      </div>
+
+                      {/* Max Participants */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Số người tham gia tối đa{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="number"
+                          {...register(`categories.${index}.maxParticipants`, {
+                            valueAsNumber: true,
+                          })}
+                        />
+                      </div>
+
+                      {/* Registration Fee */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Lệ phí đăng ký (VNĐ)
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          {...register(`categories.${index}.registrationFee`, {
+                            valueAsNumber: true,
+                          })}
+                        />
+                      </div>
                     </div>
 
-                    {/* Max Level */}
+                    {/* Description */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Trình độ tối đa <span className="text-red-500">*</span>
+                        Mô tả hạng mục
                       </label>
-                      <Input
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        max={5}
-                        {...register(`categories.${index}.maxLevel`, {
-                          valueAsNumber: true,
-                        })}
-                      />
-                    </div>
-
-                    {/* Max Participants */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Số người tham gia tối đa{" "}
-                        <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="number"
-                        {...register(`categories.${index}.maxParticipants`, {
-                          valueAsNumber: true,
-                        })}
-                      />
-                    </div>
-
-                    {/* Registration Fee */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Lệ phí đăng ký (VNĐ)
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        {...register(`categories.${index}.registrationFee`, {
-                          valueAsNumber: true,
-                        })}
-                      />
-                    </div>
-
-                    {/* Registration Deadline */}
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Mô tả hạng mục
-                    </label>
-                    <FormField
-                      control={form.control}
-                      name={`categories.${index}.description`}
-                      render={({ field }) => (
-                        <FormControl>
-                          <RichTextEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                      )}
-                    />
-                  </div>
-
-                  {/* Rules */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Điều lệ hạng mục
-                    </label>
-                    <FormField
-                      control={form.control}
-                      name={`categories.${index}.rules`}
-                      render={({ field }) => (
-                        <FormControl>
-                          <RichTextEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                      )}
-                    />
-                  </div>
-
-                  {/* Prizes */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Giải nhất
-                      </label>
-                      <Input
-                        placeholder="VD: Cúp vàng + 5.000.000 VNĐ"
-                        {...register(`categories.${index}.firstPrize` as const)}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Giải nhì
-                      </label>
-                      <Input
-                        placeholder="VD: Cúp bạc + 3.000.000 VNĐ"
-                        {...register(
-                          `categories.${index}.secondPrize` as const
+                      <FormField
+                        control={form.control}
+                        name={`categories.${index}.description`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <RichTextEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
                         )}
                       />
                     </div>
+
+                    {/* Rules */}
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Giải ba
+                        Điều lệ hạng mục
                       </label>
-                      <Input
-                        placeholder="VD: Cúp đồng + 2.000.000 VNĐ"
-                        {...register(`categories.${index}.thirdPrize` as const)}
+                      <FormField
+                        control={form.control}
+                        name={`categories.${index}.rules`}
+                        render={({ field }) => (
+                          <FormControl>
+                            <RichTextEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                        )}
                       />
                     </div>
+
+                    {/* Prizes */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Giải nhất
+                        </label>
+                        <Input
+                          placeholder="VD: Cúp vàng + 5.000.000 VNĐ"
+                          {...register(
+                            `categories.${index}.firstPrize` as const,
+                          )}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Giải nhì
+                        </label>
+                        <Input
+                          placeholder="VD: Cúp bạc + 3.000.000 VNĐ"
+                          {...register(
+                            `categories.${index}.secondPrize` as const,
+                          )}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Giải ba
+                        </label>
+                        <Input
+                          placeholder="VD: Cúp đồng + 2.000.000 VNĐ"
+                          {...register(
+                            `categories.${index}.thirdPrize` as const,
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* CLUB Tournament Fields */}
+            {isClubType && (
+              <Card className="border-2 border-violet-200 dark:border-violet-700 p-6 space-y-6">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl text-violet-700 dark:text-violet-300">
+                    Thông tin đăng ký CLB
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Registration Fee */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="clubRegistrationFee"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Phí đăng ký CLB (VNĐ){" "}
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="500000"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="maxClubs"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Số CLB tối đa{" "}
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="16"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                </Card>
-              ))}
-            </div>
+
+                  {/* Roster Size */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="minClubRosterSize"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Số thành viên tối thiểu{" "}
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="5"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="maxClubRosterSize"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Số thành viên tối đa{" "}
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="10"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Team Match Format */}
+                  <div>
+                    <label className="block text-sm font-medium mb-3">
+                      Format thi đấu{" "}
+                      <span className="text-gray-400 font-normal">
+                        (số ván mỗi loại)
+                      </span>
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {(
+                        [
+                          { key: "singles", label: "Ván đơn" },
+                          { key: "menDoubles", label: "Đôi nam" },
+                          { key: "womenDoubles", label: "Đôi nữ" },
+                          { key: "mixedDoubles", label: "Đôi hỗn hợp" },
+                        ] as const
+                      ).map(({ key, label }) => (
+                        <div key={key}>
+                          <label className="block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400">
+                            {label}
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            placeholder="0"
+                            value={
+                              (teamMatchFormats[0] ?? defaultMatchFormat())[
+                                key as keyof ReturnType<
+                                  typeof defaultMatchFormat
+                                >
+                              ]
+                            }
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value) || 0;
+                              setTeamMatchFormats((prev) => ({
+                                ...prev,
+                                [0]: {
+                                  ...(prev[0] ?? defaultMatchFormat()),
+                                  [key]: val,
+                                },
+                              }));
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    {/* Preview */}
+                    {(() => {
+                      const fmt = teamMatchFormats[0] ?? defaultMatchFormat();
+                      const total =
+                        (fmt.singles ?? 0) +
+                        (fmt.menDoubles ?? 0) +
+                        (fmt.womenDoubles ?? 0) +
+                        (fmt.mixedDoubles ?? 0);
+                      const parts: string[] = [];
+                      if (fmt.singles) parts.push(`${fmt.singles} đơn`);
+                      if (fmt.menDoubles)
+                        parts.push(`${fmt.menDoubles} đôi nam`);
+                      if (fmt.womenDoubles)
+                        parts.push(`${fmt.womenDoubles} đôi nữ`);
+                      if (fmt.mixedDoubles)
+                        parts.push(`${fmt.mixedDoubles} hỗn hợp`);
+                      return total > 0 ? (
+                        <p className="text-xs text-violet-600 dark:text-violet-400 mt-2">
+                          Preview: {parts.join(" + ")} (tổng {total} ván)
+                        </p>
+                      ) : null;
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Button
               type="submit"
