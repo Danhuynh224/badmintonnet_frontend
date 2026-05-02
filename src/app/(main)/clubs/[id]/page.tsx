@@ -222,6 +222,10 @@ export default async function ClubDetailPage({
                 >
                   Rời CLB
                 </Button>
+              ) : !isLoggedIn ? (
+                <Button asChild variant="outline">
+                  <Link href="/login">Đăng nhập để tham gia</Link>
+                </Button>
               ) : (
                 <>
                   {clubDetail.invitationId ? (

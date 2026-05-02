@@ -3,6 +3,7 @@ import {
   AskChatbotResponse,
   ChatMessage,
   ChatSession,
+  SessionListResponse,
   SessionDetailResponse,
 } from "@/components/chatbot/types";
 
@@ -18,8 +19,18 @@ interface PaginationParams {
 
 type PagedMessagesShape = {
   sessionId?: string;
+  title?: string;
   messages?: ChatMessage[];
   content?: ChatMessage[];
+  page?: number;
+  size?: number;
+  totalPages?: number;
+  totalElements?: number;
+  last?: boolean;
+};
+
+type PagedSessionsShape = {
+  content?: ChatSession[];
   page?: number;
   size?: number;
   totalPages?: number;
@@ -65,6 +76,11 @@ const normalizeSessions = (payload: unknown): ChatSession[] => {
         (typeof item.content === "string" && item.content) ||
         "Cuoc tro chuyen";
 
+      const title =
+        (typeof item.title === "string" && item.title) ||
+        lastMessage ||
+        "Cuoc tro chuyen";
+
       const lastMessageTime =
         (typeof item.lastMessageTime === "string" && item.lastMessageTime) ||
         (typeof item.updatedAt === "string" && item.updatedAt) ||
@@ -86,6 +102,7 @@ const normalizeSessions = (payload: unknown): ChatSession[] => {
 
       return {
         sessionId,
+        title,
         lastMessage,
         lastMessageTime,
         lastRole,
@@ -95,6 +112,41 @@ const normalizeSessions = (payload: unknown): ChatSession[] => {
     .filter((item): item is ChatSession => item !== null);
 
   return sessions;
+};
+
+const normalizeSessionsResponse = (payload: unknown): SessionListResponse => {
+  const unwrapped = unwrapPayload(payload as unknown) as UnknownRecord | unknown[];
+  const sessions = normalizeSessions(payload);
+
+  const page =
+    !Array.isArray(unwrapped) && typeof unwrapped?.page === "number"
+      ? unwrapped.page
+      : 0;
+  const size =
+    !Array.isArray(unwrapped) && typeof unwrapped?.size === "number"
+      ? unwrapped.size
+      : sessions.length;
+  const totalPages =
+    !Array.isArray(unwrapped) && typeof unwrapped?.totalPages === "number"
+      ? unwrapped.totalPages
+      : 1;
+  const totalElements =
+    !Array.isArray(unwrapped) && typeof unwrapped?.totalElements === "number"
+      ? unwrapped.totalElements
+      : sessions.length;
+  const hasMore =
+    !Array.isArray(unwrapped) && typeof unwrapped?.last === "boolean"
+      ? !unwrapped.last
+      : page + 1 < totalPages;
+
+  return {
+    sessions,
+    page,
+    size,
+    totalPages,
+    totalElements,
+    hasMore,
+  };
 };
 
 const normalizeSessionDetail = (payload: unknown): SessionDetailResponse => {
@@ -133,6 +185,7 @@ const normalizeSessionDetail = (payload: unknown): SessionDetailResponse => {
 
   return {
     sessionId: unwrapped?.sessionId || "",
+    title: unwrapped?.title || "",
     messages,
     page,
     size,
@@ -165,14 +218,16 @@ const chatbotSessionApi = {
     };
   },
 
-  getSessions: async () => {
-    const response = await http.get<ChatSession[] | ApiEnvelope<ChatSession[]>>(
-      "/chatbot/sessions",
-    );
+  getSessions: async (params?: PaginationParams) => {
+    const page = params?.page ?? 0;
+    const size = params?.size ?? 10;
+    const response = await http.get<
+      PagedSessionsShape | ChatSession[] | ApiEnvelope<PagedSessionsShape | ChatSession[]>
+    >(`/chatbot/sessions?page=${page}&size=${size}`);
 
     return {
       ...response,
-      payload: normalizeSessions(response.payload),
+      payload: normalizeSessionsResponse(response.payload),
     };
   },
 

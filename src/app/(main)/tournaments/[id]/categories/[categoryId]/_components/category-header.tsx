@@ -15,11 +15,13 @@ import ClubRegisterButton from "./club-register-button";
 interface CategoryHeaderProps {
   category: CategoryDetail;
   categoryId: string;
+  isLoggedIn: boolean;
 }
 
 export default function CategoryHeader({
   category,
   categoryId,
+  isLoggedIn,
 }: CategoryHeaderProps) {
   const filledPercent =
     (category.currentParticipantCount / category.maxParticipants) * 100;
@@ -124,7 +126,7 @@ export default function CategoryHeader({
               </div>
             </div>
           </div>
-          {!category.admin && (
+          {isLoggedIn && !category.admin && (
             <div className="flex flex-col gap-2 w-full sm:w-auto">
               {isClubTournament ? (
                 <ClubRegisterButton
