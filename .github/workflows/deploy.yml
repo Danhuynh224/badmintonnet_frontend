@@ -54,6 +54,10 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
+            set -e
             cd /var/www/sportsnet_frontend
+
             docker compose pull sportsnet-frontend
-            docker compose up -d --remove-orphans
+            docker compose up -d --force-recreate --no-deps sportsnet-frontend
+
+            docker image prune -f
