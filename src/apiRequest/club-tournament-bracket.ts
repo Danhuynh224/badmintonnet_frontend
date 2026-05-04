@@ -5,12 +5,25 @@ import {
   ClubRepresentativeResponseType,
   UpdateClubMatchResultBodyType,
 } from "@/schemaValidations/club-match.schema";
+import { ClubTournamentResultResponseType } from "@/schemaValidations/club-tournament-result.schema";
 
 const clubTournamentBracketApiRequest = {
   // 1. Lấy bảng đấu CLB theo tournamentId (tự động tìm/tạo category MEN_SINGLE)
   getClubBracket: (tournamentId: string) =>
     http.get<ClubBracketResponseType>(
       `/club-tournament/tournament/${tournamentId}/bracket`,
+    ),
+
+  // 1b. Lấy kết quả CLUB tournament (podium, ranking, stats, key matches)
+  getClubResults: (tournamentId: string, accessToken?: string) =>
+    http.get<ClubTournamentResultResponseType>(
+      `/club-tournament/tournament/${tournamentId}/results`,
+      {
+        ...(accessToken
+          ? { headers: { Authorization: `Bearer ${accessToken}` } }
+          : {}),
+        cache: "no-store",
+      },
     ),
 
   // 2. Chọn đại diện cho participant (Owner CLB)
@@ -34,7 +47,7 @@ const clubTournamentBracketApiRequest = {
 
   // 5. Admin: Cập nhật tỉ số trận đấu
   updateMatchResult: (matchId: string, body: UpdateClubMatchResultBodyType) =>
-    http.put(`/bracket/match/${matchId}/update-result`, body),
+    http.post(`/bracket/match/${matchId}/update-result`, body),
 };
 
 export default clubTournamentBracketApiRequest;

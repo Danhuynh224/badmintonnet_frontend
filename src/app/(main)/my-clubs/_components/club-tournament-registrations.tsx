@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Trophy,
@@ -37,6 +38,7 @@ const FILTER_CONFIG: Record<
 export default function ClubTournamentRegistrations({
   participations: initialParticipations,
 }: ClubTournamentRegistrationsProps) {
+  const router = useRouter();
   const [participations, setParticipations] = useState(initialParticipations);
   const [updateTarget, setUpdateTarget] =
     useState<ClubTournamentParticipant | null>(null);
@@ -46,8 +48,8 @@ export default function ClubTournamentRegistrations({
   const [sortDesc, setSortDesc] = useState(true);
 
   const handleUpdated = useCallback(() => {
-    // Parent sẽ revalidate qua router.refresh() nếu cần
-  }, []);
+    router.refresh();
+  }, [router]);
 
   const handleCancelled = useCallback(() => {
     if (!cancelTarget) return;

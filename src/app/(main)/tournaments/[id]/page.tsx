@@ -16,6 +16,7 @@ import ClubCategorySection from "@/app/(main)/tournaments/[id]/_components/club-
 import ResultsSection from "@/app/(main)/tournaments/[id]/_components/results-section";
 import PlayersSection from "@/app/(main)/tournaments/[id]/_components/players-section";
 import BracketSection from "@/app/(main)/tournaments/[id]/_components/bracket-section";
+import ClubResultsSection from "@/app/(main)/tournaments/[id]/_components/club-tournament/ClubResultsSection";
 
 export default async function TournamentDetailPage({
   params,
@@ -31,17 +32,19 @@ export default async function TournamentDetailPage({
   const tournament = response.payload.data;
   const statusInfo = getTournamentStatusInfo(tournament.status);
 
-  // Fetch tournament results
+  // Chỉ fetch tournament results cho INDIVIDUAL.
+  // CLUB results được render bởi ClubResultsSection (server component tự fetch).
   let tournamentResults = null;
-  try {
-    const resultsResponse = await tournamentApiRequest.getTournamentResults(
-      tournament.id,
-      accessToken,
-    );
-    tournamentResults = resultsResponse.payload.data;
-  } catch (error) {
-    // Results might not be available yet
-    console.error("Error fetching tournament results:", error);
+  if (tournament.participationType !== "CLUB") {
+    try {
+      const resultsResponse = await tournamentApiRequest.getTournamentResults(
+        tournament.id,
+        accessToken,
+      );
+      tournamentResults = resultsResponse.payload.data;
+    } catch (error) {
+      console.error("Error fetching tournament results:", error);
+    }
   }
 
   return (
@@ -183,7 +186,13 @@ export default async function TournamentDetailPage({
           )}
 
           <TabsContent value="results">
-            <ResultsSection categories={tournamentResults?.categories || []} />
+            {tournament.participationType === "CLUB" ? (
+              <ClubResultsSection tournamentId={tournament.id} />
+            ) : (
+              <ResultsSection
+                categories={tournamentResults?.categories || []}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>

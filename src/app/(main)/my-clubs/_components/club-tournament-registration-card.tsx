@@ -30,6 +30,7 @@ import {
 import paymentApiRequest from "@/apiRequest/payment";
 import ClubRosterModal from "@/app/(main)/tournaments/[id]/categories/[categoryId]/_components/club-roster-modal";
 import RepresentativeSelector from "./representative-selector";
+import ClubTournamentResultInline from "./club-tournament-result-inline";
 import { toast } from "sonner";
 
 interface ClubTournamentRegistrationCardProps {
@@ -324,6 +325,16 @@ export default function ClubTournamentRegistrationCard({
           status={participant.status}
           hasRepresentative={hasRepresentative}
         />
+
+        {/* ===== Kết quả giải đấu (chỉ khi ELIMINATED) ===== */}
+        {participant.status === "ELIMINATED" && (
+          <ClubTournamentResultInline
+            tournamentId={participant.tournamentId}
+            tournamentSlug={participant.tournamentSlug}
+            participantId={participant.id}
+            clubId={participant.clubId}
+          />
+        )}
 
         {/* ===== Action row ===== */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
