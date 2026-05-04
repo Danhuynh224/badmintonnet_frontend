@@ -100,10 +100,14 @@ export default function ClubTournamentResultInline({
     if (!expanded && state.status === "idle") {
       setState({ status: "loading" });
       try {
-        const res = await clubTournamentBracketApiRequest.getClubResults(tournamentId);
+        const res =
+          await clubTournamentBracketApiRequest.getClubResults(tournamentId);
         setState({ status: "done", data: res.payload.data });
       } catch {
-        setState({ status: "error", message: "Không thể tải kết quả. Vui lòng thử lại." });
+        setState({
+          status: "error",
+          message: "Không thể tải kết quả. Vui lòng thử lại.",
+        });
       }
     }
     setExpanded((v) => !v);
@@ -150,7 +154,9 @@ export default function ClubTournamentResultInline({
       {expanded && (
         <div className="px-4 py-4 bg-white dark:bg-gray-900 space-y-4">
           {state.status === "error" && (
-            <p className="text-sm text-red-500 dark:text-red-400">{state.message}</p>
+            <p className="text-sm text-red-500 dark:text-red-400">
+              {state.message}
+            </p>
           )}
 
           {state.status === "done" && (
@@ -196,7 +202,11 @@ export default function ClubTournamentResultInline({
                       >
                         {/* Rank icon */}
                         <span className="w-6 text-center text-sm font-bold text-gray-400 dark:text-gray-500 flex-shrink-0">
-                          {item.ranking === 1 ? "🥇" : item.ranking === 2 ? "🥈" : "🥉"}
+                          {item.ranking === 1
+                            ? "🥇"
+                            : item.ranking === 2
+                              ? "🥈"
+                              : "🥉"}
                         </span>
                         <PodiumAvatar podiumItem={item} />
                         {item.participantId === participantId && (
