@@ -16,6 +16,7 @@ import {
   EnvelopeIcon,
   EllipsisVerticalIcon,
   UserMinusIcon,
+  ShieldExclamationIcon,
   UserPlusIcon,
   CheckIcon,
   ClockIcon,
@@ -68,7 +69,7 @@ export default function ProfileHeader({
     try {
       const res = await friendApiRequest.sendFriendRequest(
         { receiverId: profile.id },
-        accessToken,
+        accessToken
       );
       if (res.status === 200 || res.status === 201) {
         toast.success("Đã gửi lời mời kết bạn");
@@ -87,7 +88,7 @@ export default function ProfileHeader({
       const requesterId = relationship.requester.id;
       const res = await friendApiRequest.acceptFriendRequest(
         requesterId,
-        accessToken,
+        accessToken
       );
       if (res.status === 200) {
         toast.success("Đã chấp nhận kết bạn");
@@ -106,7 +107,7 @@ export default function ProfileHeader({
       const requesterId = relationship.requester.id;
       const res = await friendApiRequest.rejectFriendRequest(
         requesterId,
-        accessToken,
+        accessToken
       );
       if (res.status === 200) {
         toast.success("Đã từ chối lời mời");

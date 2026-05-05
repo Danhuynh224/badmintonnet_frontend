@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { array } from "zod";
 export const conversation = z.object({
   id: z.string(),
   name: z.string(),

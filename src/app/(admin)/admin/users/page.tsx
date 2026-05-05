@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import adminApiRequest from "@/apiRequest/admin";
+import EventsTable from "@/app/(admin)/admin/events/_components/events_table";
 import UsersTable from "@/app/(admin)/admin/users/_components/users-table";
 
 export default async function EventsPage({
@@ -18,7 +19,7 @@ export default async function EventsPage({
     const response = await adminApiRequest.getAllUsers(
       page,
       size,
-      accessToken?.value,
+      accessToken?.value
     );
 
     if (!response.payload || !response.payload.data) {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Trophy, CheckCircle } from "lucide-react";
 import accountApiRequest from "@/apiRequest/account";
@@ -33,7 +34,7 @@ export default function VerifyMemberRatingDialog({
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const router = useRouter();
-  const fetchDetail = useCallback(async () => {
+  const fetchDetail = async () => {
     try {
       setFetching(true);
       const res = await accountApiRequest.getClubMemberRating(memberId);
@@ -43,7 +44,7 @@ export default function VerifyMemberRatingDialog({
     } finally {
       setFetching(false);
     }
-  }, [memberId]);
+  };
 
   useEffect(() => {
     if (open) {
@@ -52,7 +53,7 @@ export default function VerifyMemberRatingDialog({
     } else {
       setDetailData(null);
     }
-  }, [open, fetchDetail, ratingVerified]);
+  }, [open]);
 
   const handleVerify = async () => {
     try {

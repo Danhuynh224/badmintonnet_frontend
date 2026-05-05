@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import clubServiceApi from "@/apiRequest/club";
 import facilityServiceApi from "@/apiRequest/facility";
@@ -201,7 +202,7 @@ const EditClubForm: React.FC<EditClubFormProps> = ({
         onClose();
         router.refresh();
       }, 500);
-    } catch {
+    } catch (error: unknown) {
       toast.error("Đã xảy ra lỗi khi cập nhật câu lạc bộ");
     } finally {
       setIsLoading(false);

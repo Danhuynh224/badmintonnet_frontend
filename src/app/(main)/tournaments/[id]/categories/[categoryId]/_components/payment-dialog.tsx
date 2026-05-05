@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +60,7 @@ export default function PaymentDialog({
   categoryId,
   amount,
 }: PaymentDialogProps) {
+  const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState("vnpay");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -76,7 +78,7 @@ export default function PaymentDialog({
       if (selectedMethod === "vnpay") {
         const response = await paymentApiRequest.createPayment(
           categoryId,
-          amount,
+          amount
         );
         // console.log("Create payment response:", response);
 
@@ -86,7 +88,7 @@ export default function PaymentDialog({
       } else {
         toast.error("Phương thức thanh toán chưa được hỗ trợ");
       }
-    } catch {
+    } catch (error: unknown) {
       toast.error("Có lỗi xảy ra khi tạo thanh toán");
     } finally {
       setIsProcessing(false);

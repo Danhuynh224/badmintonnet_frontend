@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,13 +49,13 @@ export default function CategoryTeamParticipants({
     setOpenModal(true);
   };
 
-  const fetchApprovedTeams = useCallback(async () => {
+  const fetchApprovedTeams = async () => {
     try {
       const res = await tournamentApiRequest.getAllTeamParticipants(
         categoryId,
         ["APPROVED"],
         0,
-        100,
+        100
       );
       setApprovedTeams(res.payload.data.content || []);
     } catch {
@@ -63,16 +63,16 @@ export default function CategoryTeamParticipants({
     } finally {
       setLoadingApproved(false);
     }
-  }, [categoryId]);
+  };
 
-  const fetchPendingTeams = useCallback(async () => {
+  const fetchPendingTeams = async () => {
     if (!isAdmin) return;
     try {
       const res = await tournamentApiRequest.getAllTeamParticipants(
         categoryId,
         ["PENDING"],
         0,
-        100,
+        100
       );
       setPendingTeams(res.payload.data.content || []);
     } catch {
@@ -80,12 +80,12 @@ export default function CategoryTeamParticipants({
     } finally {
       setLoadingPending(false);
     }
-  }, [categoryId, isAdmin]);
+  };
 
   useEffect(() => {
     fetchApprovedTeams();
     if (isAdmin) fetchPendingTeams();
-  }, [isAdmin, fetchApprovedTeams, fetchPendingTeams]);
+  }, [categoryId, isAdmin]);
 
   const handleApprove = async (id: string) => {
     setProcessingId(id);

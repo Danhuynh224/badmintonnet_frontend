@@ -4,13 +4,8 @@ import { MessageCircle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
-interface ChatbotWidgetProps {
-  isLoggedIn: boolean;
-}
-
-export function ChatbotWidget({ isLoggedIn }: ChatbotWidgetProps) {
+export function ChatbotWidget() {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -19,12 +14,6 @@ export function ChatbotWidget({ isLoggedIn }: ChatbotWidgetProps) {
   }
 
   const handleOpenChatbot = () => {
-    if (!isLoggedIn) {
-      toast.error("Vui lòng đăng nhập để sử dụng chatbot.");
-      router.push("/login");
-      return;
-    }
-
     router.push("/chatbot");
   };
 

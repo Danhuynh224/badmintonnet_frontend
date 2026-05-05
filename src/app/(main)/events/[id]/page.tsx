@@ -5,6 +5,9 @@ import {
   MapPin,
   Users,
   DollarSign,
+  Edit3,
+  X,
+  UserPlus,
   UserMinus,
   CircleStar,
   CheckCircle,
@@ -16,8 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import eventClubApiRequest from "@/apiRequest/club.event";
 import { cookies } from "next/headers";
-import { ParticipantType } from "@/schemaValidations/event.schema";
+import {
+  EventDetailType,
+  ParticipantType,
+} from "@/schemaValidations/event.schema";
 import { JoinEventButton } from "@/app/(main)/events/_components/join-event-button";
+// import ViewParticipantsButton from "@/app/(main)/events/_components/view-participants-button";
 import EditEventButton from "@/app/(main)/events/_components/edit-event-button";
 import ViewRating from "@/app/(main)/events/_components/view-rating";
 import EventHighlights from "@/app/(main)/events/_components/highlight/event-highlights";
@@ -37,24 +44,22 @@ interface EventDetailPageProps {
 export default async function EventDetail({ params }: EventDetailPageProps) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
-  const isLoggedIn = !!accessToken?.value;
   const { id } = await params;
 
   const response = await eventClubApiRequest.getEventById(
     id,
-    accessToken?.value || "",
+    accessToken?.value || ""
   );
 
-  const user = isLoggedIn
-    ? (await accountApiRequest.getAccount(accessToken.value)).payload.data
-    : null;
+  const me = await accountApiRequest.getAccount(accessToken?.value || "");
+  const user = me.payload.data;
 
   const eventDetail = response.payload.data || null;
   let participantRes;
   if (eventDetail.participantRole === "OWNER") {
     participantRes = await eventClubApiRequest.getParticipants(
       eventDetail?.id,
-      accessToken?.value || "",
+      accessToken?.value || ""
     );
   }
   const participants: ParticipantType[] = participantRes?.payload.data || [];
@@ -139,7 +144,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
     );
   };
   const renderParticipantStatus = (
-    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT" | "CANCELLED",
+    status: "PENDING" | "APPROVED" | "ATTENDED" | "ABSENT" | "CANCELLED"
   ) => {
     // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -517,8 +522,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                   </div>
                 )}
 
-                {isLoggedIn &&
-                  eventDetail.participantRole === "MEMBER" &&
+                {eventDetail.participantRole === "MEMBER" &&
                   eventDetail.status == "OPEN" && (
                     <div className="flex flex-col gap-3">
                       {eventDetail.joinedMember == eventDetail.totalMember ? (
@@ -543,8 +547,7 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
                     </div>
                   )}
 
-                {isLoggedIn &&
-                  eventDetail.participantRole === "GUEST" &&
+                {eventDetail.participantRole === "GUEST" &&
                   eventDetail.status == "OPEN" && (
                     <>
                       {eventDetail.joinedMember == eventDetail.totalMember ? (
@@ -625,20 +628,16 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
             />
             <div className="mt-8">
               {/* Hiển thị form đăng highlights cho người dùng đã tham gia sự kiện */}
-              {user &&
-                (eventDetail.joined ||
-                  eventDetail.participantRole === "OWNER") && (
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                      <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
-                      Chia sẻ khoảnh khắc của bạn
-                    </h2>
-                    <CreateHighlightButton
-                      eventId={eventDetail.id}
-                      user={user}
-                    />
-                  </div>
-                )}
+              {(eventDetail.joined ||
+                eventDetail.participantRole === "OWNER") && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
+                    Chia sẻ khoảnh khắc của bạn
+                  </h2>
+                  <CreateHighlightButton eventId={eventDetail.id} user={user} />
+                </div>
+              )}
 
               {/* Hiển thị component highlights khi sự kiện đã kết thúc */}
               <EventHighlights

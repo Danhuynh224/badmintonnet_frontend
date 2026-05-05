@@ -43,10 +43,10 @@ export function CancelJoinEventButton({
       const finalReason =
         selectedReason === "Khác" ? customReason.trim() : selectedReason;
 
-      await eventClubApiRequest.cancelJoinEventClub(
+      const res = await eventClubApiRequest.cancelJoinEventClub(
         eventId,
         finalReason,
-        token,
+        token
       );
       toast.success("Hủy tham gia hoạt động thành công!");
 
@@ -54,7 +54,7 @@ export function CancelJoinEventButton({
       setIsOpen(false);
       setSelectedReason("");
       setCustomReason("");
-    } catch {
+    } catch (error: unknown) {
       toast.error("Có lỗi xảy ra khi hủy sự kiện");
     } finally {
       setIsLoading(false);

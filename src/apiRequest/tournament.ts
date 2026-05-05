@@ -3,6 +3,7 @@ import { FileResType } from "@/schemaValidations/common.schema";
 import { FriendListResponseType } from "@/schemaValidations/friend.schema";
 import {
   CategoryResultsResponseType,
+  CategoryResultType,
   TournamentResultResponseType,
 } from "@/schemaValidations/tournament-result";
 import {
@@ -22,28 +23,19 @@ const tournamentApiRequest = {
 
   createTournament: (body: TournamentCreateRequest) =>
     http.post("/admin/tournament", body),
-  getAllTournaments: (
-    page: number,
-    size: number,
-    accessToken?: string,
-    participationType?: "INDIVIDUAL" | "CLUB",
-  ) => {
-    const params = new URLSearchParams();
-    params.append("page", page.toString());
-    params.append("size", size.toString());
-    if (participationType) {
-      params.append("participationType", participationType);
-    }
-    const headers: Record<string, string> = {};
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-    return http.get<PagedTournamentResponse>(
-      `/tournaments?${params.toString()}`,
-      {
-        headers,
-      },
-    );
+  getAllTournaments: (page: number, size: number, accessToken?: string) => {
+    const config = {
+      params: { page, size },
+      ...(accessToken
+        ? {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        : {}),
+    };
+
+    return http.get<PagedTournamentResponse>("/tournaments", config);
   },
   getDetailBySlug: (slug: string, token = "") =>
     http.get<TournamentDetailResponse>(`/tournaments/${slug}`, {
@@ -67,7 +59,7 @@ const tournamentApiRequest = {
     categoryId: string,
     status?: TournamentParticipantEnum[],
     page: number = 0,
-    size: number = 10,
+    size: number = 10
   ) => {
     const params = new URLSearchParams();
     params.append("page", page.toString());
@@ -79,14 +71,14 @@ const tournamentApiRequest = {
     }
 
     return http.get<PagedTournamentCategoryParticipantsResponse>(
-      `/tournament-participants/${categoryId}?${params.toString()}`,
+      `/tournament-participants/${categoryId}?${params.toString()}`
     );
   },
   getAllTeamParticipants: (
     categoryId: string,
     status?: TournamentParticipantEnum[],
     page: number = 0,
-    size: number = 10,
+    size: number = 10
   ) => {
     const params = new URLSearchParams();
     params.append("page", page.toString());
@@ -98,7 +90,7 @@ const tournamentApiRequest = {
     }
 
     return http.get<PagedTournamentCategoryTeamParticipantsResponse>(
-      `/tournament-participants/${categoryId}/double?${params.toString()}`,
+      `/tournament-participants/${categoryId}/double?${params.toString()}`
     );
   },
   approveParticipant: (participantId: string) =>
@@ -111,7 +103,7 @@ const tournamentApiRequest = {
     http.put(`/tournament-participants/double/${teamId}/reject`),
   getPartnerList: (categoryId: string) =>
     http.get<FriendListResponseType>(
-      "/tournaments/get-all-partner/" + categoryId,
+      "/tournaments/get-all-partner/" + categoryId
     ),
   invitePartner: (body: TournamentPartnerInvitationRequestType) =>
     http.post("/tournament-participants/invite-partner", body),
@@ -130,7 +122,7 @@ const tournamentApiRequest = {
             }
           : {}),
         cache: "no-store",
-      },
+      }
     ),
 
   getCategoryResults: (categoryId: string, accessToken?: string) =>
@@ -145,7 +137,7 @@ const tournamentApiRequest = {
             }
           : {}),
         cache: "no-store",
-      },
+      }
     ),
 };
 export default tournamentApiRequest;
