@@ -115,7 +115,9 @@ const normalizeSessions = (payload: unknown): ChatSession[] => {
 };
 
 const normalizeSessionsResponse = (payload: unknown): SessionListResponse => {
-  const unwrapped = unwrapPayload(payload as unknown) as UnknownRecord | unknown[];
+  const unwrapped = unwrapPayload(payload as unknown) as
+    | UnknownRecord
+    | unknown[];
   const sessions = normalizeSessions(payload);
 
   const page =
@@ -222,7 +224,9 @@ const chatbotSessionApi = {
     const page = params?.page ?? 0;
     const size = params?.size ?? 10;
     const response = await http.get<
-      PagedSessionsShape | ChatSession[] | ApiEnvelope<PagedSessionsShape | ChatSession[]>
+      | PagedSessionsShape
+      | ChatSession[]
+      | ApiEnvelope<PagedSessionsShape | ChatSession[]>
     >(`/chatbot/sessions?page=${page}&size=${size}`);
 
     return {

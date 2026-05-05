@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus, MessageSquareText } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  MessageSquareText,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -57,7 +62,9 @@ export function SessionList({
           {sessions.map((session) => {
             const isActive = session.sessionId === activeSessionId;
             const safeTitle = (
-              session.title || session.lastMessage || "Cuoc tro chuyen"
+              session.title ||
+              session.lastMessage ||
+              "Cuoc tro chuyen"
             ).trim();
             return (
               <button
