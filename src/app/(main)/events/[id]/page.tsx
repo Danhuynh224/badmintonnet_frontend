@@ -627,15 +627,18 @@ export default async function EventDetail({ params }: EventDetailPageProps) {
               {/* Hiển thị form đăng highlights cho người dùng đã tham gia sự kiện */}
               {user &&
                 (eventDetail.joined ||
-                eventDetail.participantRole === "OWNER") && (
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                    <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
-                    Chia sẻ khoảnh khắc của bạn
-                  </h2>
-                  <CreateHighlightButton eventId={eventDetail.id} user={user} />
-                </div>
-              )}
+                  eventDetail.participantRole === "OWNER") && (
+                  <div className="mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                      <div className="w-2 h-8 bg-gradient-to-b from-amber-500 to-orange-600 rounded-full mr-4"></div>
+                      Chia sẻ khoảnh khắc của bạn
+                    </h2>
+                    <CreateHighlightButton
+                      eventId={eventDetail.id}
+                      user={user}
+                    />
+                  </div>
+                )}
 
               {/* Hiển thị component highlights khi sự kiện đã kết thúc */}
               <EventHighlights

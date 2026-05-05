@@ -171,7 +171,8 @@ export function ChatPage() {
 
   const handleSessionPageChange = useCallback(
     (nextPage: number) => {
-      if (nextPage < 0 || nextPage >= sessionTotalPages || loadingSessions) return;
+      if (nextPage < 0 || nextPage >= sessionTotalPages || loadingSessions)
+        return;
       setSessionPage(nextPage);
     },
     [loadingSessions, sessionTotalPages],
@@ -262,9 +263,11 @@ export function ChatPage() {
       />
 
       <ChatWindow
-        sessionTitle={
-          (activeSession?.title || activeSession?.lastMessage || "Chat mới").trim()
-        }
+        sessionTitle={(
+          activeSession?.title ||
+          activeSession?.lastMessage ||
+          "Chat mới"
+        ).trim()}
         messages={messages}
         input={input}
         loading={loading || loadingHistory}
