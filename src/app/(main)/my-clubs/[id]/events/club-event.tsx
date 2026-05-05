@@ -13,6 +13,9 @@ interface EventsPageProps {
 
 export default async function ClubEvents({
   page,
+  status,
+  type,
+  search,
   owner,
   clubId,
 }: EventsPageProps) {
@@ -47,7 +50,7 @@ export default async function ClubEvents({
       clubId,
       page,
       size,
-      accessToken?.value || "",
+      accessToken?.value || ""
     );
     events = response.payload.data.content || [];
     totalPages = response.payload.data.totalPages || 0;

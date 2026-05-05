@@ -19,11 +19,10 @@ export default async function TournamentCategoryDetail({
   let category: CategoryDetail | null = null;
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken");
-  const isLoggedIn = !!accessToken?.value;
   try {
     const response = await tournamentApiRequest.getCategoryDetail(
       categoryId,
-      accessToken?.value,
+      accessToken?.value
     );
     category = response.payload.data;
   } catch (error) {
@@ -58,11 +57,7 @@ export default async function TournamentCategoryDetail({
         categoryLabel={category.category}
       />
 
-      <CategoryHeader
-        category={category}
-        categoryId={categoryId}
-        isLoggedIn={isLoggedIn}
-      />
+      <CategoryHeader category={category} categoryId={categoryId} />
 
       {/* Thông báo đã thanh toán - Phiên bản đơn giản */}
       {isApproved && hasPaid && (

@@ -32,11 +32,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, MapPin, Upload } from "lucide-react";
 import addressApiRequest from "@/apiRequest/address";
 import facilityApiRequest from "@/apiRequest/facility";
 import { CreateFacilityBody } from "@/schemaValidations/event.schema";
-import Image from "next/image";
 
 // Định nghĩa schema cho form
 const formSchema = CreateFacilityBody;
@@ -107,8 +106,9 @@ export function CreateFacilityDialog({
       }
 
       try {
-        const response =
-          await addressApiRequest.getWardsByProvinceId(selectedProvinceId);
+        const response = await addressApiRequest.getWardsByProvinceId(
+          selectedProvinceId
+        );
         setWards(response.payload.data.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách quận/huyện:", error);
@@ -245,7 +245,7 @@ export function CreateFacilityDialog({
               <FormField
                 control={form.control}
                 name="city"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tỉnh/Thành phố</FormLabel>
                     <Select
@@ -274,7 +274,7 @@ export function CreateFacilityDialog({
               <FormField
                 control={form.control}
                 name="district"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Quận/Huyện</FormLabel>
                     <Select
@@ -362,7 +362,7 @@ export function CreateFacilityDialog({
                 >
                   {imagePreview ? (
                     <div className="relative w-full h-full">
-                      <Image
+                      <img
                         src={imagePreview}
                         alt="Preview"
                         className="object-cover w-full h-full rounded-md"

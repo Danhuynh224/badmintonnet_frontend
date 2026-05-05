@@ -9,7 +9,7 @@
 [![React](https://img.shields.io/badge/React-19.1.0-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-_Connecting players, clubs, and tournaments with cutting-edge technology_
+*Connecting players, clubs, and tournaments with cutting-edge technology*
 
 </div>
 
@@ -48,14 +48,12 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 ## ✨ Features
 
 ### 🏆 Tournament Management
-
 - Professional tournament organization with automatic bracket generation
 - Real-time match tracking and results
 - Tournament registration and payment processing
 - Comprehensive tournament statistics and analytics
 
 ### 👥 Club & Event Management
-
 - Create and manage badminton clubs
 - Organize and join playing sessions
 - Advanced filtering by location, skill level, and facilities
@@ -63,28 +61,24 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 - Event scheduling and participant management
 
 ### 📊 Player Rating System
-
 - ELO-based rating system for accurate skill assessment
 - Player profile with detailed statistics
 - Progress tracking and skill level visualization
 - Match history and performance analytics
 
 ### 💬 Real-Time Communication
-
 - WebSocket-based chat system
 - Real-time notifications
 - Club and event messaging
 - Friend system for connecting players
 
 ### 💳 Payment Integration
-
 - VNPay payment gateway integration
 - Secure transaction processing
 - Payment history and receipts
 - Event and tournament fee management
 
 ### 🎨 Modern UI/UX
-
 - Responsive design for all devices
 - Dark mode support
 - Smooth animations and transitions
@@ -92,7 +86,6 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 - Beautiful gradient designs and modern aesthetics
 
 ### 🔐 Authentication & Security
-
 - Firebase authentication integration
 - Google OAuth login
 - JWT-based session management
@@ -100,7 +93,6 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 - Secure cookie-based authentication
 
 ### 📱 Admin Dashboard
-
 - User management
 - Club and event oversight
 - Facility management
@@ -113,13 +105,11 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 ## 🛠 Tech Stack
 
 ### Frontend Framework
-
 - **Next.js 15.5.0** - React framework with App Router
 - **React 19.1.0** - UI library
 - **TypeScript 5.0** - Type-safe development
 
 ### Styling & UI
-
 - **Tailwind CSS 4.0** - Utility-first CSS framework
 - **Radix UI** - Accessible component primitives
 - **shadcn/ui** - High-quality component library
@@ -128,41 +118,34 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 - **Heroicons** - Additional icon set
 
 ### Form Management
-
 - **React Hook Form** - Performant form library
 - **Zod** - Schema validation
 - **@hookform/resolvers** - Form validation integration
 
 ### Rich Text Editing
-
 - **TipTap** - Modern rich text editor
 - **TinyMCE** - Alternative rich text editor
 - **CKEditor** - Additional editor option
 
 ### State & Data Management
-
 - **Next.js Server Components** - Server-side rendering
 - **React Context** - Client-side state management
 - **Cookie-based sessions** - Secure token storage
 
 ### Real-Time Features
-
 - **STOMP.js** - WebSocket protocol implementation
 - **SockJS** - WebSocket fallback library
 - **@stomp/stompjs** - Modern STOMP client
 
 ### Authentication
-
 - **Firebase** - Authentication service
 - **JWT** - Token-based authentication
 - **jwt-decode** - JWT token decoding
 
 ### Payment Processing
-
 - **VNPay Integration** - Payment gateway
 
 ### Additional Libraries
-
 - **date-fns** - Date utility library
 - **Sonner** - Toast notifications
 - **next-themes** - Theme management
@@ -170,7 +153,6 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 - **Emoji Picker** - Emoji selection component
 
 ### Development Tools
-
 - **ESLint** - Code linting
 - **TypeScript** - Type checking
 - **Turbopack** - Fast bundler (Next.js)
@@ -188,14 +170,12 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
 ### Installation
 
 1. **Clone the repository**
-
    ```bash
    git clone <repository-url>
    cd sportsnet_frontend
    ```
 
 2. **Install dependencies**
-
    ```bash
    npm install
    # or
@@ -205,17 +185,15 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
    ```
 
 3. **Set up environment variables**
-
+   
    Create a `.env.local` file in the root directory:
-
    ```env
    NEXT_PUBLIC_API_ENDPOINT=your_api_endpoint_here
    ```
-
+   
    For Firebase authentication, you'll also need to configure Firebase credentials in your Firebase project.
 
 4. **Run the development server**
-
    ```bash
    npm run dev
    # or
@@ -225,7 +203,7 @@ _Connecting players, clubs, and tournaments with cutting-edge technology_
    ```
 
 5. **Open your browser**
-
+   
    Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
 
 ---
@@ -288,8 +266,8 @@ The application requires the following environment variables:
 
 ### Required Variables
 
-| Variable                   | Description          | Example                        |
-| -------------------------- | -------------------- | ------------------------------ |
+| Variable | Description | Example |
+|----------|-------------|---------|
 | `NEXT_PUBLIC_API_ENDPOINT` | Backend API base URL | `https://api.badmintonnet.com` |
 
 ### Firebase Configuration
@@ -300,12 +278,12 @@ For Firebase authentication, configure your Firebase project and add the credent
 
 ## 📜 Available Scripts
 
-| Script          | Description                             |
-| --------------- | --------------------------------------- |
-| `npm run dev`   | Start development server with Turbopack |
-| `npm run build` | Build production bundle with Turbopack  |
-| `npm run start` | Start production server                 |
-| `npm run lint`  | Run ESLint for code quality checks      |
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server with Turbopack |
+| `npm run build` | Build production bundle with Turbopack |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint for code quality checks |
 
 ---
 
@@ -463,6 +441,6 @@ For support, please contact the development team or open an issue in the reposit
 
 **Built with ❤️ for the badminton community**
 
-_Connecting players, one match at a time_
+*Connecting players, one match at a time*
 
 </div>

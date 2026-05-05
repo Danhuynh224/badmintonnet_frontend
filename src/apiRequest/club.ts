@@ -7,6 +7,7 @@ import {
   ClubWarningResponseType,
   ClubWarningType,
   CreateClubBodyType,
+  GetClubWarningRequest,
   GuestResponseType,
   MemberPageResType,
   MyClubPageResType,

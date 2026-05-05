@@ -39,7 +39,7 @@ export default function SelectPartnerModal({
       try {
         const res = await tournamentApiRequest.getPartnerList(categoryId);
         setPartners(res.payload.data);
-      } catch {
+      } catch (err) {
         toast.error("Không thể tải danh sách người chơi");
       } finally {
         setLoading(false);
@@ -48,7 +48,7 @@ export default function SelectPartnerModal({
     if (open) {
       fetchPartner();
     }
-  }, [open, categoryId]);
+  }, [open]);
 
   const openMessageModal = (p: AccountFriendSchemaType) => {
     setSelectedPartner(p);

@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import {
   ClubWarningResType,
   ClubWarningSchema,
@@ -47,6 +48,8 @@ export default function CreateClubWarningDialog({ clubId, memberId }: Props) {
   const [loading, setLoading] = useState(false);
   const [warnings, setWarnings] = useState<ClubWarningResType[]>([]);
   const [showCreate, setShowCreate] = useState(false);
+  const router = useRouter();
+
   const handleSelectTemplate = (templateText: string, title: string) => {
     setReason(templateText);
     setSelectedTemplate(title);
@@ -56,11 +59,11 @@ export default function CreateClubWarningDialog({ clubId, memberId }: Props) {
     try {
       const response = await clubServiceApi.getClubWarning(
         clubId,
-        memberId || "",
+        memberId || ""
       );
       // try to be defensive about shape
       setWarnings(response?.payload?.data ?? []);
-    } catch {
+    } catch (error) {
       toast.error("Không thể tải cảnh báo. Vui lòng thử lại.");
     }
   };
@@ -94,7 +97,7 @@ export default function CreateClubWarningDialog({ clubId, memberId }: Props) {
       // if want to close, uncomment next two lines:
       // setOpen(false);
       // router.refresh();
-    } catch {
+    } catch (err) {
       toast.error("Không thể tạo cảnh báo. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -108,7 +111,7 @@ export default function CreateClubWarningDialog({ clubId, memberId }: Props) {
       toast.success("Đã thu hồi cảnh báo.");
       // refresh list
       await fetchWarnings();
-    } catch {
+    } catch (err) {
       toast.error("Không thể thu hồi cảnh báo. Vui lòng thử lại.");
     } finally {
       setLoading(false);

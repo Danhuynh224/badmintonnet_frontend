@@ -84,7 +84,7 @@ export default function ChatPage() {
   const loadMessages = async (
     conversationId: string,
     pageNum: number,
-    append = false,
+    append = false
   ) => {
     if (loadingMessages) return;
     setLoadingMessages(true);
@@ -94,12 +94,12 @@ export default function ChatPage() {
       const res = await chatApiRequest.getMessagesByConversationId(
         conversationId,
         pageNum,
-        pageSize,
+        pageSize
       );
 
       const newMessages = res.payload.data.content.sort(
         (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
 
       if (newMessages.length < pageSize) {
@@ -153,7 +153,6 @@ export default function ChatPage() {
       // clear messages when no conversation selected to avoid large memory
       setMessages([]);
     }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation]);
 
   // WebSocket conversation updates
@@ -222,7 +221,7 @@ export default function ChatPage() {
             setTimeout(scrollToBottom, 50);
             setPage((prev) => prev + 1);
           }
-        },
+        }
       );
     };
 
@@ -268,7 +267,7 @@ export default function ChatPage() {
               return prev;
             });
           }
-        },
+        }
       );
     };
 
@@ -297,7 +296,7 @@ export default function ChatPage() {
   };
 
   const filteredConversations = conversations.filter((conv) =>
-    conv.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    conv.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -339,8 +338,8 @@ export default function ChatPage() {
                 onClick={() => {
                   setConversations((prev) =>
                     prev.map((c) =>
-                      c.id === conversation.id ? { ...c, unreadCount: 0 } : c,
-                    ),
+                      c.id === conversation.id ? { ...c, unreadCount: 0 } : c
+                    )
                   );
                   setSelectedConversation(conversation);
                 }}

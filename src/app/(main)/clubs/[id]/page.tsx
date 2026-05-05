@@ -3,9 +3,17 @@ import {
   Calendar,
   MapPin,
   Users,
+  Edit,
+  Plus,
   Club,
   Activity,
+  BarChart3,
+  Clock,
+  Settings,
+  Flag,
   MessageCircle,
+  Star,
+  ThumbsUp,
   Info,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -24,6 +32,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ApprovedMembers from "@/app/(main)/my-clubs/_components/approved-members";
 import GuestMembers from "@/app/(main)/my-clubs/_components/guest-members";
 import RatingView from "@/app/(main)/my-clubs/_components/rating-view";
 import ClubEvents from "@/app/(main)/my-clubs/[id]/events/club-event";
@@ -70,7 +79,7 @@ export default async function ClubDetailPage({
       accessToken?.value || "",
     );
     clubDetail = response.payload.data || null;
-  } catch {
+  } catch (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <p className="text-red-500">
@@ -113,7 +122,15 @@ export default async function ClubDetailPage({
     </Card>
   );
 
-  const JoinRequiredMessage = ({ tabName }: { tabName: string }) => (
+  const JoinRequiredMessage = ({
+    tabName,
+    clubId,
+    clubName,
+  }: {
+    tabName: string;
+    clubId: string;
+    clubName: string;
+  }) => (
     <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <CardContent className="pt-6">
         <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
@@ -221,10 +238,6 @@ export default async function ClubDetailPage({
                   className="bg-red-500 hover:bg-red-600"
                 >
                   Rời CLB
-                </Button>
-              ) : !isLoggedIn ? (
-                <Button asChild variant="outline">
-                  <Link href="/login">Đăng nhập để tham gia</Link>
                 </Button>
               ) : (
                 <>
@@ -357,7 +370,11 @@ export default async function ClubDetailPage({
             {!isLoggedIn ? (
               <LoginRequiredMessage tabName="hoạt động" />
             ) : !isJoined ? (
-              <JoinRequiredMessage tabName="hoạt động" />
+              <JoinRequiredMessage
+                tabName="hoạt động"
+                clubId={clubDetail.id}
+                clubName={clubDetail.name}
+              />
             ) : (
               <ClubEvents
                 page={page}
@@ -375,7 +392,11 @@ export default async function ClubDetailPage({
             {!isLoggedIn ? (
               <LoginRequiredMessage tabName="danh sách thành viên" />
             ) : !isJoined ? (
-              <JoinRequiredMessage tabName="danh sách thành viên" />
+              <JoinRequiredMessage
+                tabName="danh sách thành viên"
+                clubId={clubDetail.id}
+                clubName={clubDetail.name}
+              />
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Main Members List */}

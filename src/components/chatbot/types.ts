@@ -12,17 +12,7 @@ export interface ChatSession {
   lastMessageTime: string;
   lastMessage: string;
   lastRole: "user" | "assistant";
-  updatedAt: string;
-  title: string;
-}
-
-export interface SessionListResponse {
-  sessions: ChatSession[];
-  page: number;
-  size: number;
-  totalPages: number;
-  totalElements: number;
-  hasMore: boolean;
+  updatedAt: string 
 }
 
 export interface AskChatbotResponse {
@@ -32,7 +22,6 @@ export interface AskChatbotResponse {
 
 export interface SessionDetailResponse {
   sessionId: string;
-  title: string;
   messages: ChatMessage[];
   page: number;
   size: number;

@@ -16,6 +16,8 @@ import {
   X,
   Check,
   Star,
+  TrendingUp,
+  TrendingDown,
   Building2,
 } from "lucide-react";
 import { Select } from "antd";
@@ -33,6 +35,12 @@ interface Province {
 interface Ward {
   id: string;
   full_name: string;
+}
+
+interface Facility {
+  id: string;
+  name: string;
+  image?: string;
 }
 
 interface ClubFilterProps {
@@ -135,8 +143,9 @@ export default function ClubFilterForm({
       }
       setLoadingWards(true);
       try {
-        const response =
-          await addressApiRequest.getWardsByProvinceId(selectedProvince);
+        const response = await addressApiRequest.getWardsByProvinceId(
+          selectedProvince
+        );
         setWards(response.payload.data.data || []);
       } catch (error) {
         console.error("Error fetching wards:", error);
@@ -150,7 +159,7 @@ export default function ClubFilterForm({
 
   const handleLevelToggle = useCallback((level: string) => {
     setLevels((prev) =>
-      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level],
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
   }, []);
 
@@ -358,7 +367,7 @@ export default function ClubFilterForm({
                   }))}
                   optionRender={(option) => {
                     const facility = facilities.find(
-                      (f) => f.name === option.value,
+                      (f) => f.name === option.value
                     );
                     return (
                       <div className="flex items-center gap-2">
@@ -399,7 +408,7 @@ export default function ClubFilterForm({
                         key={option.key}
                         onClick={() =>
                           setSortReputation(
-                            sortReputation === option.key ? "" : option.key,
+                            sortReputation === option.key ? "" : option.key
                           )
                         }
                         className={`p-2 rounded-md border text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
