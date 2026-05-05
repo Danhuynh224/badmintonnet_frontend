@@ -1,6 +1,11 @@
 "use client";
 
-import { Plus, MessageSquareText } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  MessageSquareText,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -9,7 +14,11 @@ import { ChatSession } from "@/components/chatbot/types";
 interface SessionListProps {
   sessions: ChatSession[];
   activeSessionId: string | null;
+  currentPage: number;
+  totalPages: number;
+  loading?: boolean;
   onSelectSession: (sessionId: string) => void;
+  onPageChange: (page: number) => void;
   onCreateSession: () => void;
 }
 
@@ -28,7 +37,11 @@ function formatSessionTime(value: string) {
 export function SessionList({
   sessions,
   activeSessionId,
+  currentPage,
+  totalPages,
+  loading = false,
   onSelectSession,
+  onPageChange,
   onCreateSession,
 }: SessionListProps) {
   return (
@@ -48,8 +61,10 @@ export function SessionList({
         <div className="space-y-1">
           {sessions.map((session) => {
             const isActive = session.sessionId === activeSessionId;
-            const safeMessage = (
-              session.lastMessage || "Cuoc tro chuyen"
+            const safeTitle = (
+              session.title ||
+              session.lastMessage ||
+              "Cuoc tro chuyen"
             ).trim();
             return (
               <button
@@ -66,7 +81,7 @@ export function SessionList({
                 <div className="mb-1 flex items-center gap-2">
                   <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
                   <p className="line-clamp-1 text-xs font-semibold text-foreground">
-                    {safeMessage.slice(0, 48)}
+                    {safeTitle.slice(0, 48)}
                   </p>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
@@ -78,6 +93,38 @@ export function SessionList({
           })}
         </div>
       </ScrollArea>
+
+      {totalPages > 1 && (
+        <div className="border-t px-3 py-2">
+          <div className="flex items-center justify-between gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={loading || currentPage === 0}
+              className="h-8 px-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            <p className="text-xs text-muted-foreground">
+              Trang {currentPage + 1}/{totalPages}
+            </p>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={loading || currentPage >= totalPages - 1}
+              className="h-8 px-2"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

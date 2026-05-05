@@ -140,6 +140,10 @@ function formatMessageTime(value: string) {
   }).format(date);
 }
 
+function normalizeMarkdownContent(content: string) {
+  return content.replace(/<br\s*\/?>/gi, "\n");
+}
+
 export function ChatWindow({
   sessionTitle,
   messages,
@@ -230,7 +234,7 @@ export function ChatWindow({
                         remarkPlugins={[remarkGfm]}
                         components={markdownComponents}
                       >
-                        {message.content}
+                        {normalizeMarkdownContent(message.content)}
                       </ReactMarkdown>
                     </div>
                   )}
